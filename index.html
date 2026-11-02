@@ -1,0 +1,348 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><style>body{margin:0}</style></head><body>
+<title>臺史博導覽試用任務</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+<style>
+/* 版面：單欄任務卡，一次一步；上方進度軌跡，底部固定操作列。臺史博前臺 token（墨青／米白／金只做圖形） */
+:root{
+  --paper:#F7F4F0; --surface:#FFFFFF; --ink:#2F2E2C; --muted:#67645E; --line:#E4DED5;
+  --teal:#2E5C6E; --teal-soft:#E4EDF0; --btn:#2E5C6E; --btn-fg:#FFFFFF;
+  --gold:#C9A961; --warn:#8D0E0E; --ok:#2F6B4A; --ok-soft:#E6F0EA;
+  --f-display:"Noto Serif TC","Songti TC",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121819; --surface:#1A2224; --ink:#ECE8E1; --muted:#A8A39A; --line:#2D383B;
+  --teal:#8DBDCC; --teal-soft:#1D3036; --btn:#8DBDCC; --btn-fg:#0E1A1E;
+  --gold:#C9A961; --warn:#E59A9A; --ok:#8FCBA6; --ok-soft:#1B2E24; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121819; --surface:#1A2224; --ink:#ECE8E1; --muted:#A8A39A; --line:#2D383B;
+  --teal:#8DBDCC; --teal-soft:#1D3036; --btn:#8DBDCC; --btn-fg:#0E1A1E;
+  --gold:#C9A961; --warn:#E59A9A; --ok:#8FCBA6; --ok-soft:#1B2E24; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;letter-spacing:.02em}
+.wrap{max-width:640px;margin:0 auto;padding-block:20px 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:500}
+.seal{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--gold);display:grid;place-items:center;font-family:var(--f-display);font-size:13px;color:var(--teal)}
+.track{display:flex;gap:4px;margin:14px 0 26px}
+.track i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.track i.on{background:var(--gold)}
+.track i.cur{background:var(--teal)}
+h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.35;letter-spacing:.04em}
+h1{font-size:clamp(28px,6vw,36px)}
+h2{font-size:24px}
+.eyebrow{font-size:13px;letter-spacing:.12em;color:var(--teal);font-weight:500;margin-bottom:6px}
+.lead{color:var(--muted);margin:12px 0 0}
+.stack{display:flex;flex-direction:column;gap:18px}
+.card{background:var(--surface);border-radius:var(--r);padding:20px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(46,92,110,.06)}
+.scenario{border-left:3px solid var(--gold);padding:4px 0 4px 16px;font-size:19px;line-height:1.75}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.facts div{background:var(--surface);border-radius:12px;padding:12px}
+.facts b{display:block;font-family:var(--f-display);font-size:22px;color:var(--teal)}
+.facts span{font-size:13px;color:var(--muted)}
+ol.rules{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:8px}
+label.q{display:block;font-weight:500;margin-bottom:8px}
+.hint{font-size:13px;color:var(--muted);font-weight:400}
+input[type=text],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+textarea{min-height:92px;resize:vertical}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.choices{display:flex;flex-wrap:wrap;gap:8px}
+.choices button{font:inherit;font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 16px;cursor:pointer}
+.choices button[aria-checked="true"]{background:var(--teal-soft);border-color:var(--teal);color:var(--teal);font-weight:500}
+.choices button[aria-checked="true"]::before{content:"✓ "}
+.scale{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.scale button{font:inherit;font-variant-numeric:tabular-nums;font-size:17px;height:46px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.scale button[aria-checked="true"]{background:var(--btn);color:var(--btn-fg);border-color:var(--btn);font-weight:700}
+.scale-ends{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:500;border-radius:999px;padding:12px 22px;border:1px solid var(--btn);background:var(--btn);color:var(--btn-fg);cursor:pointer;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--teal);border-color:var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.open{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.open .meta{font-size:13px;color:var(--muted)}
+.qr{display:flex;gap:16px;align-items:center;margin-top:14px}
+.qr .box{background:#fff;padding:8px;border-radius:8px;line-height:0}
+.narrow-only{display:none}
+@media (max-width:700px){.wide-only{display:none!important}.narrow-only{display:block}}
+.ver{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--teal);background:var(--teal-soft);border-radius:999px;padding:3px 12px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));z-index:5}
+.bar .in{max-width:640px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.bar .need{font-size:13px;color:var(--muted)}
+.notice{background:var(--ok-soft);color:var(--ok);border-radius:12px;padding:14px 16px}
+pre.copy{white-space:pre-wrap;word-break:break-all;font-size:12px;max-height:220px;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;margin:0}
+.demo{display:flex;gap:10px;align-items:stretch}
+.demo div{flex:1;border:1px dashed var(--line);border-radius:10px;padding:10px;font-size:13px;color:var(--muted);text-align:center}
+.demo b{display:block;color:var(--ink);font-size:14px}
+/* 研究者結果頁 */
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:13px}
+.meter{display:inline-block;width:56px;height:6px;border-radius:3px;background:var(--line);vertical-align:middle;margin-right:6px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--gold)}
+.quote{border-left:2px solid var(--line);padding-left:12px;margin:8px 0;font-size:14px}
+.quote small{color:var(--muted)}
+@media (max-width:420px){.facts{gap:8px}.facts div{padding:10px}.facts b{font-size:18px}.scale button{height:42px;font-size:15px}}
+@media (prefers-reduced-motion:no-preference){.view{animation:in .25s ease-out}@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}}
+</style>
+
+<div class="wrap">
+  <div class="top"><div class="brand"><span class="seal">史</span>臺史博 Web 導覽系統・試用任務</div><span id="stepno"></span></div>
+  <div class="track" id="track" aria-hidden="true"></div>
+  <main id="app" aria-live="polite"></main>
+</div>
+<div class="bar" id="bar"><div class="in"><button class="btn ghost" id="back" type="button">上一步</button><span class="need" id="need"></span><button class="btn" id="next" type="button">下一步</button></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* ===== 研究者設定（要換原型網址或聯絡方式改這裡） ===== */
+const PROTO = {
+  A: 'https://btnart.github.io/nmth-usability-test/a/',
+  B: 'https://btnart.github.io/nmth-usability-test/b/?mode=nmth'
+};
+const CONTACT = '負責這次測試的 ARTOGO 設計師';
+/* 免登入回收：直接 POST 到 Google 表單（formResponse），沒有網址長度限制；空白就只給「複製結果」 */
+const GFORM = { url: 'https://docs.google.com/forms/d/e/1FAIpQLSfwg6pTdo0n0a5zUrBVP7EX7ufhEs5_1p8LIxEKN1fjnr5jSg/formResponse', entry: '1585661271' };
+/* 同一份題目，A、B 兩版文字完全相同；expect 只給研究者結果頁核對用 */
+const TASKS = [
+  {id:'t1', title:'一眼看懂', scenario:'你剛從 8 號門走進一樓大廳，在立牌上掃了 QR Code。打開後，先看到首頁就停下來（可以往下滑，但不要點進任何展覽）。只看首頁，你覺得這裡提供哪些導覽？', ask:'寫下常設展「斯土斯民」提供哪種導覽，以及特展提供哪些語言', ph:'例如：常設展有○○，特展有○○、○○', expect:'看範疇是否一眼可辨（本期：常設展只有手語、特展多語語音）。A：首頁展覽卡寫「斯土斯民・台灣手語」、特展「中／英」／B：先經過落地頁，首頁展覽卡寫斯土斯民「中文・台語・客語・手語」（與本期範疇不一致）'},
+  {id:'t2', title:'特展外語', scenario:'你陪一位外國朋友參觀 4 樓的媽祖特展，展品旁的說明牌寫著編號 412。請用這個編號找到這件展品的導覽，並換成中文以外的語言播放。', ask:'寫下這件展品的名稱，以及你換成哪種語言', ph:'例如：某某展品，英文', expect:'A：搜尋分頁輸入 412 → 單元二｜海上福星，語言可選 English／B：首頁「掃碼或輸入編號」用數字鍵輸入 412，語言在播放器「導覽內容」分頁換台語、客語。兩版特展語言都還不是本期規劃的四語'},
+  {id:'t3', title:'手語影片', scenario:'你陪一位聽障朋友在 2 樓常設展「斯土斯民」參觀，他想看手語導覽影片。請找到任何一則手語影片並播放。', ask:'寫下這則手語影片是哪件展品或哪個展區，以及畫面上有沒有中文字幕', ph:'例如：某某展區，有字幕', expect:'看手語入口是否醒目、兩層內能到。A：沒有獨立手語入口，要開始斯土斯民導覽，按下一則到展品才是手語影片／B：主選單 → 無障礙服務 → 手語導覽，有影片清單與地圖選取；或在播放器語言鈕切換'},
+  {id:'t4', title:'特展在哪、怎麼離開', scenario:'你想去看媽祖特展，也想先知道看完之後要從哪裡離開博物館。', ask:'寫下特展在幾樓、哪個展廳，以及離館的出口在哪裡', ph:'例如：3 樓第二展廳；出口在 1 樓左邊', expect:'正確：4F 第一特展室。A：首頁展覽卡或地圖 → 展示教育大樓 → 4F 標出展廳；出口在 1F 平面圖西側（沒有寫門號）／B：展覽頁「地圖」標出展廳與電梯出口提示；主選單「離館與交通」寫「出口在 6 號門」'},
+  {id:'t5', title:'廁所與劇場場次', scenario:'參觀到一半，你想找最近的廁所，也想知道今天「時光車站」火車劇場還有沒有場次、要怎麼參加。', ask:'寫下廁所在哪裡，以及火車劇場今天的場次狀況和參加方式', ph:'例如：2 樓電梯旁；下一場 15:00，現場排隊', expect:'看能否 2 次點擊內查到。A：首頁本日活動「時光車站－火車劇場・各場次現場排隊」，廁所在地圖或搜尋的設施捷徑／B：首頁本日活動「時光車站・1F 兒童廳・每 30 分鐘一班」，廁所在地圖的設施按鈕。場次會依測試當下時間顯示'},
+  {id:'t6', title:'下一件在哪', scenario:'請開始媽祖特展的導覽。聽完第一件展品後，你想知道下一件要看的展品在展廳的哪裡。', ask:'寫下下一件展品的名稱，和它大概在哪個位置', ph:'例如：某某展品，在入口右手邊', expect:'兩版核心差異（地圖為主／內容為主）。A：先選停留時間再開始，導覽中地圖直接標「下一站」／B：按開始導覽直接播，地圖要按播放卡的地圖鈕，只標目前這件'}
+];
+const STATUS = [['done','我完成了'],['unsure','做完了，但不確定對不對'],['gaveup','找不到，放棄這題']];
+const AGE = ['18–24','25–34','35–44','45–54','55–64','65 以上'];
+const ROLE = ['展示／策展','教育推廣／導覽解說','服務台／觀眾服務','研究典藏','行政／其他','不是館內人員'];
+const GUIDE = ['很熟，常協助觀眾使用','知道，但不常接觸','不太清楚'];
+const DEVICE = ['手機','平板','電腦'];
+const VNAME = ['版本一','版本二'];
+const KEY = 'nmth-ut-v1';
+
+/* ===== 分組：網址 #ab #ba 兩版都測（順序不同）；#a #b 只測一版；沒帶就隨機 ab／ba ===== */
+const tag = (location.hash||'').slice(1).toLowerCase();
+let S = load() || fresh();
+function fresh(){
+  const order = tag==='ab'?['A','B']:tag==='ba'?['B','A']:tag==='a'?['A']:tag==='b'?['B']:(Math.random()<.5?['A','B']:['B','A']);
+  return {sid:Math.random().toString(36).slice(2,8).toUpperCase(), order, step:0, profile:{}, tasks:{}, umux:{}, compare:{}, startedAt:new Date().toISOString(), submitted:false};
+}
+function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s&&s.order&&(!['ab','ba','a','b'].includes(tag)||s.order.join('').toLowerCase()===tag)) return s; }catch(e){} return null; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+function steps(){
+  const st=['intro','profile','howto'];
+  S.order.forEach((v,vi)=>{ st.push('ver:'+vi); TASKS.forEach((t,ti)=>st.push('task:'+vi+':'+ti)); st.push('umux:'+vi); });
+  if(S.order.length>1) st.push('compare');
+  st.push('done');
+  return st;
+}
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const tkey=(vi,ti)=>S.order[vi]+'_'+TASKS[ti].id;
+
+function choices(name,opts,val){
+  return `<div class="choices" role="radiogroup">${opts.map(o=>{const [k,l]=Array.isArray(o)?o:[o,o];return `<button type="button" role="radio" aria-checked="${val===k}" data-set="${name}" data-val="${esc(k)}">${esc(l)}</button>`}).join('')}</div>`;
+}
+function scale(name,val,lo,hi){
+  return `<div class="scale" role="radiogroup">${[1,2,3,4,5,6,7].map(n=>`<button type="button" role="radio" aria-label="${n} 分" aria-checked="${val===n}" data-set="${name}" data-val="${n}" data-num="1">${n}</button>`).join('')}</div><div class="scale-ends"><span>1 ${lo}</span><span>${hi} 7</span></div>`;
+}
+/* 寫入 S 的路徑：profile.age / task.A_t1.seq / umux.A.q1 / compare.pick */
+function setVal(path,v){
+  const p=path.split('.'); let o=S;
+  if(p[0]==='task'){ o=S.tasks[p[1]]=S.tasks[p[1]]||{}; o[p[2]]=v; }
+  else if(p[0]==='umux'){ o=S.umux[p[1]]=S.umux[p[1]]||{}; o[p[2]]=v; }
+  else S[p[0]][p[1]]=v;
+  save();
+}
+function getVal(path){
+  const p=path.split('.');
+  if(p[0]==='task') return (S.tasks[p[1]]||{})[p[2]];
+  if(p[0]==='umux') return (S.umux[p[1]]||{})[p[2]];
+  return S[p[0]][p[1]];
+}
+
+function render(scroll){
+  const st=steps(); const cur=st[S.step]; const [kind,a,b]=cur.split(':');
+  $('#track').innerHTML=st.map((_,i)=>`<i class="${i<S.step?'on':i===S.step?'cur':''}"></i>`).join('');
+  $('#stepno').textContent=`${S.step+1} / ${st.length}`;
+  const app=$('#app'); let h='';
+  if(kind==='intro'){
+    h=`<div class="stack view"><div><div class="eyebrow">國立臺灣歷史博物館・Web 導覽系統原型</div><h1>幫我們試試看，新的 Web 導覽系統好不好用</h1>
+    <p class="lead">我們做了${S.order.length>1?'兩個版本':'一個版本'}的 Web 導覽系統，想知道參觀的人用起來順不順。接下來你會拿到幾個小任務，照著做，做完告訴我們感覺。</p></div>
+    <div class="facts"><div><b>${S.order.length*TASKS.length}</b><span>個小任務</span></div><div><b>約 ${S.order.length>1?25:15} 分</b><span>全部做完</span></div><div><b>輕鬆就好</b><span>照平常習慣用，沒有標準答案</span></div></div>
+    <div class="card"><ol class="rules"><li>沒有人在旁邊，遇到卡住的地方<strong>不用問人</strong>，照你自己的直覺做就好。卡住正是我們想知道的。</li><li>找不到就選「放棄這題」，不用硬猜。</li><li>原型裡的活動時間、展品內容是示意資料，聲音不一定會真的播放。</li><li>中途關掉也沒關係，用同一個瀏覽器再打開會接著做。</li></ol></div></div>`;
+  }
+  if(kind==='profile'){
+    const P=S.profile;
+    h=`<div class="stack view"><div><div class="eyebrow">開始前</div><h2>先認識你一下</h2><p class="lead">只用來分析，不會公開。</p></div>
+    <div><label class="q" for="nick">怎麼稱呼你？<span class="hint">（選填，代號也可以）</span></label><input type="text" id="nick" data-in="profile.nick" value="${esc(P.nick)}" autocomplete="off"></div>
+    <div><div class="q">年齡</div>${choices('profile.age',AGE,P.age)}</div>
+    <div><div class="q">你在館內主要負責哪一塊？</div>${choices('profile.role',ROLE,P.role)}</div>
+    <div><div class="q">你對館內現有的導覽服務熟悉嗎？</div>${choices('profile.guide',GUIDE,P.guide)}</div>
+    </div>`;
+  }
+  if(kind==='howto'){
+    h=`<div class="stack view"><div><div class="eyebrow">怎麼進行</div><h2>電腦看題目，手機操作導覽</h2></div>
+    <div class="card stack"><p style="margin:0">請準備<strong>一台電腦和一支手機</strong>：這個表單開在電腦上，Web 導覽系統開在手機上，兩邊不用切來切去。</p>
+    <div class="demo"><div><b>① 讀情境</b>在電腦上</div><div><b>② 掃 QR Code</b>用手機操作導覽</div><div><b>③ 填答</b>回到電腦</div></div>
+    <p style="margin:0" class="hint">每一題都有一個 QR Code，用手機相機對準就會打開導覽。</p>
+    <p style="margin:0" class="hint narrow-only">你現在用手機開這個表單？最好改用電腦打開；真的只有手機的話，每題按「打開導覽」，做完再切回這個分頁。</p></div>
+    <div class="card"><p style="margin:0"><strong>每一題都從頭開始。</strong>每次打開導覽都會回到最開始的畫面，看到一樣的開場是正常的，照情境往下做就好。</p></div></div>`;
+  }
+  if(kind==='ver'){
+    const vi=+a;
+    h=`<div class="stack view"><div><span class="ver">${VNAME[vi]}${S.order.length>1?` / 共 2 個`:''}</span></div>
+    <h2>${vi===0?'開始試用第一個版本':'換第二個版本'}</h2>
+    <p class="lead">${vi===0?`接下來 ${TASKS.length} 題都用同一個版本。`:`接下來的 ${TASKS.length} 題和剛才一樣，但換成另一個版本。請把它當成第一次用，照你的直覺操作。`}</p>
+    ${vi===1?'<div class="card"><p style="margin:0">這兩個版本是兩種不同的設計方向，館方會參考大家的使用感受，從中選出一個。所以題目刻意保持一樣，方便直接比較。</p></div>':''}</div>`;
+  }
+  if(kind==='task'){
+    const vi=+a, ti=+b, t=TASKS[ti], k=tkey(vi,ti), T=S.tasks[k]||{}, url=PROTO[S.order[vi]];
+    h=`<div class="stack view"><div><span class="ver">${VNAME[vi]}・第 ${ti+1} 題 / ${TASKS.length}</span></div>
+    <div><div class="eyebrow">${esc(t.title)}</div><p class="scenario">${esc(t.scenario)}</p></div>
+    <div class="card"><div class="qr wide-only" style="margin-top:0"><div class="box" id="qr"></div><div><strong>用手機掃這個 QR Code</strong><br><span class="hint">打開${VNAME[vi]}的導覽，在手機上完成任務，再回到這裡填答。每次掃都會從頭開始。</span><br><a class="hint" href="${url}" target="_blank" rel="noopener" id="openp">手機掃不到？在這台電腦打開 ↗</a></div></div>
+    <div class="open narrow-only"><a class="btn" href="${url}" target="_blank" rel="noopener" id="openp2">打開導覽 ↗</a> <span class="meta">開在新分頁，做完切回來</span></div></div>
+    <div><div class="q">做得怎麼樣？</div>${choices('task.'+k+'.status',STATUS,T.status)}</div>
+    ${T.status==='gaveup'?'':`<div><label class="q" for="ans">${esc(t.ask)}</label><input type="text" id="ans" data-in="task.${k}.answer" value="${esc(T.answer)}" placeholder="${esc(t.ph)}" autocomplete="off"></div>`}
+    <div><div class="q">整體來說，這題做起來有多難或多容易？</div>${scale('task.'+k+'.seq',T.seq,'非常難','非常容易')}</div>
+    <div><label class="q" for="fb">哪裡讓你卡住、猶豫，或覺得很順？<span class="hint">（選填，想到什麼寫什麼）</span></label><textarea id="fb" data-in="task.${k}.note" placeholder="例如：我一開始以為要按○○，結果…">${esc(T.note)}</textarea></div></div>`;
+  }
+  if(kind==='umux'){
+    const vi=+a, v=S.order[vi], U=S.umux[v]||{};
+    h=`<div class="stack view"><div><span class="ver">${VNAME[vi]}・整體感覺</span></div><h2>${VNAME[vi]}用起來怎麼樣？</h2>
+    <div><div class="q">這個版本能滿足我參觀時的需要</div>${scale('umux.'+v+'.q1',U.q1,'非常不同意','非常同意')}</div>
+    <div><div class="q">這個版本很容易使用</div>${scale('umux.'+v+'.q2',U.q2,'非常不同意','非常同意')}</div>
+    <div><label class="q" for="un">最喜歡、或最想改的地方？<span class="hint">（選填）</span></label><textarea id="un" data-in="umux.${v}.note">${esc(U.note)}</textarea></div></div>`;
+  }
+  if(kind==='compare'){
+    const C=S.compare;
+    h=`<div class="stack view"><div class="eyebrow">最後一題</div><h2>兩個版本比一比</h2>
+    <div><div class="q">如果真的去臺史博，你會想用哪一個？</div>${choices('compare.pick',[['v1','版本一'],['v2','版本二'],['same','差不多']],C.pick)}</div>
+    <div><label class="q" for="why">為什麼？</label><textarea id="why" data-in="compare.why" placeholder="例如：版本一比較快找到…">${esc(C.why)}</textarea></div></div>`;
+  }
+  if(kind==='done'){
+    h=`<div class="stack view"><div class="eyebrow">完成</div><h2>謝謝你，全部做完了</h2><div id="sendbox" class="card"><p style="margin:0">正在送出…</p></div></div>`;
+  }
+  app.innerHTML=h;
+  if(kind==='task'){ const k=tkey(+a,+b); S.tasks[k]=S.tasks[k]||{}; if(!S.tasks[k].shownAt){ S.tasks[k].shownAt=Date.now(); save(); } const el=$('#qr'); if(el&&window.QRCode){ try{ new QRCode(el,{text:PROTO[S.order[+a]],width:160,height:160,colorDark:'#1E3C48',colorLight:'#ffffff'}); }catch(e){} } }
+  if(kind==='done') submit();
+  bar(kind,a,b);
+  if(scroll) window.scrollTo(0,0);
+}
+
+function missing(kind,a,b){
+  if(kind==='profile') return S.profile.age?'':'請選年齡';
+  if(kind==='task'){ const T=S.tasks[tkey(+a,+b)]||{}; if(!T.status) return '請選做得怎麼樣'; if(!T.seq) return '請給難易分數'; return ''; }
+  if(kind==='umux'){ const U=S.umux[S.order[+a]]||{}; return U.q1&&U.q2?'':'請回答兩題分數'; }
+  if(kind==='compare') return S.compare.pick?'':'請選一個';
+  return '';
+}
+function bar(kind,a,b){
+  const st=steps(); const m=missing(kind,a,b);
+  $('#bar').hidden = kind==='done';
+  $('#back').style.visibility = S.step===0?'hidden':'visible';
+  $('#need').textContent=m;
+  $('#next').disabled=!!m;
+  $('#next').textContent = kind==='intro'?'開始':st[S.step+1]==='done'?'送出':'下一步';
+}
+
+document.addEventListener('click',e=>{
+  const c=e.target.closest('[data-set]');
+  if(c){ setVal(c.dataset.set, c.dataset.num?+c.dataset.val:c.dataset.val); render(); return; }
+  if(e.target.closest('#openp,#openp2')){ const [,a,b]=steps()[S.step].split(':'); const k=tkey(+a,+b); S.tasks[k]=S.tasks[k]||{}; S.tasks[k].opens=(S.tasks[k].opens||0)+1; if(!S.tasks[k].openedAt) S.tasks[k].openedAt=Date.now(); save(); }
+});
+document.addEventListener('input',e=>{ const p=e.target.dataset.in; if(p){ setVal(p,e.target.value); const [k,a,b]=steps()[S.step].split(':'); bar(k,a,b);} });
+$('#next').addEventListener('click',()=>{
+  const st=steps(); const [kind,a,b]=st[S.step].split(':');
+  if(kind==='task'){ const T=S.tasks[tkey(+a,+b)]; if(T&&!T.doneAt){ T.doneAt=Date.now(); const t0=T.openedAt||T.shownAt; T.secs=t0?Math.round((T.doneAt-t0)/1000):null; } }
+  S.step=Math.min(S.step+1,st.length-1); save(); render(true);
+});
+$('#back').addEventListener('click',()=>{ S.step=Math.max(0,S.step-1); save(); render(true); });
+
+/* ===== 送出：能寫進共享資料就寫；不能（例如沒登入）就給一段文字讓受測者傳回 ===== */
+function payload(){
+  const tasks={}; Object.entries(S.tasks).forEach(([k,x])=>{ const {openedAt,doneAt,shownAt,...rest}=x; tasks[k]=rest; });
+  return {sid:S.sid, order:S.order.join(''), profile:S.profile, tasks, umux:S.umux, compare:S.compare, startedAt:S.startedAt, finishedAt:new Date().toISOString(), ua:navigator.userAgent.slice(0,120)};
+}
+async function submit(){
+  const box=$('#sendbox'); const data=payload(); let ok=false;
+  try{
+    const db=await claude.use('db'), user=await claude.use('user');
+    const id=user&&await user.id();
+    if(db&&id){ await db.doc('responses/'+id).set(data); ok=true; }
+  }catch(e){ ok=false; }
+  S.submitted=ok; save();
+  if(ok){ box.innerHTML=`<div class="notice">已經送出，可以關掉這個頁面了。</div><p class="hint" style="margin:12px 0 0">受測編號 ${S.sid}</p>`; return; }
+  const text='臺史博導覽試用結果\n'+JSON.stringify(data);
+  const gf=!!(GFORM.url&&GFORM.entry);
+  const copyBlock=`<button class="btn${gf?' ghost':''}" type="button" id="cp">複製結果</button> <span class="hint" id="cpm"></span><pre class="copy" id="raw" style="margin-top:12px">${esc(text)}</pre>`;
+  box.innerHTML = gf
+    ? `<p style="margin:0 0 12px"><strong>還差最後一步：</strong>按下面的按鈕送出。會打開一個新分頁，看到「已收到您回覆的表單」就完成了。</p>
+      <form method="post" action="${esc(GFORM.url)}" target="_blank"><input type="hidden" name="entry.${esc(GFORM.entry)}" value="${esc(JSON.stringify(data))}"><button class="btn" type="submit">送出結果 ↗</button></form>
+      <details style="margin-top:16px"><summary class="hint" style="cursor:pointer">按了沒反應？改用複製的方式</summary><p class="hint">複製下面的結果，貼給${esc(CONTACT)}（LINE 或 Email 都可以）。</p>${copyBlock}</details>`
+    : `<p style="margin:0 0 12px"><strong>還差最後一步：</strong>請按下面的按鈕複製結果，貼給${esc(CONTACT)}（LINE 或 Email 都可以）。</p>${copyBlock}`;
+  $('#cp').onclick=async()=>{ try{ await navigator.clipboard.writeText(text); $('#cpm').textContent='已複製'; }catch(e){ const r=document.createRange(); r.selectNodeContents($('#raw')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $('#cpm').textContent='已選取，請按複製'; } };
+}
+
+/* ===== 研究者結果頁：網址加 #results，只有擁有者看得到全部回覆 ===== */
+async function results(){
+  $('#bar').hidden=true; $('#track').hidden=true; $('#stepno').textContent='結果';
+  const app=$('#app'); app.innerHTML='<p>讀取中…</p>';
+  let rows=[], db;
+  try{
+    const user=await claude.use('user'); const owner=user&&await user.isOwner();
+    db=await claude.use('db');
+    if(!db||!owner){ app.innerHTML='<div class="card">結果只有測試負責人看得到。</div>'; return; }
+    const [a,b]=await Promise.all([db.collection('responses').get(), db.collection('imported').get()]);
+    const seen=new Set(); [...a.docs,...b.docs].map(d=>d.data()).forEach(r=>{ if(r&&r.sid&&!seen.has(r.sid)){ seen.add(r.sid); rows.push(r); } });
+  }catch(e){ app.innerHTML='<div class="card">讀不到結果，稍後再試。</div>'; return; }
+  /* 匯入：Google 試算表那一欄、或受測者傳回的「複製結果」，整段貼上；每筆用 sid 去重 */
+  const importCard=`<div class="card stack"><h3 style="margin:0;font-size:16px">匯入回覆</h3><p class="hint" style="margin:0">打開 Google 表單的回覆試算表，選取「試用結果」整欄複製貼上；受測者用 LINE／Email 傳回的「複製結果」也貼這裡。重複的會自動略過。</p>
+    <textarea id="imp" placeholder="貼上這裡"></textarea><div><button class="btn" type="button" id="impbtn">匯入</button> <span class="hint" id="impm"></span></div></div>`;
+  const bindImport=()=>{ $('#impbtn').onclick=async()=>{
+    const src=$('#imp').value; const found=[];
+    /* 一行一筆；從試算表複製的儲存格會被包成 "{""sid"":…}"，要先還原雙引號 */
+    src.split('\n').forEach(line=>{ const s=line.indexOf('{'), e=line.lastIndexOf('}'); if(s<0||e<s) return;
+      const raw=line.slice(s,e+1), quoted=line.trim().startsWith('"');
+      for(const t of quoted?[raw.replace(/""/g,'"'),raw]:[raw]){ try{ const r=JSON.parse(t); if(r&&r.sid&&r.tasks){ found.push(r); break; } }catch(_){} } });
+    const have=new Set(rows.map(r=>r.sid)); const add=found.filter(r=>!have.has(r.sid)&&(have.add(r.sid),true));
+    if(!found.length){ $('#impm').textContent='沒有讀到結果，確認貼的是整段文字'; return; }
+    try{ for(const r of add) await db.doc('imported/'+r.sid).set(r); $('#impm').textContent=`讀到 ${found.length} 筆，新增 ${add.length} 筆`; if(add.length) setTimeout(results,600); }
+    catch(e){ $('#impm').textContent='存不進去，稍後再試'; }
+  }; };
+  if(!rows.length){ app.innerHTML=`<div class="stack"><h2>還沒有人送出</h2><p class="lead">受測者送出後，回覆會進 Google 表單的試算表，複製過來貼在下面就會出現在這裡。</p>${importCard}</div>`; bindImport(); return; }
+  const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length):null;
+  const med=a=>{ if(!a.length) return null; const s=[...a].sort((x,y)=>x-y); const m=s.length>>1; return s.length%2?s[m]:(s[m-1]+s[m])/2; };
+  const f1=v=>v==null?'—':v.toFixed(1);
+  const stat=(v,first)=>TASKS.map(t=>{ const rs=rows.filter(r=>!first||r.order[0]===v).map(r=>(r.tasks||{})[v+'_'+t.id]).filter(Boolean);
+    return {t, n:rs.length, done:rs.filter(x=>x.status==='done').length, seq:avg(rs.map(x=>x.seq).filter(Boolean)), secs:med(rs.map(x=>x.secs).filter(x=>x!=null))}; });
+  const umux=v=>{ const us=rows.map(r=>(r.umux||{})[v]).filter(u=>u&&u.q1&&u.q2); return {n:us.length, score:avg(us.map(u=>((u.q1-1)+(u.q2-1))/12*100))}; };
+  const pick=k=>rows.filter(r=>r.compare&&r.compare.pick&&({v1:r.order[0],v2:r.order[1],same:'same'}[r.compare.pick])===k).length;
+  const table=(first)=>`<div class="tbl"><table><thead><tr><th>任務</th><th>A 完成</th><th>A 難易</th><th>A 秒數</th><th>B 完成</th><th>B 難易</th><th>B 秒數</th></tr></thead><tbody>${
+    TASKS.map((t,i)=>{ const A=stat('A',first)[i], B=stat('B',first)[i]; const cell=x=>`<td><span class="meter"><i style="width:${x.n?x.done/x.n*100:0}%"></i></span>${x.done}/${x.n}</td><td>${f1(x.seq)}</td><td>${x.secs??'—'}</td>`;
+      return `<tr><td>${i+1}. ${esc(t.title)}<br><span class="hint">${esc(t.expect)}</span></td>${cell(A)}${cell(B)}</tr>`; }).join('')}</tbody></table></div>`;
+  const uA=umux('A'), uB=umux('B');
+  const notes=rows.flatMap(r=>Object.entries(r.tasks||{}).filter(([,x])=>x.note).map(([k,x])=>({k,x,r})));
+  app.innerHTML=`<div class="stack"><div><div class="eyebrow">研究者檢視</div><h2>試用結果・${rows.length} 人</h2><p class="lead">完成＝受測者自選「我完成了」；難易＝SEQ 1–7 平均；秒數＝打開導覽到按下一步的中位數。請對照灰字的正確答案再判讀。</p></div>
+  <div class="facts"><div><b>${f1(uA.score)}</b><span>A 版 UMUX-Lite（${uA.n} 人）</span></div><div><b>${f1(uB.score)}</b><span>B 版 UMUX-Lite（${uB.n} 人）</span></div><div><b>${pick('A')} : ${pick('B')}</b><span>偏好 A : B（差不多 ${pick('same')}）</span></div></div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">全部資料</h3>${table(false)}</div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">只看先測的那一版</h3><p class="hint" style="margin:0 0 8px">排除「第二次做」的熟悉效應，開場流程的比較以這張為準。</p>${table(true)}</div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">回饋文字</h3>${notes.map(({k,x,r})=>`<div class="quote">${esc(x.note)}<br><small>${k.replace('_','・')}・${esc(x.answer||'')}・${STATUS.find(s=>s[0]===x.status)?.[1]||''}・${esc(r.profile?.nick||r.sid)}</small></div>`).join('')||'<p class="hint">還沒有</p>'}</div>
+  <div><button class="btn ghost" id="csv" type="button">複製 CSV</button> <span class="hint" id="csvm"></span></div>${importCard}</div>`;
+  bindImport();
+  $('#csv').onclick=async()=>{
+    const head=['sid','order','nick','age','role','guide','device','version','task','status','answer','seq','secs','opens','note'];
+    const lines=[head.join(',')];
+    rows.forEach(r=>Object.entries(r.tasks||{}).forEach(([k,x])=>{ const [v,t]=k.split('_'); const p=r.profile||{};
+      lines.push([r.sid,r.order,p.nick,p.age,p.role,p.guide,p.device,v,t,x.status,x.answer,x.seq,x.secs,x.opens,x.note].map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')); }));
+    try{ await navigator.clipboard.writeText(lines.join('\n')); $('#csvm').textContent='已複製，可貼進試算表'; }catch(e){ $('#csvm').textContent='瀏覽器不允許複製'; }
+  };
+}
+
+if(tag==='results') results(); else render();
+</script>
+
+</body></html>
