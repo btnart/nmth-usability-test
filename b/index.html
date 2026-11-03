@@ -1,7 +1,7 @@
 <!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><style>body{margin:0}</style></head><body>
 <title>臺史博導覽原型 B 版</title>
-<script>/* 發布版：網址只能帶 #標記，#nmth＝標規版 */
-var __QS=location.search||(location.hash==='#nmth'?'?mode=nmth':'');
+<script>/* 發布版：網址只能帶 #標記，#nmth＝標規版；#nmth&go=pt:412 這類參數照 ?query 讀 */
+var __QS=location.search||('?'+location.hash.slice(1).replace(/^nmth(&|$)/,'mode=nmth$1'));
 window.addEventListener('hashchange',()=>location.reload());</script>
 
 
@@ -2146,8 +2146,7 @@ function preloadHome(){
   list.forEach(f=>{ const im=new Image(); im.onload=im.onerror=()=>{ n++; S.loadPct=Math.round(n/list.length*100); upd(); }; im.src=A(f); });
   setTimeout(()=>{ if(S.loadPct<100){ S.slowNet=true; upd(); } },5000);
 }
-function setLang(k){ S.lang=k; S.sheet=null; if(S.screen==='landing'){ S.screen='home'; S.hist=[]; render(true,'fade'); } else render(true);
-  if(k==='en') setTimeout(()=>{ if(S.lang==='en'&&S.screen==='home') showMT(); },300); }
+function setLang(k){ S.lang=k; S.sheet=null; if(S.screen==='landing'){ S.screen='home'; S.hist=[]; render(true,'fade'); } else render(true); }
 function showMT(){ const el=document.createElement('div'); el.className='mtnote'; el.setAttribute('role','status');
   el.innerHTML=`<span style="font-size:13px;color:#8a6d00" aria-hidden="true">⚙</span><p>This section is machine-translated.　<span lang="zh-TW">本區內容為機器翻譯，導覽核心內容均為人工翻譯。</span></p>`;
   document.getElementById('app').appendChild(el); setTimeout(()=>el.remove(),4000); }
@@ -2258,12 +2257,12 @@ setInterval(()=>{ const p=S.player; if(S.screen!=='player'||!p||S.sheet||(S.pTab
 S.detect=detectLang();
 S.lang=S.detect;
 try{ S.signPref = localStorage.getItem('nmth.signPref')==='1'; }catch(e){ S.signPref=false; }
-if(!new URLSearchParams(__QS).has('skip')){ S.screen='landing'; preloadHome(); }
+/* 易用性測試的情境入口：?go=home 直接到首頁；?go=pt:412 掃到展籤 QR Code（開掃碼頁並帶入編號）；?go=play:205 參觀到一半、正在聽這一件 */
+const __GO=(_qs.get('go')||'').split(':');
+if(!__GO[0]&&!new URLSearchParams(__QS).has('skip')){ S.screen='landing'; preloadHome(); }
+(()=>{ const e=Object.entries(ITEMS).find(([k,v])=>v.no===__GO[1]); if(!e) return;
+  if(__GO[0]==='pt'){ S.hist=['home']; S.screen='scan'; S.code=__GO[1]; }
+  if(__GO[0]==='play'){ const ex=Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(e[0]))||'perm'; play(e[0],{type:'ex',key:ex}); S.hist=['home']; } })();
 render(true);
 </script>
-
-
-
-
-
 </body></html>

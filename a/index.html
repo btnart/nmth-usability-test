@@ -1,8 +1,7 @@
 <!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><style>body{margin:0}</style></head><body>
-
 <title>國立臺灣歷史博物館 語音導覽</title>
-<script>/* 發布版：網址只能帶 #標記，#nmth＝標規版 */
-var __QS='?mode=nmth';   /* A 版固定標規版：沒有 AI 陪伴導覽員 */
+<script>/* 發布版：網址只能帶 #標記，#nmth＝標規版；#nmth&go=pt:412 這類參數照 ?query 讀 */
+var __QS='?mode=nmth&'+(location.search||location.hash).slice(1);   /* A 版固定標規版：沒有 AI 陪伴導覽員 */
 window.addEventListener('hashchange',()=>location.reload());</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3987,8 +3986,6 @@ function scrPlayer(){
       border-radius:13px;margin-bottom:18px">
       <span style="display:inline-flex;color:var(--acc-d);flex:0 0 auto;margin-top:1px">${I.pin||''}</span>
       <div style="font-size:13.5px;line-height:1.7;color:var(--acc-d)"><b>到站引導</b>　${p.guide}</div></div>`:''}
-    ${S.lang!=='zh'?`<div class="notice" style="margin-bottom:14px">${I.info}<div>
-      <b>${t('mt')}</b>　人工翻譯版本上線前，這一段由機器翻譯產生，內容以中文原文為準。</div></div>`:''}
     ${hasSign&&voiceToo?`<div style="display:flex;gap:8px;margin-bottom:16px">
       <button class="chip ${sign?'out':'teal'}" style="height:34px;padding:0 15px;font-size:12.5px"
         onclick="setSignTab('voice')">語音導覽</button>
@@ -5610,9 +5607,11 @@ if(__PV.get('embed')){
     if(__PV.get('pv')==='detail'){ S.detail=pid; render(); }   /* 展品頁預覽：疊出展品詳情面板 */
   }
 }
+/* 易用性測試的情境入口：?go=pt:412 掃到展籤 QR Code（先開展品卡）；?go=play:203 參觀到一半、正在聽這一件 */
+(()=>{ const [k,no]=(new URLSearchParams(__QS).get('go')||'').split(':'); const p=no&&P.find(x=>x.no===no); if(!p) return;
+  if(k==='pt') openSheetFrom(p.id);
+  if(k==='play'){ playPoint(p.id); go('player'); } })();
 render();
 
 </script>
-
-
 </body></html>
