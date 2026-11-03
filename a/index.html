@@ -3817,6 +3817,21 @@ const signYT=()=>YT_EMBED
   : `<a href="https://www.youtube.com/watch?v=ti0MCOL7o6U" target="_blank" rel="noopener" aria-label="到 YouTube 播放手語導覽影片" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#1B1B20;color:#fff;text-decoration:none">
       <span style="width:64px;height:44px;border-radius:12px;background:#E62117;display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>
       <span style="font-size:14px;font-weight:700">播放手語導覽影片</span><span style="font-size:11.5px;opacity:.7">預覽環境無法內嵌，會在 YouTube 開啟 ↗</span></a>`;
+/* 英文導覽的逐字稿（兩檔特展＋路線總覽）：播英文時逐字稿改顯示這份，沒有的就退回中文 */
+const TEXT_EN = {
+  "mz1": "Mazu was originally a shaman of the Lin family, known only by her surname. As accounts of her miracles built up over the centuries, she came to be seen as a powerful holy woman, and under political and religious influence she became the Heroic Consort who protects the nation and its people. Through images and classic texts from the 17th to the 19th century, this section shows how official and popular interpretations together established her as Lin Mo, the Empress of Heaven.",
+  "mz2": "Mazu's miracles at sea were deeply revered in Fujian and Guangdong. From the Ming dynasty on, as sea trade grew, belief in Mazu spread from China's southeast coast along trade routes to the rest of East Asia. Statues and sacred objects carried by sailors and migrants let her incense cross the ocean and take root in new lands. After reaching Taiwan, the faith spread further around the world.",
+  "mz3": "After taking root in Taiwan, Mazu was given different names and images by different regions and communities. She is a filial daughter who honors her parents, and a loving grandmother to children. She heals epidemics with medicine, and appears in the midst of war. Beyond her many statues, crowns, robes, palanquins and even fashion items have shaped how Mazu looks in each era.",
+  "mz4": "Invisible spiritual power dwells in physical objects, and descends into talismans and other sacred items. The incense burners that receive offerings and the carriers that transport the sacred flame are the most important vessels of this power. Pilgrimages, processions and incense-burner ceremonies are sacred moments for coming close to Mazu. They are also moments when temples and people connect, passing faith and memory on from one generation to the next.",
+  "mz5": "As times and society change, the Empress of Heaven appears and is reimagined in many forms. Digital technology has changed how faith spreads: live streams and videos carry belief in Mazu beyond any one place. Strangers come together through blessed souvenirs and walk side by side, keeping the faith alive and fresh.",
+  "bd0": "When borders are drawn, how do we truly see one another? In every era, some people have been left outside mainstream society and the state. They may have no household registration or no nationality, living on the edge between law and reality. This area looks back over a longer history at how “non-citizens” have been defined and created.",
+  "bd1": "“When turmoil sweeps the world, do people bring only their luggage?” Taiwan's history is closely tied to world events. Because of the Cold War, coups, wars and persecution, people from Tibet, Myanmar, Hong Kong and Ukraine have crossed borders to come here. Their journeys were not only personal choices, but a way to protect their lives, freedom, faith and future.",
+  "bd2": "“Once you cross a border, does the border disappear?” The borders of identity are never fixed. They are redrawn by laws, international politics and national security concerns. For many people who come to Taiwan, the border is not only at customs. It continues through the reviews for staying, residence and settlement after arrival.",
+  "bd3": "“What does home mean to you?” For some, home is a place still at war. For exiles, it is the continuation of religion, culture and identity. For those who left Hong Kong, the place is still there, but it is no longer the same. People from many places have come to Taiwan carrying their own memories of home and the people they left behind.",
+  "bd4": "“As global displacement and migration reach Taiwan, will we narrow our borders or open up new relationships?” We see people leaving their homes in times of turmoil, and see how their identities are redefined after crossing borders. We also see many who, despite uncertainty, keep working to live, act and care for one another here.",
+  "sg-mazuR": "Mazu is one of Taiwan's most important folk beliefs. Drawing on the museum's collection, institutions in Taiwan and abroad, and treasured objects from Mazu temples across Taiwan, this exhibition explores how Mazu's miracles have been interpreted and reveals her many faces.",
+  "sg-borderR": "“Non-citizens” include people whose nationality no country recognizes, and people who hold a nationality but cannot get protection from their own country because of politics, war or law. Through the main gallery and the corridor extension, this exhibition traces this history and tells the stories of different groups who have come to Taiwan."
+  };
 function signMode(p){
   const has = anyLang(p,'tsl');
   if(!has) return 'voice';
@@ -4011,7 +4026,8 @@ function scrPlayer(){
   const missing = !isSeg && !canPlay(p);
   const th = r?theme(r.themeId):null;   /* 不可叫 t，會蓋掉介面翻譯函式 t() */
   /* 逐字稿主體：卡拉OK式——目前句深色、其餘淡灰 */
-  const sents = p.text.split(/(?<=[。！？])/).filter(x=>x.trim());
+  const enTx = ((isSeg ? (S.clang||S.lang) : playLang(p))==='en') && TEXT_EN[p.id];   /* 播英文就顯示英文逐字稿 */
+  const sents = enTx ? enTx.split(/(?<=[.!?”])\s+(?=[A-Z“])/).filter(x=>x.trim()) : p.text.split(/(?<=[。！？])/).filter(x=>x.trim());
   const cur = Math.min(1, sents.length-1);
   const hasSign = !isSeg && anyLang(p,'tsl');
   const voiceToo = !isSeg && !!['zh','en','ja','ko'].find(l=>hasTrack(p,l,S.persona)||hasTrack(p,l,'general'));
