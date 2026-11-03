@@ -3466,6 +3466,10 @@ function pointSheet(){
   const p = byId(S.sheet), no = routeNo(p.id);
   const inRoute = no>0;
   const playable = canPlay(p);
+  /* 在導覽內頁（還沒開始聽）點這條導覽裡的展品＝從這一站開始，不再問要不要開始整個展覽 */
+  const here = S.screen==='routeinfo' && !onTour() && !!S.viewTheme && p.lvl==='full'
+    && (viewIds(S.viewTheme).includes(p.id) || (exThemeOf(p)&&exThemeOf(p).id===S.viewTheme));
+  const hereNo = here ? viewIds(S.viewTheme).indexOf(p.id)+1 : 0;
   const langMissing = p.lvl==='full' && !playable;
   const full = S.sheetFullId===p.id;                 // 點空白處 / 手把 → 展開成完整介紹（同路線資訊 sheet 的手感）
   const a=once('sheet:'+p.id);
@@ -3484,7 +3488,8 @@ function pointSheet(){
         ${p.lvl==='full'?`<span class="chip">${Math.round(p.dur/60*10)/10} 分</span>`:''}
       </div>
       <h3 style="font-size:20px;margin-bottom:6px">${p.n}</h3>
-      ${inRoute?`<div class="tiny" style="color:var(--acc-d);margin-bottom:8px">本站為「${theme(S.route.themeId).n}」第 ${no} 站</div>`
+      ${here?`<div class="tiny" style="color:var(--acc-d);margin-bottom:8px">${hereNo?`本站為「${theme(S.viewTheme).n}」第 ${hereNo} 站・從這裡開始導覽`:'這次的路線沒有排到這件・從這件開始會加進路線'}</div>`
+       :inRoute?`<div class="tiny" style="color:var(--acc-d);margin-bottom:8px">本站為「${theme(S.route.themeId).n}」第 ${no} 站</div>`
                 :(p.lvl==='full'?`<div class="tiny" style="margin-bottom:8px">${!onTour()?'可以單獨聽這一件，或照順序聽整個展覽'
                   :(exThemeOf(p)&&exThemeOf(p).id===S.route.themeId)?'這次的路線沒有排到這件・單獨聆聽不影響路線進度':'不在目前路線上・單獨聆聽不影響路線進度'}</div>${exEntryBtn(p)}`:'')}
       ${(()=>{ const long=p.text.length>64 && !full;
@@ -3498,7 +3503,8 @@ function pointSheet(){
           const goBtn = `<button class="btn ghost" style="flex:0 0 auto;padding:0 16px" onclick="startNav('${p.id}')">${I.nav} 帶我去</button>`;
           if(p.lvl==='place') return `<button class="btn gold" style="flex:1" onclick="startNav('${p.id}')">${I.nav} 帶我去</button>`;
           return playable
-            ? `<button class="btn gold" style="flex:1" onclick="playPoint('${p.id}')">${I.play} ${inRoute?'聽導覽・路線第 '+no+' 站':'聽導覽'}</button>`+goBtn
+            ? (here?`<button class="btn gold" style="flex:1" onclick="startFromHere('${p.id}')">${I.play} 從這一站開始導覽</button>`
+              :`<button class="btn gold" style="flex:1" onclick="playPoint('${p.id}')">${I.play} ${inRoute?'聽導覽・路線第 '+no+' 站':'聽導覽'}</button>`)+goBtn
             : `<div class="btn ghost" style="flex:1;cursor:default">${I.text} 僅有文字說明</div>`+goBtn;
         })()}
       </div>
@@ -4744,6 +4750,12 @@ function exEntryBtn(p){ const t=exThemeOf(p); if(!t || (onTour()&&S.route.themeI
     <span>${onTour()?'改聽':'開始'}「${t.n.split('：')[0]}」整個展覽的導覽</span>${I.arrow}</button>`; }
 /* 從某件展品進展覽導覽：路線一定包含這件（就算選的時間排不進去），免得「剛剛那件不見了」 */
 function pinIntoRoute(r,id){ if(id && byId(id) && !r.list.includes(id)){ r.list.push(id); r.list.sort((a,b)=>ORDER.indexOf(a)-ORDER.indexOf(b)); } }
+/* 導覽內頁點展品「從這一站開始導覽」：沿用規劃好的路線（沒規劃就用內頁顯示的清單），這件不在路線裡就補進去，從這一站開始聽 */
+function startFromHere(id){ const tid=S.viewTheme;
+  if(!(S.route&&S.route.themeId===tid)){ S.clang=viewLang(tid); S.persona=viewPersona(tid); S.route={themeId:tid,list:viewIds(tid),idx:0,heard:[]}; }
+  pinIntoRoute(S.route,id); S.sheet=null; S.lastStop=null;
+  if(isTextStop(tid,id)) return goStation(S.route.list.indexOf(id));
+  playPoint(id,1); }
 function startEntryFrom(tid,id){
   if(S.route && S.route.themeId===tid && !onTour()){ pinIntoRoute(S.route,id); openThemeInfo(tid); return; }   // 設定過但還沒開始：沿用那條，補進這件
   S.entryPin={themeId:tid,id}; startEntry(tid);
