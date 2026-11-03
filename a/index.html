@@ -5658,6 +5658,10 @@ if(__PV.get('embed')){
 /* 易用性測試的情境入口：?go=pt:412 掃到展籤 QR Code（先開展品卡）；?go=play:203 參觀到一半、正在聽這一件 */
 (()=>{ const [k,no]=(new URLSearchParams(__QS).get('go')||'').split(':');
   if(k==='ex'){ const e=EXHIBITIONS.find(x=>x.id===no); if(e){ openThemeInfo(e.themeId); S.infoSheet='full'; } return; }   /* ?go=ex:ex_mazu 掃展場入口的 QR Code：開這檔展覽的導覽頁 */
+  if(k==='tour'){ const [,exId,n]=(new URLSearchParams(__QS).get('go')||'').split(':'), e=EXHIBITIONS.find(x=>x.id===exId); if(!e) return;   /* ?go=tour:ex_perm:3 展覽導覽聽到第 3 站（前兩站已聽完） */
+    const tid=e.themeId, list=viewIds(tid), i=Math.max(0,Math.min(list.length-1,(+n||1)-1));
+    S.clang=viewLang(tid); S.persona=viewPersona(tid); S.route={themeId:tid,list,idx:i,heard:list.slice(0,i)};
+    playPoint(list[i],1); go('player'); return; }
   const p=no&&P.find(x=>x.no===no); if(!p) return;
   if(k==='pt') openSheetFrom(p.id);
   if(k==='play'){ playPoint(p.id); go('player'); } })();

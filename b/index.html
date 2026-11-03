@@ -2263,6 +2263,8 @@ try{ S.signPref = localStorage.getItem('nmth.signPref')==='1'; }catch(e){ S.sign
 const __GO=(_qs.get('go')||'').split(':');
 if(!__GO[0]&&!new URLSearchParams(__QS).has('skip')){ S.screen='landing'; preloadHome(); }
 (()=>{ if(__GO[0]==='ex'&&EXHIBITIONS[__GO[1]]){ openEx(__GO[1]); S.hist=['home']; return; }   /* ?go=ex:zj 掃展場入口的 QR Code：開這檔展覽頁 */
+  if(__GO[0]==='tour'&&EXHIBITIONS[__GO[1]]){ const k=__GO[1], l=exBase(k), i=Math.max(0,Math.min(l.length-1,(+__GO[2]||1)-1));   /* ?go=tour:perm:3 展覽導覽聽到第 3 則（前面的已聽完） */
+    S.heard[k]=new Set(l.slice(0,i)); play(l[i],{type:'ex',key:k}); S.hist=['home']; return; }
   const e=Object.entries(ITEMS).find(([k,v])=>v.no===__GO[1]); if(!e) return;
   if(__GO[0]==='pt'){ S.hist=['home']; S.screen='scan'; S.code=__GO[1]; }
   if(__GO[0]==='play'){ const ex=Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(e[0]))||'perm'; play(e[0],{type:'ex',key:ex}); S.hist=['home']; } })();
