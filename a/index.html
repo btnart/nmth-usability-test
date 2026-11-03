@@ -1150,6 +1150,7 @@ function go(scr){
   if(scr==='nav'){ demoNav(); return; }        // ⑥＝示範：直接在地圖上畫路徑
   if(scr==='dainy'){ openDainy(); return; }    // Dainy 永遠是浮動面板，不是頁面
   S.dainySheet=null;
+  if(scr!=='map'&&scr!=='player') S.mapTheme=null;   // 離開地圖就取消「只看某檔展覽／路線」（去聽某一件再回來保留）
   if(scr!==S.screen){ S.hist.push(S.screen); if(S.hist.length>30) S.hist.shift();
     const b=document.querySelector('#frame .body'); (S.scrollMem=S.scrollMem||{})[S.screen]=b?b.scrollTop:0;   // 記住離開時的捲動位置
     S._scrAnim = S._noAnim ? null : (TABS.includes(scr)&&TABS.includes(S.screen)) ? 'tab' : 'fwd';   // tab 切換＝內容淡入；進內頁＝右滑入
@@ -3032,7 +3033,8 @@ function floorMap(h, mini){
     <div class="muted">${vname(S.venue)}的樓層平面即將推出<br>
     <span class="tiny">${VENUES[S.venue].addr}・${VENUES[S.venue].move}</span></div></div>`;
   const pts = P.filter(p=>p.v===S.venue && p.fl===S.floor);
-  const routeIds = (S.screen==='tourmap' && S.route) ? S.route.list          // 導覽中＝進行中路線
+  const routeIds = (S.screen==='map' && S.mapTheme) ? viewIds(S.mapTheme)  // 地圖篩選某檔展覽／路線
+    : (S.screen==='tourmap' && S.route) ? S.route.list          // 導覽中＝進行中路線
     : (S.screen==='routeinfo' && S.viewTheme) ? viewIds(S.viewTheme) : [];  // 導覽內頁＝瀏覽中路線
   const navSeg = S.navPath ? navSegForFloor() : null;
   const shown = pts.filter(p=>{
@@ -3043,6 +3045,7 @@ function floorMap(h, mini){
       return S.player && S.player.mode==='single' ? p.id===S.player.id : routeIds.includes(p.id);
     }
     if(S.screen==='routeinfo') return p.lvl==='place' || routeIds.includes(p.id);
+    if(S.screen==='map' && S.mapTheme) return p.lvl==='place' || routeIds.includes(p.id);
     return !S.onlyRoute || routeIds.includes(p.id) || p.lvl==='place';
   });
   const rp = routeIds.map(byId).filter(p=>p.v===S.venue && p.fl===S.floor);
@@ -3349,7 +3352,7 @@ function scrMap(){
         ${site ? siteMap() : floorWorld()}
       </div>
     </div>
-    ${nav?'':`<div style="position:absolute;right:12px;bottom:${S.mapFocus?'24':(S.player?'264':'112')}px;z-index:6">
+    ${nav?'':`<div style="position:absolute;right:12px;bottom:${S.mapFocus?'24':((S.player?264:112)+(S.mapTheme&&!way?150:0))}px;z-index:6">
       <div style="display:flex;flex-direction:column;margin-bottom:10px;background:#fff;border:1px solid var(--line);border-radius:14px;
         box-shadow:0 4px 14px rgba(0,0,0,.14);overflow:hidden">
         <button style="display:grid;place-items:center;width:44px;height:42px;color:var(--ink)" aria-label="放大地圖" onclick="mzZoom(0.25)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -3373,7 +3376,8 @@ function scrMap(){
       <div style="flex:1"></div>
       <button class="icb" style="box-shadow:0 4px 14px rgba(0,0,0,.14)" onclick="go('code')">${I.search}</button>
     </div>`}
-    ${S.mapFocus||way?'':`<div style="position:absolute;left:14px;right:14px;top:66px;z-index:6;display:flex;gap:8px">
+    ${S.mapTheme&&!S.mapFocus&&!way?mapThemeBar():''}
+    ${S.mapFocus||way||S.mapTheme?'':`<div style="position:absolute;left:14px;right:14px;top:66px;z-index:6;display:flex;gap:8px">
       <button class="fchip ${S.mapSheet==='ex'?'on':''}"
         onclick="S.mapSheet=S.mapSheet==='ex'?null:'ex';render()">當前展覽</button>
       <button class="fchip ${S.mapSheet==='theme'?'on':''}"
@@ -3401,13 +3405,38 @@ function scrMap(){
   ${S.sheet?pointSheet():''}`);
 }
 /* 地圖上的「可以做什麼」bottom sheet：展覽或主題導覽清單，開啟時底部 menu 隱藏 */
+/* 地圖上點「當前展覽／主題導覽」的任一項：先在地圖上只顯示這條的點位（編號＋連線），確認位置後再讓觀眾決定要不要開始導覽 */
+function mapShowTheme(tid){ const ps=viewIds(tid).map(byId).filter(Boolean);
+  S.mapTheme=tid; S.mapSheet=null; S.sheet=null; S.mapView='floor'; S.mapZoom=1; S.mapPan={x:0,y:0};
+  if(ps.length){ S.venue=ps[0].v; S.floor=ps[0].fl;
+    /* 鏡頭對準這一層點位的中心（算法同 openLocate），往上讓出下方確認卡 */
+    const q=ps.filter(p=>p.v===S.venue&&p.fl===S.floor), cx=q.reduce((a,p)=>a+p.x,0)/q.length, cy=q.reduce((a,p)=>a+p.y,0)/q.length;
+    const F=document.getElementById('frame'), W=F.clientWidth, H=F.clientHeight, art=FLOOR_ART[S.venue+':'+S.floor];
+    const bw=art?W*1.85:W, bh=art?bw*art.h/art.w:H, sx=Math.max(...q.map(p=>p.x))-Math.min(...q.map(p=>p.x));
+    S.mapZoom=Math.max(1,Math.min(1.25,45/Math.max(sx,1)));
+    S.mapPan={x:-(cx/100-0.5)*bw*S.mapZoom, y:-(cy/100-0.5)*bh*S.mapZoom - H*0.12}; }
+  say('地圖篩選：'+theme(tid).n); render(); }
+function mapThemeBar(){ const t=theme(S.mapTheme), ps=viewIds(t.id).map(byId).filter(Boolean), e=EXHIBITIONS.find(x=>x.themeId===t.id);
+  const fls=[...new Set(ps.map(p=>p.fl))], tm=timeOf(ps);
+  const where = e ? vname(e.v)+' '+e.loc : vname(ps[0]?ps[0].v:'main')+' '+fls.join('・');
+  return `<div style="position:absolute;left:14px;right:14px;top:66px;z-index:6;display:flex">
+      <button class="fchip on" style="max-width:100%;gap:8px" onclick="S.mapTheme=null;render()" aria-label="取消只看「${t.n}」">
+        <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">只看：${t.n.split('：')[0]}</span>${I.close}</button></div>
+    <div class="card" style="position:absolute;left:14px;right:14px;bottom:${S.player?256:100}px;z-index:7;padding:14px 16px">
+      <div class="tiny" style="margin-bottom:4px">${e?e.type:'主題導覽'}・${where}</div>
+      <div style="font-size:16px;font-weight:700;line-height:1.4;margin-bottom:4px">${t.n}</div>
+      <div class="tiny" style="margin-bottom:12px">${ps.length} 個導覽點・約 ${tm.total} 分鐘${fls.length>1?'・跨 '+fls.length+' 層樓':''}・地圖上的編號就是建議順序</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn ghost" style="flex:0 0 auto;padding:0 16px" onclick="S.mapTheme=null;render()">看全部</button>
+        <button class="btn gold" style="flex:1" onclick="const id=S.mapTheme;S.mapTheme=null;startEntry(id)">${I.play} 開始導覽</button></div>
+    </div>`; }
 function mapSheet(){
   const ex = S.mapSheet==='ex';
   const rows = ex
     ? EXHIBITIONS.map(e=>({t:theme(e.themeId), tag:e.type, title:e.n,
-        sub:vname(e.v)+' '+e.loc, click:`startEntry('${e.themeId}')`}))
+        sub:vname(e.v)+' '+e.loc, click:`mapShowTheme('${e.themeId}')`}))
     : themesFor(S.lang).filter(t=>t.scope==='venue').map(t=>({t, tag:t.note, title:t.n,
-        sub:t.intro, click:`startEntry('${t.id}')`}));
+        sub:t.intro, click:`mapShowTheme('${t.id}')`}));
   const a=once('mapsheet:'+S.mapSheet);
   return `<div class="dim${a}" style="z-index:9" onclick="S.mapSheet=null;render()"></div>
   <div class="sheet${a}">
@@ -3504,7 +3533,7 @@ function pointSheet(){
           if(p.lvl==='place') return `<button class="btn gold" style="flex:1" onclick="startNav('${p.id}')">${I.nav} 帶我去</button>`;
           return playable
             ? (here?`<button class="btn gold" style="flex:1" onclick="startFromHere('${p.id}')">${I.play} 從這一站開始導覽</button>`
-              :`<button class="btn gold" style="flex:1" onclick="playPoint('${p.id}')">${I.play} ${inRoute?'聽導覽・路線第 '+no+' 站':'聽導覽'}</button>`)+goBtn
+              :`<button class="btn gold" style="flex:1" onclick="playPoint('${p.id}')">${I.play} ${inRoute?'聽導覽・路線第 '+no+' 站':'單獨聽這一件'}</button>`)+goBtn
             : `<div class="btn ghost" style="flex:1;cursor:default">${I.text} 僅有文字說明</div>`+goBtn;
         })()}
       </div>
