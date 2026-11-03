@@ -105,6 +105,20 @@ th{font-weight:500;color:var(--muted);font-size:13px}
 .lbl-no{font-family:var(--f-display);font-size:30px;font-weight:700;line-height:1;color:#2E5C6E}
 .lbl-n{font-size:14px;margin:6px 0 2px}
 .lbl .box{background:#fff;padding:6px;border-radius:4px;line-height:0;flex:0 0 auto}
+/* 漏答標示：按下一步時捲到缺的那題並框起來 */
+.need-mark{outline:2px solid var(--warn);outline-offset:6px;border-radius:10px;animation:needpulse 1s ease-out 2}
+@keyframes needpulse{0%{outline-color:transparent}50%{outline-color:var(--warn)}}
+.bar .need{color:var(--warn);font-weight:500}
+/* SUS 五點量表：數字＋文字標籤 */
+.lk{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.lk button{font:inherit;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.lk button b{font-size:17px;font-variant-numeric:tabular-nums}
+.lk button span{font-size:11.5px;color:var(--muted);line-height:1.3}
+.lk button[aria-checked="true"]{background:var(--btn);border-color:var(--btn);color:var(--btn-fg)}
+.lk button[aria-checked="true"] span{color:var(--btn-fg)}
+.tk-help{background:var(--paper);border:1px dashed var(--line);border-radius:12px;padding:12px 14px}
+.seqbox{background:var(--teal-soft);border-radius:12px;padding:14px 14px 10px}
+details.more summary{cursor:pointer;color:var(--teal);font-size:14px}
 </style>
 
 <div class="wrap">
@@ -125,98 +139,106 @@ const CONTACT = '負責這次測試的 ARTOGO 設計師';
 /* 免登入回收：直接 POST 到 Google 表單（formResponse），沒有網址長度限制；空白就只給「複製結果」 */
 const GFORM = { url: 'https://docs.google.com/forms/d/e/1FAIpQLSfwg6pTdo0n0a5zUrBVP7EX7ufhEs5_1p8LIxEKN1fjnr5jSg/formResponse', entry: '1585661271',
   /* 一題一欄：key → Google 表單欄位 entry id（欄位由表單的 Apps Script buildFields 建立；改題目或任務要重跑再更新這裡） */
-  fields: {"sid":"2075413627","order":"1763244396","nick":"1561405268","age":"1629107885","role":"1867115385","guide":"94039855","started":"825192403","finished":"39395325","A_umux_q1":"114917788","A_umux_q2":"656530930","A_umux_note":"743065185","B_umux_q1":"1506323104","B_umux_q2":"645264568","B_umux_note":"824627554","pick":"865554860","why":"1116041112","A_q1a_status":"175911898","A_q1a_secs":"1698088032","A_q1a_answer":"195137386","A_q1a_fr":"387784894","A_q1a_errs":"1965967922","A_q1b_status":"1769476951","A_q1b_secs":"2143295069","A_q1b_answer":"1386794515","A_q1b_fr":"665512247","A_q1b_errs":"857342888","A_q1c_status":"101637741","A_q1c_secs":"1396951301","A_q1c_answer":"72279102","A_q1c_fr":"1707739101","A_q1c_errs":"1119780856","A_q1_clean":"776027017","A_q1_text":"1774816084","A_q1_note":"564174581","A_q2a_status":"777268588","A_q2a_secs":"387518251","A_q2a_answer":"980887897","A_q2a_how":"1512262778","A_q2a_fr":"463748205","A_q2a_errs":"1624826946","A_q2b_status":"973071882","A_q2b_secs":"1173984029","A_q2b_answer":"1318347056","A_q2b_how":"645973819","A_q2b_fr":"1301773123","A_q2b_errs":"725974358","A_q2_pref":"1557895707","A_q2_clean":"1904719789","A_q2_text":"1945954796","A_q2_note":"743210435","A_q3a_status":"522372213","A_q3a_secs":"1885994830","A_q3a_answer":"1508380653","A_q3a_fr":"1481933212","A_q3a_errs":"498466283","A_q3b_status":"271254852","A_q3b_secs":"46758882","A_q3b_answer":"219622450","A_q3b_fr":"21295419","A_q3b_errs":"12662355","A_q3c_status":"459375885","A_q3c_secs":"33480409","A_q3c_answer":"1703724412","A_q3c_fr":"323388459","A_q3c_errs":"720579243","A_q3_clean":"1851565165","A_q3_text":"2051379039","A_q3_note":"2043173031","A_q4a_status":"386881841","A_q4a_secs":"8132756","A_q4a_answer":"1498720879","A_q4a_fr":"292204810","A_q4a_errs":"587962257","A_q4b_status":"1075115776","A_q4b_secs":"251198035","A_q4b_answer":"1864065345","A_q4b_fr":"1579752563","A_q4b_errs":"992432812","A_q4_clean":"1380324361","A_q4_text":"1357870364","A_q4_note":"31674154","A_q5a_status":"989656504","A_q5a_secs":"2062326414","A_q5a_answer":"1463707039","A_q5a_taps":"581156651","A_q5a_fr":"1137590372","A_q5a_errs":"1322651228","A_q5b_status":"1948631506","A_q5b_secs":"612020449","A_q5b_answer":"2099479997","A_q5b_taps":"1583471274","A_q5b_fr":"464696925","A_q5b_errs":"589393337","A_q5_clean":"46286579","A_q5_text":"447383880","A_q5_note":"1365695492","A_q6a_status":"1866769985","A_q6a_secs":"983423622","A_q6a_answer":"1783203838","A_q6a_fr":"1783212723","A_q6a_errs":"587066580","A_q6b_status":"1857520801","A_q6b_secs":"36732227","A_q6b_answer":"568798335","A_q6b_fr":"465585080","A_q6b_errs":"371193966","A_q6_clean":"62297852","A_q6_text":"1887050233","A_q6_note":"590676285","B_q1a_status":"892912947","B_q1a_secs":"482439020","B_q1a_answer":"262833919","B_q1a_fr":"910557071","B_q1a_errs":"2011713516","B_q1b_status":"41642523","B_q1b_secs":"1919590690","B_q1b_answer":"43242172","B_q1b_fr":"351835452","B_q1b_errs":"1707797893","B_q1c_status":"309500340","B_q1c_secs":"1295952722","B_q1c_answer":"847192303","B_q1c_fr":"1648476424","B_q1c_errs":"624857894","B_q1_clean":"753389977","B_q1_text":"692727465","B_q1_note":"1008919002","B_q2a_status":"1044773563","B_q2a_secs":"1033391930","B_q2a_answer":"1477932317","B_q2a_how":"1610873074","B_q2a_fr":"283973704","B_q2a_errs":"1095537098","B_q2b_status":"1022297220","B_q2b_secs":"1307129134","B_q2b_answer":"60519658","B_q2b_how":"1620545082","B_q2b_fr":"1136461679","B_q2b_errs":"1103571079","B_q2_pref":"349059460","B_q2_clean":"187665000","B_q2_text":"2003711098","B_q2_note":"851809382","B_q3a_status":"1187521807","B_q3a_secs":"1934216408","B_q3a_answer":"1269055895","B_q3a_fr":"541166363","B_q3a_errs":"1728760008","B_q3b_status":"344284271","B_q3b_secs":"341566242","B_q3b_answer":"211459182","B_q3b_fr":"1841557753","B_q3b_errs":"1362352938","B_q3c_status":"815951649","B_q3c_secs":"1376996065","B_q3c_answer":"883206274","B_q3c_fr":"785574129","B_q3c_errs":"458054294","B_q3_clean":"638825057","B_q3_text":"869129811","B_q3_note":"337245915","B_q4a_status":"1618815809","B_q4a_secs":"368661816","B_q4a_answer":"1859730549","B_q4a_fr":"1670016977","B_q4a_errs":"1842573392","B_q4b_status":"559423773","B_q4b_secs":"1720947748","B_q4b_answer":"167970981","B_q4b_fr":"1153967151","B_q4b_errs":"1197093315","B_q4_clean":"98542252","B_q4_text":"655505539","B_q4_note":"739140675","B_q5a_status":"161358582","B_q5a_secs":"176307741","B_q5a_answer":"434617493","B_q5a_taps":"592586848","B_q5a_fr":"1722941007","B_q5a_errs":"483193756","B_q5b_status":"999237567","B_q5b_secs":"688923511","B_q5b_answer":"2045692845","B_q5b_taps":"82256662","B_q5b_fr":"962736884","B_q5b_errs":"71955167","B_q5_clean":"1017591003","B_q5_text":"1974888101","B_q5_note":"134069681","B_q6a_status":"244533511","B_q6a_secs":"1056101050","B_q6a_answer":"1364990566","B_q6a_fr":"663202483","B_q6a_errs":"459244928","B_q6b_status":"1067287810","B_q6b_secs":"1545749422","B_q6b_answer":"791644543","B_q6b_fr":"630835894","B_q6b_errs":"888052441","B_q6_clean":"1041088078","B_q6_text":"535274918","B_q6_note":"807714606","A_q1a_frnote":"504908675","A_q1b_frnote":"611176687","A_q1c_frnote":"1599812037","A_q2a_frnote":"2029796929","A_q2b_frnote":"1165999125","A_q3a_frnote":"681651154","A_q3b_frnote":"353839276","A_q3c_frnote":"940707140","A_q4a_frnote":"255251970","A_q4b_frnote":"1631273156","A_q5a_frnote":"1187967172","A_q5b_frnote":"2005871909","A_q6a_frnote":"1469837614","A_q6b_frnote":"696096220","B_q1a_frnote":"123323038","B_q1b_frnote":"2089754412","B_q1c_frnote":"329507866","B_q2a_frnote":"330718930","B_q2b_frnote":"1749175404","B_q3a_frnote":"1586230190","B_q3b_frnote":"911024029","B_q3c_frnote":"198396416","B_q4a_frnote":"391847553","B_q4b_frnote":"1143167967","B_q5a_frnote":"1726507805","B_q5b_frnote":"14503760","B_q6a_frnote":"1333117011","B_q6b_frnote":"1195462148"} };
-/* 六個情境，每個情境底下 2–3 個接續的任務；A、B 兩版文字完全相同。
-   go＝原型開在哪個畫面（空白＝最開始的畫面）；goal＝目標秒數；how／taps＝這個任務多問的題目；expect 只給研究者結果頁核對用 */
+  fields: {"sid":"2075413627","order":"1763244396","nick":"1561405268","age":"1629107885","role":"1867115385","guide":"94039855","started":"825192403","finished":"39395325","pick":"865554860","why":"1116041112","A_q1a_status":"1084368776","A_q1a_secs":"1676900040","A_q1a_answer":"1958319563","A_q1a_seq":"1374147803","A_q1a_fr":"418838483","A_q1a_frnote":"229624804","A_q1a_help":"1431059255","A_q1b_status":"838796303","A_q1b_secs":"1871294198","A_q1b_answer":"790993096","A_q1b_seq":"527078669","A_q1b_fr":"1441942169","A_q1b_frnote":"1148535048","A_q1b_help":"1212713666","A_q2a_status":"1516961577","A_q2a_secs":"474339104","A_q2a_answer":"898100015","A_q2a_seq":"426628298","A_q2a_how":"759321421","A_q2a_fr":"2110216527","A_q2a_frnote":"2018515004","A_q2a_help":"546407957","A_q3a_status":"683719788","A_q3a_secs":"1878258773","A_q3a_answer":"591080563","A_q3a_seq":"228567533","A_q3a_fr":"532832337","A_q3a_frnote":"1571236838","A_q3a_help":"874519839","A_q4a_status":"680102491","A_q4a_secs":"876527207","A_q4a_answer":"2008335792","A_q4a_seq":"1288454541","A_q4a_fr":"1418616517","A_q4a_frnote":"292737926","A_q4a_help":"1908287145","A_q4b_status":"1925919838","A_q4b_secs":"962350202","A_q4b_answer":"1252074253","A_q4b_seq":"913663063","A_q4b_fr":"1017690215","A_q4b_frnote":"818667542","A_q4b_help":"1006718766","A_q5a_status":"785395236","A_q5a_secs":"1227827148","A_q5a_answer":"907656856","A_q5a_seq":"1824464582","A_q5a_taps":"1254128474","A_q5a_fr":"495123440","A_q5a_frnote":"1494247164","A_q5a_help":"770413569","A_q6a_status":"490276121","A_q6a_secs":"2125876507","A_q6a_answer":"501646097","A_q6a_seq":"1942271710","A_q6a_fr":"2046835793","A_q6a_frnote":"1306807303","A_q6a_help":"1460643967","A_sus1":"1062755597","A_sus2":"922236994","A_sus3":"1435589815","A_sus4":"1541632289","A_sus5":"182133703","A_sus6":"1646241161","A_sus7":"2124840404","A_sus8":"747301613","A_sus9":"1338339637","A_sus10":"1692143624","A_sus":"1421267993","A_clean":"355824958","A_text":"1645535412","A_note":"403294496","B_q1a_status":"931371668","B_q1a_secs":"993457938","B_q1a_answer":"1095390712","B_q1a_seq":"678812387","B_q1a_fr":"337767515","B_q1a_frnote":"1331187645","B_q1a_help":"1408287189","B_q1b_status":"719189266","B_q1b_secs":"1391176285","B_q1b_answer":"466628073","B_q1b_seq":"783911632","B_q1b_fr":"1246276832","B_q1b_frnote":"1003913142","B_q1b_help":"1954779677","B_q2a_status":"580939987","B_q2a_secs":"715803313","B_q2a_answer":"546443931","B_q2a_seq":"1314084177","B_q2a_how":"1433006015","B_q2a_fr":"933704273","B_q2a_frnote":"1763480792","B_q2a_help":"1135893168","B_q3a_status":"439644160","B_q3a_secs":"2000529155","B_q3a_answer":"1131228896","B_q3a_seq":"194096581","B_q3a_fr":"407775923","B_q3a_frnote":"986511884","B_q3a_help":"1669361260","B_q4a_status":"218972731","B_q4a_secs":"1925022158","B_q4a_answer":"363179036","B_q4a_seq":"1429504085","B_q4a_fr":"1660156824","B_q4a_frnote":"310946895","B_q4a_help":"323633070","B_q4b_status":"658054271","B_q4b_secs":"1098276279","B_q4b_answer":"1902584805","B_q4b_seq":"823972580","B_q4b_fr":"1872926308","B_q4b_frnote":"1976275023","B_q4b_help":"622227631","B_q5a_status":"292423056","B_q5a_secs":"656032111","B_q5a_answer":"1979197976","B_q5a_seq":"363701612","B_q5a_taps":"1552278150","B_q5a_fr":"1472352790","B_q5a_frnote":"33669548","B_q5a_help":"625574890","B_q6a_status":"431432389","B_q6a_secs":"887533806","B_q6a_answer":"1599501510","B_q6a_seq":"828612950","B_q6a_fr":"1900652749","B_q6a_frnote":"627191881","B_q6a_help":"1745491645","B_sus1":"1112949453","B_sus2":"1068843646","B_sus3":"1032203165","B_sus4":"1577168615","B_sus5":"2070231079","B_sus6":"1955035822","B_sus7":"1765484188","B_sus8":"788260719","B_sus9":"1965885021","B_sus10":"1902072943","B_sus":"76634841","B_clean":"646231852","B_text":"1806210302","B_note":"1060443149"} };
+/* 六個情境、8 個核心任務：每個任務是一個可以獨立判定完成的使用者目標，完成或放棄後立刻填 SEQ。A、B 兩版文字完全相同。
+   go＝這個任務從原型的哪個畫面開始（空白＝最開始的畫面）；done＝怎樣算完成；how／taps＝這個任務多問的題目；expect 只給研究者結果頁核對用 */
 const QS = [
-  {id:'q1', title:'剛進館：看懂首頁', go:{A:'',B:''}, where:'導覽最開始的畫面',
+  {id:'q1', title:'剛進館：看懂首頁',
    scenario:'你剛從 8 號門走進一樓大廳，用手機掃了立牌上的 QR Code，打開這個導覽。你想先弄清楚它怎麼用，以及今天館裡有什麼活動可以參加。',
    tasks:[
-    {id:'a', do:'你比較習慣看英文。請把導覽的語言換成 English，確認換好了，再換回中文。', ask:'你是在畫面的哪裡找到換語言的地方？', ph:'例如：右上角的○○按鈕裡面',
+    {id:'a', label:'換語言', go:{A:'',B:''}, where:'導覽最開始的畫面',
+     do:'你比較習慣看英文。請把導覽的語言換成 English，確認換好了，再換回中文。', done:'畫面文字變成英文、再換回中文，就算完成。',
+     ask:'你是在畫面的哪裡找到換語言的地方？', ph:'例如：右上角的○○按鈕裡面',
      expect:'A：首頁右上角選單 ☰ → 語言設定 → 4 語／B：一開始的落地頁下方「中文・Language」；進首頁後在 ☰ → 介面語言'},
-    {id:'b', do:'你想從 2 樓的常設展「斯土斯民」開始參觀。請找到這個展覽，並開始它的導覽。', ask:'開始以後，第一個播放的是什麼？', ph:'例如：某某展品，或一段介紹',
-     expect:'A：首頁「當前展覽」→ 斯土斯民 → 開始導覽（先問停留時間 → 路線總覽）／B：落地頁「開始導覽」→ 首頁展覽卡 → 開始導覽'},
-    {id:'c', goal:15, do:'看看今天還有哪些活動。請找到「時光車站」火車劇場，看它下一場是幾點、在哪裡、要怎麼參加。', ask:'寫下下一場的時間、地點，以及參加方式', ph:'例如：15:00，1F 某某廳，現場排隊',
+    {id:'b', label:'查本日活動', go:{A:'',B:'home'}, where:'首頁',
+     do:'看看今天有哪些活動。請找到「時光車站」火車劇場，看它下一場是幾點、在哪裡、要怎麼參加。', done:'找到下一場的時間、地點和參加方式，就算完成。',
+     ask:'寫下下一場的時間、地點，以及參加方式', ph:'例如：15:00，1F 某某廳，現場排隊',
      expect:'A：首頁「本日活動」時光車站－火車劇場・1F 時光車站・各場次現場排隊／B：首頁本日活動「時光車站・1F 兒童廳・每 30 分鐘一班」。場次依測試當下時間顯示'}
    ]},
-  {id:'q2', title:'站在展品前：怎麼開始聽', go:{A:'ex:ex_mazu',B:'ex:zj'}, where:'萬相天后特展的導覽頁', labels:true, pref:true,
-   scenario:'你在 4 樓的媽祖特展「萬相天后」，剛在展場入口掃了 QR Code，手機上打開了這檔特展的導覽頁。現在你站在一件展品前面。展品旁邊有說明牌（就是下面這兩張），上面有編號，也有 QR Code。',
+  {id:'q2', title:'站在展品前：怎麼開始聽', labels:true,
+   scenario:'你在 4 樓的媽祖特展「萬相天后」，剛在展場入口掃了 QR Code，手機上打開了這檔特展的導覽頁。現在你站在一件展品前面，旁邊的說明牌就是下面這張，上面有編號，也有 QR Code。',
    tasks:[
-    {id:'a', goal:15, how:true, label:'412', do:'用你覺得最順手的方式，開始這件展品（說明牌編號 412）的導覽，並開始播放。', ask:'這件展品叫什麼名字？', ph:'例如：單元○｜某某某',
-     expect:'答案：單元二｜海上福星。輸入編號 A：搜尋分頁／B：首頁掃碼鈕的數字鍵；掃 QR：手機相機掃說明牌（A 的館內相機也能掃，B 的掃碼畫面是示意，掃不到）；地圖 A：地圖 4F 點選／B：展覽頁地圖'},
-    {id:'b', goal:15, how:true, label:'414', do:'旁邊還有一件展品（說明牌編號 414）。這次請換一種剛才沒用過的方式，打開它的導覽並開始播放。', ask:'這件展品叫什麼名字？', ph:'例如：單元○｜某某某',
-     expect:'答案：單元四｜萬年香火。看第二種方式找不找得到、順不順'}
+    {id:'a', label:'開始展品導覽', go:{A:'ex:ex_mazu',B:'ex:zj'}, where:'萬相天后特展的導覽頁', how:true, label412:true,
+     do:'用你覺得最順手的方式，開始這件展品（說明牌編號 412）的導覽。', done:'看到這件展品的播放畫面開始播放，就算完成，不用聽完。',
+     ask:'這件展品叫什麼名字？', ph:'例如：單元○｜某某某',
+     expect:'答案：單元二｜海上福星。輸入編號 A：搜尋分頁／B：首頁掃碼鈕的數字鍵；掃 QR：手機相機掃說明牌（A 的館內相機也能掃，B 的掃碼畫面是示意，掃不到）；地圖 A：展覽頁地圖點選／B：展覽頁地圖'}
    ]},
-  {id:'q3', title:'用手語影片自己逛', go:{A:'',B:'home'}, where:'首頁',
+  {id:'q3', title:'用手語影片自己逛',
    scenario:'你陪一位聽障朋友來參觀 2 樓的常設展「斯土斯民」。他習慣看手語，想用導覽裡的手語影片自己逛，不靠別人幫忙。',
    tasks:[
-    {id:'a', do:'請找到斯土斯民的手語導覽影片，播放任何一則。', ask:'你播放的是哪一則？', ph:'例如：某某展品',
-     expect:'看手語入口醒不醒目。A：首頁右上 ☰ → 手語導覽（常設展手語影片列表）；也可從展覽開始導覽，播放器就是手語／B：☰ → 無障礙服務 → 手語導覽（影片清單 4 則／由地圖選取），或播放器語言鈕切到手語'},
-    {id:'b', do:'朋友走到「倚海而生的島與人」這個展區，想看這裡的手語影片。請找到並播放。', ask:'你播放的影片叫什麼？', ph:'例如：某某某',
-     expect:'A：展區內有 福爾摩沙島宣教地圖（203）、部落傳唱的荷蘭歌（222）、鐵剪刀（241），都是手語／B：影片清單「倚海而生的島與人」（205）'},
-    {id:'c', do:'看完這一則，朋友想接著看下一則。請不要回到首頁，直接播放下一則手語影片。', ask:'下一則是哪一則？', ph:'例如：某某某',
-     expect:'看播放中能不能直接換下一則（A：播放器上下則／B：播放器下一則，或回影片清單）'}
+    {id:'a', label:'找手語影片', go:{A:'',B:'home'}, where:'首頁',
+     do:'朋友走到「倚海而生的島與人」這個展區，想看這裡的手語導覽影片。請找到並開始播放。', done:'畫面上出現這個展區的手語影片，就算完成。影片是示意，不用看完。',
+     ask:'你播放的是哪一件展品或哪個展區的影片？', ph:'例如：某某展品',
+     expect:'A：☰ → 手語導覽列表，或從展覽、地圖點進展區內的展品：福爾摩沙島宣教地圖（203）、部落傳唱的荷蘭歌（222）、鐵剪刀（241）／B：☰ → 無障礙服務 → 手語導覽（影片清單「倚海而生的島與人」205），或播放器語言鈕切到手語'}
    ]},
-  {id:'q4', title:'用地圖找展區和出口', go:{A:'',B:'home'}, where:'首頁',
+  {id:'q4', title:'用地圖找展區和出口',
    scenario:'你站在一樓大廳的服務臺旁邊，想去看媽祖特展「萬相天后」。你也想先知道，看完之後要從哪裡離開博物館。',
    tasks:[
-    {id:'a', do:'請用導覽裡的地圖，找出「萬相天后」在幾樓、哪一個展廳，以及它在那一層的什麼位置。', ask:'寫下樓層、展廳，和它在那一層的大概位置', ph:'例如：3 樓第二展廳，出電梯往右',
+    {id:'a', label:'找特展位置', go:{A:'',B:'home'}, where:'首頁',
+     do:'請用導覽裡的地圖，找出「萬相天后」在幾樓、哪一個展廳，以及它在那一層的什麼位置。', done:'在地圖上看到這個展廳的位置，就算完成。',
+     ask:'寫下樓層、展廳，和它在那一層的大概位置', ph:'例如：3 樓第二展廳，出電梯往右',
      expect:'正確：4F 第一特展室（4 樓平面圖右半邊）。A：首頁展覽卡或地圖分頁 → 4F／B：展覽頁「地圖」標出展廳與電梯出口提示'},
-    {id:'b', do:'請找出離開博物館要走哪一個出口。', ask:'出口在哪裡？跟你現在所在的大廳比，往哪個方向走？', ph:'例如：1 樓，大廳的左手邊',
+    {id:'b', label:'找離館出口', go:{A:'',B:'home'}, where:'首頁',
+     do:'請找出離開博物館要走哪一個出口。', done:'找到出口的位置或門號，就算完成。',
+     ask:'出口在哪裡？跟你現在所在的大廳比，往哪個方向走？', ph:'例如：1 樓，大廳的左手邊',
      expect:'A：1F 平面圖西側「出口」（沒有寫門號）／B：☰ →「離館與交通」：出口在 6 號門（大廳左側、服務臺旁），8 號門只能進'}
    ]},
-  {id:'q5', title:'參觀到一半找設施', go:{A:'tour:ex_perm:3',B:'tour:perm:3'}, where:'斯土斯民導覽聽到第 3 站的畫面',
-   scenario:'你正在用導覽參觀 2 樓常設展「斯土斯民」，已經聽到第 3 站。這時候你想先去上廁所，家人也有事要找設施。',
+  {id:'q5', title:'參觀到一半找廁所',
+   scenario:'你正在用導覽參觀 2 樓常設展「斯土斯民」，已經聽到第 3 站。這時候你想先去上廁所。',
    tasks:[
-    {id:'a', goal:15, taps:true, do:'請找到離你最近的廁所，並讓導覽幫你畫出走過去的路線。', ask:'導覽說走過去大約要多久，或多遠？', ph:'例如：約 2 分鐘、100 公尺',
-     expect:'目標 2 次點擊內看到廁所位置。兩版：地圖 → 2F 廁所 → 帶我去 → 標起點 → 畫路線＋分鐘數'},
-    {id:'b', goal:15, taps:true, do:'家人推著嬰兒車，要先去 1 樓。請找到 2 樓離你最近的電梯在哪裡。', ask:'電梯在哪裡？', ph:'例如：展廳出口右手邊',
-     expect:'A：地圖 2F 電梯（服務區）／B：地圖 2F 電梯圖示（有兩座）'}
+    {id:'a', label:'帶我去廁所', go:{A:'tour:ex_perm:3',B:'tour:perm:3'}, where:'斯土斯民導覽聽到第 3 站的畫面', taps:true,
+     do:'請找到離你最近的廁所，並讓導覽幫你畫出走過去的路線。', done:'地圖上畫出走到廁所的路線，就算完成。',
+     ask:'導覽說走過去大約要多久，或多遠？', ph:'例如：約 2 分鐘、100 公尺',
+     expect:'目標 2 次點擊內看到廁所位置。兩版：地圖 → 2F 廁所 → 帶我去 → 標起點 → 畫路線＋分鐘數'}
    ]},
-  {id:'q6', title:'換逛另一個特展', go:{A:'tour:ex_mazu:5',B:'tour:zj:5'}, where:'萬相天后導覽聽到最後一站的畫面',
+  {id:'q6', title:'換逛另一個特展',
    scenario:'你剛在 4 樓聽完媽祖特展「萬相天后」的最後一件展品。離閉館還有 30 分鐘，你想再逛同一層的另一個特展。',
    tasks:[
-    {id:'a', do:'請找到同一層的另一個特展，看看它的導覽大約要多久，判斷 30 分鐘來不來得及。', ask:'寫下特展名稱、導覽大約多久，以及來不來得及', ph:'例如：某某特展，約 20 分鐘，來得及',
-     expect:'答案：邊界之外‧島嶼之中（4F 第三特展室），全展約 14–15 分鐘。A：展覽卡「5 個導覽點・約 15 分鐘」，點進去先問停留時間／B：展覽卡與展覽頁「5 個導覽點・約 14 分鐘」'},
-    {id:'b', do:'請開始這個特展的導覽。', ask:'第一件要看的是什麼？在哪裡？', ph:'例如：某某展品，在某某區',
-     expect:'答案：零、非關公民歷史教室（431，在走廊延伸展區）。A：先播路線總覽／B：直接播第一件'}
+    {id:'a', label:'換看另一個特展', go:{A:'tour:ex_mazu:5',B:'tour:zj:5'}, where:'萬相天后導覽聽到最後一站的畫面',
+     do:'請找到同一層的另一個特展，看看它的導覽大約要多久、30 分鐘來不來得及，然後開始它的導覽。', done:'開始播放那個特展的第一則，就算完成。',
+     ask:'寫下特展名稱、導覽大約多久、來不來得及，以及第一件展品', ph:'例如：某某特展，約 20 分鐘，來得及；第一件是某某',
+     expect:'答案：邊界之外‧島嶼之中（4F 第三特展室），約 14–15 分鐘，第一件「零、非關公民歷史教室」（431，走廊延伸展區）。A：展覽卡「5 個導覽點・約 15 分鐘」，點進去先問停留時間、先播路線總覽／B：展覽頁「5 個導覽點・約 14 分鐘」，直接播第一件'}
    ]}
 ];
 const STATUS = [['gaveup','找不到，放棄'],['unsure','做完了，但不確定對不對'],['done','我完成了']];   /* 由左到右跟分數同方向 */
-const FRICTION = [['wrong','點錯，要退回上一頁'],['nobtn','找不到要按的按鈕或入口'],['lost','不知道自己在哪個畫面'],['lag','畫面沒反應或很慢，多按了幾次'],['read','字太小或看不清楚'],['none','都沒有，很順']];
-const ERRS = [['0','0 次'],['1','1 次'],['2','2 次'],['3','3 次以上']];
+const FRICTION = [['wrong','點錯，要退回上一頁'],['nobtn','找不到要按的按鈕或入口'],['lost','不知道自己在哪個畫面'],['lag','畫面沒反應或很慢，多按了幾次'],['read','字太小或看不清楚']];
 const HOW = [['no','輸入展品編號'],['qr','掃說明牌上的 QR Code'],['map','在平面圖上點選'],['list','從展覽的展品清單找'],['other','其他方式']];
 const TAPS = [['2','1–2 下'],['4','3–4 下'],['5','5 下以上'],['na','不記得']];
+/* SUS 參考譯文：完整十題、原順序、正反向敘述交錯（奇數題正向、偶數題反向） */
+const SUS = ['我想我會願意經常使用這個系統。','我覺得這個系統有不必要的複雜之處。','我覺得這個系統容易使用。','我想我需要技術人員的協助，才能使用這個系統。','我覺得這個系統的各項功能整合良好。',
+  '我覺得這個系統有太多不一致的地方。','我想大多數人都能很快學會使用這個系統。','我覺得這個系統使用起來很繁瑣。','使用這個系統時，我感到很有信心。','我需要先學習很多東西，才能開始使用這個系統。'];
+const LIKERT5 = ['非常不同意','不同意','中立','同意','非常同意'];
+const susScore = a => (a&&a.length===10&&a.every(Boolean)) ? a.reduce((s,x,i)=>s+(i%2===0?x-1:5-x),0)*2.5 : null;   /* 奇數題「答案－1」、偶數題「5－答案」，加總 ×2.5 */
 const AGE = ['18–24','25–34','35–44','45–54','55–64','65 以上'];
 const ROLE = ['展示／策展','教育推廣／導覽解說','服務台／觀眾服務','研究典藏','行政／其他','不是館內人員'];
 const GUIDE = ['很熟，常協助觀眾使用','知道，但不常接觸','不太清楚'];
 const VNAME = ['版本一','版本二'];
-const KEY = 'nmth-ut-v2';
+const KEY = 'nmth-ut-v3';
 const NTASK = QS.reduce((n,q)=>n+q.tasks.length,0);
+const TNO = {}; { let n=0; QS.forEach(q=>q.tasks.forEach(t=>TNO[q.id+t.id]=++n)); }   /* 任務編號 T1–T8 */
 
 /* ===== 分組：網址 #ab #ba 兩版都測（順序不同）；#a #b 只測一版；沒帶就隨機 ab／ba ===== */
 const tag = (location.hash||'').slice(1).toLowerCase();
 let S = load() || fresh();
 function fresh(){
   const order = tag==='ab'?['A','B']:tag==='ba'?['B','A']:tag==='a'?['A']:tag==='b'?['B']:(Math.random()<.5?['A','B']:['B','A']);
-  return {sid:Math.random().toString(36).slice(2,8).toUpperCase(), order, step:0, profile:{}, tasks:{}, qs:{}, umux:{}, compare:{}, startedAt:new Date().toISOString(), submitted:false};
+  return {sid:Math.random().toString(36).slice(2,8).toUpperCase(), order, step:0, profile:{}, tasks:{}, ver:{}, compare:{}, startedAt:new Date().toISOString(), submitted:false};
 }
 function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s&&s.order&&(!['ab','ba','a','b'].includes(tag)||s.order.join('').toLowerCase()===tag)) return s; }catch(e){} return null; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
 function steps(){
   const st=['intro','profile','howto'];
-  S.order.forEach((v,vi)=>{ st.push('ver:'+vi); QS.forEach((q,qi)=>st.push('q:'+vi+':'+qi)); st.push('umux:'+vi); });
+  S.order.forEach((v,vi)=>{ st.push('ver:'+vi); QS.forEach((q,qi)=>st.push('q:'+vi+':'+qi)); st.push('sus:'+vi); });
   if(S.order.length>1) st.push('compare');
   st.push('review','done');
   return st;
 }
 const $ = s=>document.querySelector(s);
 const esc = s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const qkey=(v,q)=>v+'_'+q.id;                 /* 情境：A_q1 */
 const tk=(v,q,t)=>v+'_'+q.id+t.id;            /* 任務：A_q1a */
 const label=(list,k)=>(list.find(x=>x[0]===k)||[])[1];
-/* 原型網址加上情境入口：artifact 用 #…&go=，GitHub Pages 用 ?…&go= */
+/* 原型網址加上起始畫面：artifact 用 #…&go=，GitHub Pages 用 ?…&go= */
 function protoUrl(v,go){ const u=PROTO[v]; if(!go) return u; return u+(/[?#]/.test(u)?'&':'#')+'go='+go; }
 const mmss=s=>s==null?'':s<60?s+' 秒':Math.floor(s/60)+' 分 '+(s%60)+' 秒';
 
@@ -231,36 +253,49 @@ function scale(name,val,lo,hi,n){
   n=n||7;
   return `<div class="scale" role="radiogroup" style="grid-template-columns:repeat(${n},minmax(0,1fr))">${Array.from({length:n},(_,i)=>i+1).map(x=>`<button type="button" role="radio" aria-label="${x} 分" aria-checked="${val===x}" data-set="${name}" data-val="${x}" data-num="1">${x}</button>`).join('')}</div><div class="scale-ends"><span>1 ${lo}</span><span>${hi} ${n}</span></div>`;
 }
-/* 寫入 S 的路徑：profile.age / task.A_q1a.status / q.A_q1.clean / umux.A.q1 / compare.pick */
-function bucket(p){ return p[0]==='task'?(S.tasks[p[1]]=S.tasks[p[1]]||{}):p[0]==='q'?(S.qs[p[1]]=S.qs[p[1]]||{}):p[0]==='umux'?(S.umux[p[1]]=S.umux[p[1]]||{}):S[p[0]]; }
-function setVal(path,v){ const p=path.split('.'); const o=bucket(p); o[p[p.length-1]]=v; save(); }
-function toggle(path,v){ const p=path.split('.'); const o=bucket(p); let a=o[p[2]]||[];
-  a = a.includes(v) ? a.filter(x=>x!==v) : v==='none' ? ['none'] : [...a.filter(x=>x!=='none'),v];
-  o[p[2]]=a; save(); }
+/* 寫入 S 的路徑：profile.age / task.A_q1a.status / ver.A.clean / ver.A.sus.3 / compare.pick */
+function bucket(p){ return p[0]==='task'?(S.tasks[p[1]]=S.tasks[p[1]]||{}):p[0]==='ver'?(S.ver[p[1]]=S.ver[p[1]]||{}):S[p[0]]; }
+function setVal(path,v){ const p=path.split('.'); const o=bucket(p);
+  if(p[0]==='ver'&&p[2]==='sus'){ (o.sus=o.sus||Array(10).fill(null))[+p[3]]=v; } else o[p[p.length-1]]=v; save(); }
+function toggle(path,v){ const p=path.split('.'); const o=bucket(p); const a=o[p[2]]||[];
+  o[p[2]] = a.includes(v) ? a.filter(x=>x!==v) : [...a,v]; save(); }
 
 /* 說明牌示意：編號＋QR Code，掃了會直接開到那件展品 */
 function labelCard(v,no,name){
   return `<div class="lbl"><div><div class="lbl-no">${no}</div><div class="lbl-n">${esc(name)}</div><div class="hint">萬相天后：臺灣媽祖信仰文化特展</div></div><div class="box" data-qr="${esc(protoUrl(v,'pt:'+no))}"></div></div>`;
 }
-/* 一個任務：先讀任務 → 按開始計時 → 在手機上做 → 按結果停止計時 → 填答案與卡關 */
+/* 打開原型的 QR Code（電腦上顯示 QR，手機上顯示按鈕） */
+function openBox(v,t,title,note){
+  const url=protoUrl(v,t.go[v]);
+  return `<div class="qr wide-only" style="margin-top:0"><div class="box" data-qr="${esc(url)}"></div><div><strong>${title}</strong><br><span class="hint">${note}</span><br><a class="hint" href="${esc(url)}" target="_blank" rel="noopener" data-open="1">手機掃不到？在這台電腦打開 ↗</a></div></div>
+    <div class="open narrow-only"><a class="btn" href="${esc(url)}" target="_blank" rel="noopener" data-open="1">打開導覽 ↗</a> <span class="meta">畫面停在「${esc(t.where)}」</span></div>`;
+}
+/* 一個核心任務：讀任務 → 按開始計時 → 手機上做 → 按結果停止計時 → 填答案與 SEQ */
 function taskCard(vi,q,t,j,locked){
-  const v=S.order[vi], k=tk(v,q,t), T=S.tasks[k]||{};
-  const head=`<div class="tk-h"><span class="tk-n">任務 ${j+1}</span>${T.status?`<span class="hint">${esc(label(STATUS,T.status))}・用了 ${mmss(T.secs)}</span>`:''}</div>`;
+  const v=S.order[vi], k=tk(v,q,t), T=S.tasks[k]||{}, n=TNO[q.id+t.id];
+  const head=`<div class="tk-h"><span class="tk-n">任務 ${n} / ${NTASK}</span>${T.status?`<span class="hint">${esc(label(STATUS,T.status))}・用了 ${mmss(T.secs)}</span>`:''}</div>`;
   if(locked) return `<div class="card tk locked">${head}<p class="hint" style="margin:0">做完上一個任務後才會出現。</p></div>`;
-  let body=`<p class="tk-do">${esc(t.do)}</p>`;
-  if(!T.t0) body+=`<div class="tk-go"><button class="btn" type="button" data-act="start" data-k="${k}">開始</button><span class="hint">讀完任務再按開始，接著在手機上操作。</span></div>`;
-  else if(!T.status) body+=`<div class="tk-run"><div class="timer" id="tm-${k}" data-t0="${T.t0}">計時中</div><div class="hint" style="margin-bottom:10px">做完或決定放棄，馬上回來按一個：</div>
+  /* 同一情境的第 2 個任務：接著上一個任務的畫面做；上一個放棄了，就先給這一題的起始畫面 */
+  let restart='';
+  if(j>0){ const prev=S.tasks[tk(v,q,q.tasks[j-1])]||{}, show=T.help||prev.status==='gaveup';
+    restart = show
+      ? `<div class="tk-help">${prev.status==='gaveup'?'<p style="margin:0 0 10px"><strong>上一題放棄了沒關係。</strong>先用手機掃這個，回到這一題的起始畫面，再按開始。</p>':''}${openBox(v,t,'這一題的起始畫面','畫面會停在「'+esc(t.where)+'」。')}</div>`
+      : `<p class="hint" style="margin:0">接著剛才的畫面做就好。畫面亂掉了？<button type="button" class="linkbtn" style="padding:0" data-act="help" data-k="${k}">回到這一題的起始畫面</button></p>`; }
+  let body=`<p class="tk-do">${esc(t.do)}</p><p class="hint" style="margin:-4px 0 0">${esc(t.done)}</p>${restart}`;
+  if(!T.t0) body+=`<div class="tk-go" id="st-${k}"><button class="btn" type="button" data-act="start" data-k="${k}">開始</button><span class="hint">讀完任務再按開始，接著在手機上操作。</span></div>`;
+  else if(!T.status) body+=`<div class="tk-run" id="st-${k}"><div class="timer" id="tm-${k}" data-t0="${T.t0}">計時中</div><div class="hint" style="margin-bottom:10px">做完或決定放棄，馬上回來按一個：</div>
     <div class="choices">${STATUS.map(([s,l])=>`<button type="button" data-act="stop" data-k="${k}" data-val="${s}">${esc(l)}</button>`).join('')}</div></div>`;
   else body+=`<div class="stack" style="gap:16px">
-    <div><div class="q">結果</div>${choices('task.'+k+'.status',STATUS,T.status)}<button type="button" class="linkbtn" data-act="redo" data-k="${k}">重新計時</button></div>
-    ${T.status==='gaveup'?'':`<div><label class="q" for="ans-${k}">${esc(t.ask)}</label><input type="text" id="ans-${k}" data-in="task.${k}.answer" value="${esc(T.answer)}" placeholder="${esc(t.ph)}" autocomplete="off"></div>`}
-    ${t.how?`<div><div class="q">你用了哪一種方式？</div>${choices('task.'+k+'.how',HOW,T.how)}
-      ${T.how==='other'?`<label class="hint" for="how-${k}" style="display:block;margin:12px 0 6px">是什麼方式？</label><input type="text" id="how-${k}" data-in="task.${k}.howtxt" value="${esc(T.howtxt)}" placeholder="例如：從首頁的熱門展品找到" autocomplete="off">`:''}</div>`:''}
-    ${t.taps?`<div><div class="q">從開始到看到位置，你大約點了幾下？</div>${choices('task.'+k+'.taps',TAPS,T.taps)}</div>`:''}
-    <div><div class="q">過程中有遇到下面這些情況嗎？<span class="hint">（可複選）</span></div>${multi('task.'+k+'.fr',FRICTION,T.fr)}
-      <label class="hint" for="frn-${k}" style="display:block;margin:12px 0 6px">想補充發生了什麼？<span>（選填）</span></label><textarea id="frn-${k}" data-in="task.${k}.frnote" style="min-height:64px" placeholder="例如：我以為○○可以按，按了沒反應">${esc(T.frnote)}</textarea></div>
-    <div><div class="q">點錯、或退回上一頁大約幾次？</div>${choices('task.'+k+'.errs',ERRS,T.errs)}</div></div>`;
-  return `<div class="card tk">${head}${body}</div>`;
+    <div id="st-${k}"><div class="q">結果</div>${choices('task.'+k+'.status',STATUS,T.status)}<button type="button" class="linkbtn" data-act="redo" data-k="${k}">重新計時</button></div>
+    ${T.status==='gaveup'?'':`<div id="ans-${k}"><label class="q" for="ansi-${k}">${esc(t.ask)}</label><input type="text" id="ansi-${k}" data-in="task.${k}.answer" value="${esc(T.answer)}" placeholder="${esc(t.ph)}" autocomplete="off"></div>`}
+    ${t.how?`<div id="how-${k}"><div class="q">你用了哪一種方式？</div>${choices('task.'+k+'.how',HOW,T.how)}
+      ${T.how==='other'?`<label class="hint" for="howi-${k}" style="display:block;margin:12px 0 6px">是什麼方式？</label><input type="text" id="howi-${k}" data-in="task.${k}.howtxt" value="${esc(T.howtxt)}" placeholder="例如：從首頁的熱門展品找到" autocomplete="off">`:''}</div>`:''}
+    <div id="seq-${k}" class="seqbox"><div class="q">整體而言，完成這項任務有多容易？</div>${scale('task.'+k+'.seq',T.seq,'非常困難','非常容易',7)}</div>
+    <details class="more"${(T.fr||[]).length||T.frnote||T.taps?' open':''}><summary>補充卡住的地方（選填）</summary><div class="stack" style="gap:14px;margin-top:12px">
+      ${t.taps?`<div><div class="q">從開始到看到廁所位置，你大約點了幾下？</div>${choices('task.'+k+'.taps',TAPS,T.taps)}</div>`:''}
+      <div><div class="q">過程中有遇到下面這些情況嗎？<span class="hint">（可複選）</span></div>${multi('task.'+k+'.fr',FRICTION,T.fr)}</div>
+      <div><label class="q" for="frn-${k}">想補充發生了什麼？</label><textarea id="frn-${k}" data-in="task.${k}.frnote" style="min-height:64px" placeholder="例如：我以為○○可以按，按了沒反應">${esc(T.frnote)}</textarea></div></div></details></div>`;
+  return `<div class="card tk" id="tk-${k}">${head}${body}</div>`;
 }
 
 function render(scroll){
@@ -270,75 +305,73 @@ function render(scroll){
   const app=$('#app'); let h='';
   if(kind==='intro'){
     h=`<div class="stack view"><div><div class="eyebrow">國立臺灣歷史博物館・Web 導覽系統原型</div><h1>幫我們試試看，新的 Web 導覽系統好不好用</h1>
-    <p class="lead">我們做了${S.order.length>1?'兩個版本':'一個版本'}的 Web 導覽系統，想知道參觀的人用起來順不順。接下來有 ${QS.length} 個參觀情境，每個情境有幾個小任務，照著做，做完告訴我們感覺。</p></div>
-    <div class="facts"><div><b>${S.order.length*NTASK}</b><span>個小任務</span></div><div><b>約 ${S.order.length>1?40:20} 分</b><span>全部做完</span></div><div><b>輕鬆就好</b><span>照平常習慣用，沒有標準答案</span></div></div>
-    <div class="card"><ol class="rules"><li>沒有人在旁邊，遇到卡住的地方<strong>不用問人</strong>，照你自己的直覺做就好。卡住正是我們想知道的。</li><li>每個任務都會計時，只是記錄，不用趕。找不到就按「放棄」，不用硬猜。</li><li>原型裡的活動時間、展品內容是示意資料，聲音不一定會真的播放。</li><li>中途關掉也沒關係，用同一個瀏覽器再打開會接著做。</li></ol></div></div>`;
+    <p class="lead">我們做了${S.order.length>1?'兩個版本':'一個版本'}的 Web 導覽系統，想知道參觀的人用起來順不順。接下來有 ${QS.length} 個參觀情境、${NTASK} 個任務${S.order.length>1?'，兩個版本各做一次':''}，每個任務做完給一個分數，每個版本做完再填一份 10 題的整體感受。</p></div>
+    <div class="facts"><div><b>${S.order.length*NTASK}</b><span>個任務</span></div><div><b>約 ${S.order.length>1?30:15} 分</b><span>全部做完</span></div><div><b>輕鬆就好</b><span>照平常習慣用，沒有標準答案</span></div></div>
+    <div class="card"><ol class="rules"><li>沒有人在旁邊，遇到卡住的地方<strong>不用問人</strong>，照你自己的直覺做就好。卡住正是我們想知道的。</li><li>每個任務都會計時，只是記錄，不用趕。找不到就按「放棄」，不用硬猜。</li>
+    <li><strong>聲音和影片都是示意。</strong>看到播放畫面開始播放、或出現手語影片，就算做到了，不用聽完、看完。每個任務下方都會寫怎樣算完成。</li>
+    <li>請依照<strong>你自己</strong>操作的感受作答，不用猜觀眾會怎麼想。</li><li>中途關掉也沒關係，用同一個瀏覽器再打開會接著做。</li></ol></div></div>`;
   }
   if(kind==='profile'){
     const P=S.profile;
     h=`<div class="stack view"><div><div class="eyebrow">開始前</div><h2>先認識你一下</h2><p class="lead">只用來分析，不會公開。</p></div>
     <div><label class="q" for="nick">怎麼稱呼你？<span class="hint">（選填，代號也可以）</span></label><input type="text" id="nick" data-in="profile.nick" value="${esc(P.nick)}" autocomplete="off"></div>
-    <div><div class="q">年齡</div>${choices('profile.age',AGE,P.age)}</div>
-    <div><div class="q">你在館內主要負責哪一塊？</div>${choices('profile.role',ROLE,P.role)}</div>
-    <div><div class="q">你對館內現有的導覽服務熟悉嗎？</div>${choices('profile.guide',GUIDE,P.guide)}</div>
+    <div id="pf-age"><div class="q">年齡</div>${choices('profile.age',AGE,P.age)}</div>
+    <div><div class="q">你在館內主要負責哪一塊？<span class="hint">（選填）</span></div>${choices('profile.role',ROLE,P.role)}</div>
+    <div><div class="q">你對館內現有的導覽服務熟悉嗎？<span class="hint">（選填）</span></div>${choices('profile.guide',GUIDE,P.guide)}</div>
     </div>`;
   }
   if(kind==='howto'){
     h=`<div class="stack view"><div><div class="eyebrow">怎麼進行</div><h2>電腦看題目，手機操作導覽</h2></div>
     <div class="card stack"><p style="margin:0">請準備<strong>一台電腦和一支手機</strong>：這個表單開在電腦上，Web 導覽系統開在手機上。</p>
-    <div class="demo"><div><b>① 讀情境</b>掃 QR Code，在手機打開導覽</div><div><b>② 按開始</b>在手機上做任務</div><div><b>③ 按結果</b>回到電腦填答</div></div>
+    <div class="demo"><div><b>① 讀情境</b>掃 QR Code，在手機打開導覽</div><div><b>② 按開始</b>在手機上做任務</div><div><b>③ 按結果</b>回到電腦填答案和分數</div></div>
     <p style="margin:0" class="hint narrow-only">你現在用手機開這個表單？最好改用電腦打開；真的只有手機的話，每個情境按「打開導覽」，做完再切回這個分頁。</p></div>
-    <div class="card stack" style="gap:10px"><p style="margin:0"><strong>每個情境都從指定的畫面開始。</strong>有的從最開始的畫面，有的直接開在「參觀到一半」的畫面，掃了就會看到。</p>
-    <p style="margin:0"><strong>同一個情境裡的任務是接著做的</strong>，做完一個不用重新掃，繼續在原本的畫面往下做。</p></div>
-    <div class="card"><p style="margin:0"><strong>遇到卡住、點錯，請照實記下來。</strong>每個任務做完，會請你勾選有沒有點錯、找不到按鈕、畫面卡住，這些是我們最需要的資料，不會算你做錯。</p></div></div>`;
+    <div class="card stack" style="gap:10px"><p style="margin:0"><strong>每個情境都從指定的畫面開始。</strong>有的從最開始的畫面，有的直接開在「導覽聽到一半」的畫面，掃了就會看到。</p>
+    <p style="margin:0"><strong>同一個情境裡的第二個任務，接著剛才的畫面做。</strong>上一題放棄了，會給你這一題的起始畫面重新開始。</p></div>
+    <div class="card"><p style="margin:0"><strong>每個任務做完，給一個 1–7 分</strong>：整體而言，完成這項任務有多容易？1＝非常困難、7＝非常容易。遇到點錯、找不到按鈕，可以在下方選填補充，不會算你做錯。</p></div></div>`;
   }
   if(kind==='ver'){
     const vi=+a;
     h=`<div class="stack view"><div><span class="ver">${VNAME[vi]}${S.order.length>1?` / 共 2 個`:''}</span></div>
     <h2>${vi===0?'開始試用第一個版本':'換第二個版本'}</h2>
-    <p class="lead">${vi===0?`接下來 ${QS.length} 個情境都用同一個版本。`:`接下來的 ${QS.length} 個情境和剛才一樣，但換成另一個版本。請把它當成第一次用，照你的直覺操作。`}</p>
+    <p class="lead">${vi===0?`接下來 ${NTASK} 個任務都用同一個版本，做完再填一份 10 題的整體感受。`:`接下來的 ${NTASK} 個任務和剛才一樣，但換成另一個版本。請把它當成第一次用，照你的直覺操作。`}</p>
     ${vi===1?'<div class="card"><p style="margin:0">這兩個版本是兩種不同的設計方向，館方會參考大家的使用感受，從中選出一個。所以題目刻意保持一樣，方便直接比較。</p></div>':''}</div>`;
   }
   if(kind==='q'){
-    const vi=+a, qi=+b, q=QS[qi], v=S.order[vi], url=protoUrl(v,q.go[v]), Q=S.qs[qkey(v,q)]||{};
+    const vi=+a, qi=+b, q=QS[qi], v=S.order[vi], t0=q.tasks[0];
     const firstOpen=q.tasks.findIndex(t=>!(S.tasks[tk(v,q,t)]||{}).status);
-    const allDone=firstOpen<0;
     h=`<div class="stack view"><div><span class="ver">${VNAME[vi]}・情境 ${qi+1} / ${QS.length}</span></div>
     <div><div class="eyebrow">${esc(q.title)}</div><p class="scenario">${esc(q.scenario)}</p></div>
-    <div class="card"><div class="qr wide-only" style="margin-top:0"><div class="box" data-qr="${esc(url)}"></div><div><strong>先用手機掃這個 QR Code</strong><br><span class="hint">會打開${VNAME[vi]}的導覽，畫面停在「${esc(q.where)}」。打開後再開始任務。</span><br><a class="hint" href="${esc(url)}" target="_blank" rel="noopener" data-open="1">手機掃不到？在這台電腦打開 ↗</a></div></div>
-    <div class="open narrow-only"><a class="btn" href="${esc(url)}" target="_blank" rel="noopener" data-open="1">打開導覽 ↗</a> <span class="meta">畫面停在「${esc(q.where)}」</span></div></div>
-    ${q.labels?`<div class="lbls">${q.tasks.map(t=>labelCard(v,t.label,t.label==='412'?'展品說明牌 A':'展品說明牌 B')).join('')}</div><p class="hint" style="margin:-8px 0 0">說明牌上的 QR Code 掃了也會打開導覽，用不用都可以。</p>`:''}
-    ${q.tasks.map((t,j)=>taskCard(vi,q,t,j,firstOpen>=0&&j>firstOpen)).join('')}
-    ${allDone?`<div class="card stack"><div class="eyebrow" style="margin:0">這個情境做完了，整體感覺如何？</div>
-      ${q.pref?`<div><div class="q">如果在現場，你最想用哪一種方式找展品的導覽？</div>${choices('q.'+qkey(v,q)+'.pref',[...HOW.slice(0,4),['any','都可以']],Q.pref)}</div>`:''}
-      <div><div class="q">介面簡潔度：剛才用到的畫面，看起來簡潔、不雜亂</div>${scale('q.'+qkey(v,q)+'.clean',Q.clean,'非常不同意','非常同意',5)}</div>
-      <div><div class="q">文字大小：畫面上的字，讀起來大小剛好、不吃力</div>${scale('q.'+qkey(v,q)+'.text',Q.text,'非常不同意','非常同意',5)}</div>
-      <div><label class="q" for="qn">還有哪裡讓你猶豫，或覺得很順？<span class="hint">（選填）</span></label><textarea id="qn" data-in="q.${qkey(v,q)}.note" placeholder="例如：我一開始以為要按○○，結果…">${esc(Q.note)}</textarea></div></div>`:''}</div>`;
+    <div class="card">${openBox(v,t0,'先用手機掃這個 QR Code','會打開'+VNAME[vi]+'的導覽，畫面停在「'+esc(t0.where)+'」。打開後再開始任務。')}</div>
+    ${q.labels?`<div class="lbls">${labelCard(v,'412','展品說明牌')}</div><p class="hint" style="margin:-8px 0 0">說明牌上的 QR Code 掃了也會打開導覽，用不用都可以。</p>`:''}
+    ${q.tasks.map((t,j)=>taskCard(vi,q,t,j,firstOpen>=0&&j>firstOpen)).join('')}</div>`;
   }
-  if(kind==='umux'){
-    const vi=+a, v=S.order[vi], U=S.umux[v]||{};
-    h=`<div class="stack view"><div><span class="ver">${VNAME[vi]}・整體感覺</span></div><h2>${VNAME[vi]}用起來怎麼樣？</h2>
-    <div><div class="q">這個版本能滿足我參觀時的需要</div>${scale('umux.'+v+'.q1',U.q1,'非常不同意','非常同意')}</div>
-    <div><div class="q">這個版本很容易使用</div>${scale('umux.'+v+'.q2',U.q2,'非常不同意','非常同意')}</div>
-    <div><label class="q" for="un">最喜歡、或最想改的地方？<span class="hint">（選填）</span></label><textarea id="un" data-in="umux.${v}.note">${esc(U.note)}</textarea></div></div>`;
+  if(kind==='sus'){
+    const vi=+a, v=S.order[vi], U=S.ver[v]||{}, sus=U.sus||[];
+    h=`<div class="stack view"><div><span class="ver">${VNAME[vi]}・整體感受</span></div><h2>${VNAME[vi]}用起來怎麼樣？</h2>
+    <p class="lead">請依照剛才使用「這個版本」的實際感受回答，是你自己的感受，不用猜觀眾會怎麼想。每一題都要回答，沒有對錯。</p>
+    <div class="card stack" style="gap:22px">${SUS.map((s,i)=>`<div id="sus-${v}-${i}"><div class="q">${i+1}. ${esc(s)}</div>
+      <div class="lk" role="radiogroup">${LIKERT5.map((l,x)=>`<button type="button" role="radio" aria-checked="${sus[i]===x+1}" data-set="ver.${v}.sus.${i}" data-val="${x+1}" data-num="1"><b>${x+1}</b><span>${l}</span></button>`).join('')}</div></div>`).join('')}</div>
+    <div class="card stack" style="gap:22px">
+      <div id="cl-${v}"><div class="q">介面簡潔度：這個版本的畫面看起來簡潔、不雜亂</div>${scale('ver.'+v+'.clean',U.clean,'非常不同意','非常同意',5)}</div>
+      <div id="tx-${v}"><div class="q">文字大小：這個版本畫面上的字，讀起來大小剛好、不吃力</div>${scale('ver.'+v+'.text',U.text,'非常不同意','非常同意',5)}</div>
+      <div><label class="q" for="un">最喜歡、或最想改的地方？<span class="hint">（選填）</span></label><textarea id="un" data-in="ver.${v}.note">${esc(U.note)}</textarea></div></div></div>`;
   }
   if(kind==='compare'){
     const C=S.compare;
     h=`<div class="stack view"><div class="eyebrow">最後一題</div><h2>兩個版本比一比</h2>
-    <div><div class="q">如果真的去臺史博，你會想用哪一個？</div>${choices('compare.pick',[['v1','版本一'],['v2','版本二'],['same','差不多']],C.pick)}</div>
-    <div><label class="q" for="why">為什麼？</label><textarea id="why" data-in="compare.why" placeholder="例如：版本一比較快找到…">${esc(C.why)}</textarea></div></div>`;
+    <div id="cmp"><div class="q">如果真的去臺史博，你會想用哪一個？</div>${choices('compare.pick',[['v1','版本一'],['v2','版本二'],['same','差不多']],C.pick)}</div>
+    <div><label class="q" for="why">為什麼？<span class="hint">（選填）</span></label><textarea id="why" data-in="compare.why" placeholder="例如：版本一比較快找到…">${esc(C.why)}</textarea></div></div>`;
   }
   if(kind==='review'){
     /* 送出前檢視：每一段都可以按「修改」跳回去，改完按「回到檢視頁」 */
     const at=step=>st.indexOf(step), P=S.profile;
     const row=(k,v)=>`<div style="display:flex;gap:12px;font-size:14px;line-height:1.6"><span class="hint" style="flex:0 0 76px;font-size:14px">${k}</span><span style="flex:1;min-width:0;overflow-wrap:anywhere">${v?esc(v):'<span class="hint">（沒填）</span>'}</span></div>`;
     const card=(title,go,body)=>`<div class="card stack" style="gap:8px"><div style="display:flex;align-items:center;gap:12px"><strong style="flex:1">${title}</strong><button class="btn ghost" type="button" style="padding:6px 14px;font-size:14px" data-goto="${go}">修改</button></div>${body}</div>`;
-    const trow=(T,j)=>row('任務 '+(j+1),[label(STATUS,T.status), T.secs!=null?mmss(T.secs):'', T.status==='gaveup'?'':T.answer, T.how?(T.how==='other'&&T.howtxt?'其他方式：'+T.howtxt:label(HOW,T.how)):'', (T.fr||[]).map(x=>label(FRICTION,x)).join('、'), T.frnote, T.errs!=null?'點錯 '+label(ERRS,T.errs):''].filter(Boolean).join('・'));
+    const trow=(t,T)=>row('任務 '+TNO[t.key],[label(STATUS,T.status), T.secs!=null?mmss(T.secs):'', T.status==='gaveup'?'':T.answer, T.how?(T.how==='other'&&T.howtxt?'其他方式：'+T.howtxt:label(HOW,T.how)):'', T.seq?'容易度 '+T.seq+' / 7':''].filter(Boolean).join('・'));
     h=`<div class="stack view"><div><div class="eyebrow">送出前</div><h2>檢查一下你的回答</h2><p class="lead">想改哪裡就按「修改」，改完會回到這一頁。確認沒問題再按「送出」。</p></div>
     ${card('基本資料',at('profile'),row('稱呼',P.nick)+row('年齡',P.age)+row('館內負責',P.role)+row('熟悉導覽',P.guide))}
-    ${S.order.map((v,vi)=>`<h3 style="margin:8px 0 0;font-size:17px">${VNAME[vi]}</h3>`+QS.map((q,qi)=>{ const Q=S.qs[qkey(v,q)]||{};
-      return card(`情境 ${qi+1}・${esc(q.title)}`,at('q:'+vi+':'+qi), q.tasks.map((t,j)=>trow(S.tasks[tk(v,q,t)]||{},j)).join('')+row('簡潔度',Q.clean?Q.clean+' / 5':'')+row('文字大小',Q.text?Q.text+' / 5':'')+(Q.note?row('想說的',Q.note):'')); }).join('')
-      +(()=>{ const U=S.umux[v]||{}; return card('整體感覺',at('umux:'+vi),row('滿足需要',U.q1?U.q1+' / 7':'')+row('容易使用',U.q2?U.q2+' / 7':'')+row('想說的',U.note)); })()).join('')}
+    ${S.order.map((v,vi)=>`<h3 style="margin:8px 0 0;font-size:17px">${VNAME[vi]}</h3>`+QS.map((q,qi)=>card(`情境 ${qi+1}・${esc(q.title)}`,at('q:'+vi+':'+qi), q.tasks.map(t=>trow({...t,key:q.id+t.id},S.tasks[tk(v,q,t)]||{})).join(''))).join('')
+      +(()=>{ const U=S.ver[v]||{}, sc=susScore(U.sus); return card('整體感受',at('sus:'+vi),row('十題',(U.sus||[]).filter(Boolean).length+' / 10 題已答')+row('簡潔度',U.clean?U.clean+' / 5':'')+row('文字大小',U.text?U.text+' / 5':'')+row('想說的',U.note)); })()).join('')}
     ${S.order.length>1?card('兩個版本比一比',at('compare'),row('偏好',{v1:'版本一',v2:'版本二',same:'差不多'}[S.compare.pick])+row('原因',S.compare.why)):''}</div>`;
   }
   if(kind==='done'){
@@ -356,30 +389,39 @@ function render(scroll){
 function tick(){ document.querySelectorAll('.timer[data-t0]').forEach(el=>{ const s=Math.round((Date.now()-+el.dataset.t0)/1000); el.textContent='計時中 '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }); }
 setInterval(tick,1000);
 
+/* 還沒填的必答題：回傳 [提示文字, 要捲過去標示的元素 id]；全部填好回傳 null */
 function missing(kind,a,b){
-  if(kind==='profile') return S.profile.age?'':'請選年齡';
+  if(kind==='profile') return S.profile.age?null:['請選年齡','pf-age'];
   if(kind==='q'){ const v=S.order[+a], q=QS[+b];
-    for(const [j,t] of q.tasks.entries()){ const T=S.tasks[tk(v,q,t)]||{}, n='任務 '+(j+1);
-      if(!T.status) return n+'還沒做完';
-      if(t.how&&!T.how) return n+'：請選用了哪種方式';
-      if(t.how&&T.how==='other'&&!(T.howtxt||'').trim()) return n+'：請寫下是什麼方式';
-      if(t.taps&&!T.taps) return n+'：請選大約點了幾下';
-      if(!(T.fr||[]).length) return n+'：請勾有沒有遇到狀況';
-      if(T.errs==null) return n+'：請選點錯幾次'; }
-    const Q=S.qs[qkey(v,q)]||{};
-    if(q.pref&&!Q.pref) return '請選最想用的方式';
-    return Q.clean&&Q.text?'':'請給簡潔度和文字大小分數'; }
-  if(kind==='umux'){ const U=S.umux[S.order[+a]]||{}; return U.q1&&U.q2?'':'請回答兩題分數'; }
-  if(kind==='compare') return S.compare.pick?'':'請選一個';
-  return '';
+    for(const t of q.tasks){ const k=tk(v,q,t), T=S.tasks[k]||{}, n='任務 '+TNO[q.id+t.id];
+      if(!T.status) return [n+(T.t0?'：做完請按結果':'：還沒開始'),'st-'+k];
+      if(T.status!=='gaveup'&&!(T.answer||'').trim()) return [n+'：請寫下答案','ans-'+k];
+      if(t.how&&!T.how) return [n+'：請選用了哪種方式','how-'+k];
+      if(t.how&&T.how==='other'&&!(T.howtxt||'').trim()) return [n+'：請寫下是什麼方式','how-'+k];
+      if(!T.seq) return [n+'：請給容易度分數（1–7）','seq-'+k]; }
+    return null; }
+  if(kind==='sus'){ const v=S.order[+a], U=S.ver[v]||{}, sus=U.sus||[];
+    for(let i=0;i<10;i++) if(!sus[i]) return ['第 '+(i+1)+' 題還沒回答','sus-'+v+'-'+i];
+    if(!U.clean) return ['請給介面簡潔度分數','cl-'+v];
+    if(!U.text) return ['請給文字大小分數','tx-'+v];
+    return null; }
+  if(kind==='compare') return S.compare.pick?null:['請選一個','cmp'];
+  return null;
 }
 function bar(kind,a,b){
-  const st=steps(); const m=missing(kind,a,b);
+  const st=steps();
   $('#bar').hidden = kind==='done';
   $('#back').style.visibility = S.step===0?'hidden':'visible';
-  $('#need').textContent=m;
-  $('#next').disabled=!!m;
+  $('#need').textContent='';
   $('#next').textContent = kind==='intro'?'開始':st[S.step+1]==='done'?'送出':S.fromReview?'回到檢視頁':'下一步';
+}
+/* 漏答：不擋按鈕，按下一步時指出缺哪一題，捲過去並標示 */
+function showMissing(m){
+  document.querySelectorAll('.need-mark').forEach(x=>x.classList.remove('need-mark'));
+  $('#need').textContent=m[0];
+  const el=document.getElementById(m[1]); if(!el) return;
+  el.classList.add('need-mark'); el.scrollIntoView({behavior:'smooth',block:'center'});
+  const f=el.querySelector('input,textarea,button'); if(f) setTimeout(()=>f.focus({preventScroll:true}),350);
 }
 function curKind(){ return steps()[S.step].split(':'); }
 
@@ -391,16 +433,17 @@ document.addEventListener('click',e=>{
     if(act.dataset.act==='start'){ T.t0=Date.now(); }
     if(act.dataset.act==='stop'){ T.secs=Math.round((Date.now()-T.t0)/1000); T.status=act.dataset.val; }
     if(act.dataset.act==='redo'){ T.t0=null; T.status=null; T.secs=null; T.redo=(T.redo||0)+1; }
+    if(act.dataset.act==='help'){ T.help=true; }   /* 使用過「回到起始畫面」協助 */
     save(); render(); return; }
   const c=e.target.closest('[data-set]');
-  if(c){ setVal(c.dataset.set, c.dataset.num?+c.dataset.val:c.dataset.val); render(); return; }
+  if(c){ const y=window.scrollY; setVal(c.dataset.set, c.dataset.num?+c.dataset.val:c.dataset.val); render(); window.scrollTo(0,y); return; }
   const m=e.target.closest('[data-tog]');
   if(m){ toggle(m.dataset.tog, m.dataset.val); render(); return; }
-  if(e.target.closest('[data-open]')){ const [k,a,b]=curKind(); if(k==='q'){ const key=qkey(S.order[+a],QS[+b]); const Q=S.qs[key]=S.qs[key]||{}; Q.opens=(Q.opens||0)+1; save(); } }
 });
-document.addEventListener('input',e=>{ const p=e.target.dataset.in; if(p){ setVal(p,e.target.value); const [k,a,b]=curKind(); bar(k,a,b);} });
+document.addEventListener('input',e=>{ const p=e.target.dataset.in; if(p){ setVal(p,e.target.value); const box=e.target.closest('.need-mark'); if(box) box.classList.remove('need-mark'); } });
 $('#next').addEventListener('click',()=>{
-  const st=steps();
+  const st=steps(), [kind,a,b]=curKind(), m=missing(kind,a,b);
+  if(m){ showMissing(m); return; }
   if(S.fromReview){ S.fromReview=false; S.step=st.indexOf('review'); } else S.step=Math.min(S.step+1,st.length-1);
   save(); render(true);
 });
@@ -409,15 +452,16 @@ $('#back').addEventListener('click',()=>{ S.step=Math.max(0,S.step-1); save(); r
 /* ===== 送出：能寫進共享資料就寫；不能（例如沒登入）就給一段文字讓受測者傳回 ===== */
 function payload(){
   const tasks={}; Object.entries(S.tasks).forEach(([k,x])=>{ const {t0,...rest}=x; tasks[k]=rest; });
-  return {v:2, sid:S.sid, order:S.order.join(''), profile:S.profile, tasks, qs:S.qs, umux:S.umux, compare:S.compare, startedAt:S.startedAt, finishedAt:new Date().toISOString(), ua:navigator.userAgent.slice(0,120)};
+  const ver={}; Object.entries(S.ver).forEach(([v,u])=>ver[v]={...u, susScore:susScore(u.sus)});
+  return {v:3, sid:S.sid, order:S.order.join(''), profile:S.profile, tasks, ver, compare:S.compare, startedAt:S.startedAt, finishedAt:new Date().toISOString(), ua:navigator.userAgent.slice(0,120)};
 }
 /* 把結果拆成 Google 表單的一題一欄；原本整包 JSON 那欄保留當備份 */
 function gfInputs(data){
   const p=data.profile||{}, r={sid:data.sid, order:data.order.split('').join(' → '), nick:p.nick, age:p.age, role:p.role, guide:p.guide, started:data.startedAt, finished:data.finishedAt};
-  Object.entries(data.tasks).forEach(([k,x])=>{ r[k+'_status']=label(STATUS,x.status); r[k+'_secs']=x.secs; r[k+'_answer']=x.status==='gaveup'?'':x.answer;
-    r[k+'_how']=x.how==='other'&&x.howtxt?'其他方式：'+x.howtxt:label(HOW,x.how); r[k+'_taps']=label(TAPS,x.taps); r[k+'_fr']=(x.fr||[]).map(f=>label(FRICTION,f)).join('、'); r[k+'_frnote']=x.frnote; r[k+'_errs']=label(ERRS,x.errs); });
-  Object.entries(data.qs||{}).forEach(([k,x])=>{ r[k+'_clean']=x.clean; r[k+'_text']=x.text; r[k+'_note']=x.note; r[k+'_pref']=x.pref==='any'?'都可以':label(HOW,x.pref); });
-  Object.entries(data.umux||{}).forEach(([v,u])=>{ r[v+'_umux_q1']=u.q1; r[v+'_umux_q2']=u.q2; r[v+'_umux_note']=u.note; });
+  Object.entries(data.tasks).forEach(([k,x])=>{ r[k+'_status']=label(STATUS,x.status); r[k+'_secs']=x.secs; r[k+'_answer']=x.status==='gaveup'?'':x.answer; r[k+'_seq']=x.seq;
+    r[k+'_how']=x.how==='other'&&x.howtxt?'其他方式：'+x.howtxt:label(HOW,x.how); r[k+'_taps']=label(TAPS,x.taps);
+    r[k+'_fr']=(x.fr||[]).map(f=>label(FRICTION,f)).join('、'); r[k+'_frnote']=x.frnote; r[k+'_help']=x.help?'有':'沒有'; });
+  Object.entries(data.ver||{}).forEach(([v,u])=>{ (u.sus||[]).forEach((x,i)=>r[v+'_sus'+(i+1)]=x); r[v+'_sus']=u.susScore; r[v+'_clean']=u.clean; r[v+'_text']=u.text; r[v+'_note']=u.note; });
   const c=data.compare||{}; if(c.pick) r.pick=c.pick==='same'?'差不多':(S.order[c.pick==='v1'?0:1]+' 版'); r.why=c.why;
   return Object.entries(r).filter(([k,v])=>GFORM.fields&&GFORM.fields[k]&&v!=null&&v!=='').map(([k,v])=>`<input type="hidden" name="entry.${GFORM.fields[k]}" value="${esc(v)}">`).join('');
 }
@@ -451,7 +495,7 @@ async function results(){
     db=await claude.use('db');
     if(!db||!owner){ app.innerHTML='<div class="card">結果只有測試負責人看得到。</div>'; return; }
     const [a,b]=await Promise.all([db.collection('responses').get(), db.collection('imported').get()]);
-    const seen=new Set(); [...a.docs,...b.docs].map(d=>d.data()).forEach(r=>{ if(r&&r.sid&&r.v===2&&!seen.has(r.sid)){ seen.add(r.sid); rows.push(r); } });   /* 只算新版題目（v2） */
+    const seen=new Set(); [...a.docs,...b.docs].map(d=>d.data()).forEach(r=>{ if(r&&r.sid&&r.v===3&&!seen.has(r.sid)){ seen.add(r.sid); rows.push(r); } });   /* 只算這一版題目（v3） */
   }catch(e){ app.innerHTML='<div class="card">讀不到結果，稍後再試。</div>'; return; }
   /* 匯入：Google 試算表那一欄、或受測者傳回的「複製結果」，整段貼上；每筆用 sid 去重 */
   const importCard=`<div class="card stack"><h3 style="margin:0;font-size:16px">匯入回覆</h3><p class="hint" style="margin:0">打開 Google 表單的回覆試算表，選取「試用結果」整欄複製貼上；受測者用 LINE／Email 傳回的「複製結果」也貼這裡。重複的會自動略過。</p>
@@ -472,36 +516,35 @@ async function results(){
   const med=a=>{ if(!a.length) return null; const s=[...a].sort((x,y)=>x-y); const m=s.length>>1; return s.length%2?s[m]:(s[m-1]+s[m])/2; };
   const f1=v=>v==null?'—':v.toFixed(1);
   const pick=k=>rows.filter(r=>r.compare&&r.compare.pick&&({v1:r.order[0],v2:r.order[1],same:'same'}[r.compare.pick])===k).length;
-  const umux=v=>{ const us=rows.map(r=>(r.umux||{})[v]).filter(u=>u&&u.q1&&u.q2); return {n:us.length, score:avg(us.map(u=>((u.q1-1)+(u.q2-1))/12*100))}; };
-  /* 一個任務一列：完成（自選「我完成了」）／秒數中位數／目標秒數內／平均點錯／最常見的卡關 */
-  const tstat=(v,q,t,first)=>{ const rs=rows.filter(r=>!first||r.order[0]===v).map(r=>(r.tasks||{})[tk(v,q,t)]).filter(x=>x&&x.status);
-    const secs=rs.map(x=>x.secs).filter(x=>x!=null), fr={};
-    rs.forEach(x=>(x.fr||[]).filter(f=>f!=='none').forEach(f=>fr[f]=(fr[f]||0)+1));
-    return {n:rs.length, done:rs.filter(x=>x.status==='done').length, secs:med(secs), fast:t.goal?secs.filter(s=>s<=t.goal).length:null,
-      errs:avg(rs.map(x=>x.errs).filter(x=>x!=null).map(Number)), fr:Object.entries(fr).sort((a,b)=>b[1]-a[1]).map(([f,c])=>label(FRICTION,f)+' '+c).join('、')}; };
-  const qstat=(v,q,first)=>{ const xs=rows.filter(r=>!first||r.order[0]===v).map(r=>(r.qs||{})[qkey(v,q)]).filter(Boolean); return {clean:avg(xs.map(x=>x.clean).filter(Boolean)), text:avg(xs.map(x=>x.text).filter(Boolean))}; };
-  const cell=(x,t)=>`<td><span class="meter"><i style="width:${x.n?x.done/x.n*100:0}%"></i></span>${x.done}/${x.n}</td><td>${x.secs??'—'}${t.goal&&x.n?`<br><span class="hint">≤${t.goal} 秒 ${x.fast}/${x.n}</span>`:''}</td><td>${f1(x.errs)}</td><td class="hint">${esc(x.fr)||'—'}</td>`;
-  const table=first=>`<div class="tbl"><table><thead><tr><th>任務</th><th>版本</th><th>完成</th><th>秒數</th><th>點錯</th><th>卡關</th></tr></thead><tbody>${
-    QS.map((q,qi)=>{ const qa=qstat('A',q,first), qb=qstat('B',q,first);
-      return `<tr><td colspan="6" style="background:var(--paper)"><strong>情境 ${qi+1}・${esc(q.title)}</strong> <span class="hint">簡潔度 A ${f1(qa.clean)}／B ${f1(qb.clean)}・文字大小 A ${f1(qa.text)}／B ${f1(qb.text)}（1–5）</span></td></tr>`+
-      q.tasks.map((t,j)=>['A','B'].map((v,vi)=>`<tr>${vi===0?`<td rowspan="2">${qi+1}-${j+1} ${esc(t.do)}<br><span class="hint">${esc(t.expect)}</span></td>`:''}<td>${v}</td>${cell(tstat(v,q,t,first),t)}</tr>`).join('')).join(''); }).join('')}</tbody></table></div>`;
-  const uA=umux('A'), uB=umux('B');
-  const notes=rows.flatMap(r=>[...Object.entries(r.qs||{}).filter(([,x])=>x.note).map(([k,x])=>({k,x,r})),...Object.entries(r.tasks||{}).filter(([,x])=>x.frnote).map(([k,x])=>({k,x:{note:x.frnote},r}))]);
+  const pool=(v,first)=>rows.filter(r=>!first||r.order[0]===v);
+  const sus=(v,first)=>{ const xs=pool(v,first).map(r=>susScore(((r.ver||{})[v]||{}).sus)).filter(x=>x!=null); return {n:xs.length, mean:avg(xs), med:med(xs)}; };
+  const vavg=(v,f,first)=>avg(pool(v,first).map(r=>((r.ver||{})[v]||{})[f]).filter(Boolean));
+  /* 一個任務一列：完成（自選「我完成了」）／SEQ 平均／秒數中位數／用過重新開始 */
+  const tstat=(v,q,t,first)=>{ const rs=pool(v,first).map(r=>(r.tasks||{})[tk(v,q,t)]).filter(x=>x&&x.status);
+    return {n:rs.length, done:rs.filter(x=>x.status==='done').length, gave:rs.filter(x=>x.status==='gaveup').length, seq:avg(rs.map(x=>x.seq).filter(Boolean)), secs:med(rs.map(x=>x.secs).filter(x=>x!=null)), help:rs.filter(x=>x.help).length}; };
+  const cell=x=>`<td><span class="meter"><i style="width:${x.n?x.done/x.n*100:0}%"></i></span>${x.done}/${x.n}${x.gave?`<br><span class="hint">放棄 ${x.gave}</span>`:''}</td><td><b>${f1(x.seq)}</b></td><td>${x.secs??'—'}</td><td>${x.help||''}</td>`;
+  const table=first=>`<div class="tbl"><table><thead><tr><th>任務</th><th>版本</th><th>完成</th><th>SEQ</th><th>秒數</th><th>重開</th></tr></thead><tbody>${
+    QS.map((q,qi)=>q.tasks.map(t=>['A','B'].map((v,vi)=>`<tr>${vi===0?`<td rowspan="2">T${TNO[q.id+t.id]} ${esc(t.label)}<br><span class="hint">${esc(t.expect)}</span></td>`:''}<td>${v}</td>${cell(tstat(v,q,t,first))}</tr>`).join('')).join('')).join('')}</tbody></table></div>`;
+  const susCard=first=>{ const A=sus('A',first), B=sus('B',first);
+    return `<div class="facts"><div><b>${f1(A.mean)}</b><span>A 版 SUS 平均（${A.n} 人，中位數 ${f1(A.med)}）</span></div><div><b>${f1(B.mean)}</b><span>B 版 SUS 平均（${B.n} 人，中位數 ${f1(B.med)}）</span></div><div><b>${pick('A')} : ${pick('B')}</b><span>偏好 A : B（差不多 ${pick('same')}）</span></div></div>
+      <p class="hint" style="margin:8px 0 0">簡潔度 A ${f1(vavg('A','clean',first))}／B ${f1(vavg('B','clean',first))}・文字大小 A ${f1(vavg('A','text',first))}／B ${f1(vavg('B','text',first))}（1–5）</p>`; };
+  const notes=rows.flatMap(r=>[...Object.entries(r.ver||{}).filter(([,x])=>x.note).map(([k,x])=>({k:k+' 版整體',x:x.note,r})),...Object.entries(r.tasks||{}).filter(([,x])=>x.frnote).map(([k,x])=>({k,x:x.frnote,r}))]);
   const hows=rows.flatMap(r=>Object.entries(r.tasks||{}).filter(([,x])=>x.how).map(([k,x])=>k[0]+' '+label(HOW,x.how)));
   const howCount=['A','B'].map(v=>v+' 版：'+(HOW.map(([h,l])=>[l,hows.filter(s=>s===v+' '+l).length]).filter(x=>x[1]).map(x=>x[0]+' '+x[1]).join('、')||'—')).join('<br>');
-  app.innerHTML=`<div class="stack"><div><div class="eyebrow">研究者檢視</div><h2>試用結果・${rows.length} 人</h2><p class="lead">完成＝受測者自選「我完成了」（請對照灰字的正確答案再判讀）；秒數＝按「開始」到按結果的中位數；點錯＝自填次數平均；卡關＝勾選次數。</p></div>
-  <div class="facts"><div><b>${f1(uA.score)}</b><span>A 版 UMUX-Lite（${uA.n} 人）</span></div><div><b>${f1(uB.score)}</b><span>B 版 UMUX-Lite（${uB.n} 人）</span></div><div><b>${pick('A')} : ${pick('B')}</b><span>偏好 A : B（差不多 ${pick('same')}）</span></div></div>
-  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">情境 2：找展品導覽用的方式</h3><p style="margin:0;font-size:14px">${howCount}</p></div>
-  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">全部資料</h3>${table(false)}</div>
-  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">只看先測的那一版</h3><p class="hint" style="margin:0 0 8px">排除「第二次做」的熟悉效應，比較以這張為準。</p>${table(true)}</div>
-  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">回饋文字</h3>${notes.map(({k,x,r})=>`<div class="quote">${esc(x.note)}<br><small>${k.replace('_','・')}・${esc(r.profile?.nick||r.sid)}</small></div>`).join('')||'<p class="hint">還沒有</p>'}</div>
+  app.innerHTML=`<div class="stack"><div><div class="eyebrow">研究者檢視</div><h2>試用結果・${rows.length} 人</h2><p class="lead">完成＝受測者自選「我完成了」（請對照灰字的正確答案再判讀）；SEQ＝每個任務 1–7 分平均（7＝非常容易）；秒數＝按「開始」到按結果的中位數；重開＝用過「回到起始畫面」的人數。SUS＝每版十題換算 0–100 分，不是百分比，也不是成功率。小樣本請報人數，不換算百分比。</p></div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">SUS 與整體評分・全部資料</h3>${susCard(false)}</div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">SUS 與整體評分・只看先測的那一版</h3><p class="hint" style="margin:0 0 8px">排除「第二次做」的熟悉效應，比較以這張為準。</p>${susCard(true)}</div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">任務 2：找展品導覽用的方式</h3><p style="margin:0;font-size:14px">${howCount}</p></div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">任務結果・全部資料</h3>${table(false)}</div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">任務結果・只看先測的那一版</h3>${table(true)}</div>
+  <div class="card"><h3 style="margin:0 0 8px;font-size:16px">回饋文字</h3>${notes.map(({k,x,r})=>`<div class="quote">${esc(x)}<br><small>${esc(k.replace('_','・'))}・${esc(r.profile?.nick||r.sid)}</small></div>`).join('')||'<p class="hint">還沒有</p>'}</div>
   <div><button class="btn ghost" id="csv" type="button">複製 CSV</button> <span class="hint" id="csvm"></span></div>${importCard}</div>`;
   bindImport();
   $('#csv').onclick=async()=>{
-    const head=['sid','order','nick','age','role','guide','version','scenario','task','status','secs','answer','how','taps','friction','frnote','errs','clean','text','note'];
+    const head=['sid','order','nick','age','role','guide','version','task','status','secs','answer','seq','how','taps','friction','frnote','help','sus','clean','text'];
     const lines=[head.join(',')];
-    rows.forEach(r=>{ const p=r.profile||{}; ['A','B'].forEach(v=>QS.forEach(q=>{ const Q=(r.qs||{})[qkey(v,q)]||{}; q.tasks.forEach(t=>{ const x=(r.tasks||{})[tk(v,q,t)]; if(!x) return;
-      lines.push([r.sid,r.order,p.nick,p.age,p.role,p.guide,v,q.id,t.id,x.status,x.secs,x.answer,x.how==='other'&&x.howtxt?'other:'+x.howtxt:x.how,x.taps,(x.fr||[]).join('|'),x.frnote,x.errs,Q.clean,Q.text,Q.note].map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')); }); })); });
+    rows.forEach(r=>{ const p=r.profile||{}; ['A','B'].forEach(v=>{ const U=(r.ver||{})[v]||{}; QS.forEach(q=>q.tasks.forEach(t=>{ const x=(r.tasks||{})[tk(v,q,t)]; if(!x) return;
+      lines.push([r.sid,r.order,p.nick,p.age,p.role,p.guide,v,'T'+TNO[q.id+t.id]+' '+t.label,x.status,x.secs,x.answer,x.seq,x.how==='other'&&x.howtxt?'other:'+x.howtxt:x.how,x.taps,(x.fr||[]).join('|'),x.frnote,x.help?1:0,susScore(U.sus),U.clean,U.text].map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')); })); }); });
     try{ await navigator.clipboard.writeText(lines.join('\n')); $('#csvm').textContent='已複製，可貼進試算表'; }catch(e){ $('#csvm').textContent='瀏覽器不允許複製'; }
   };
 }
