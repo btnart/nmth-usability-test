@@ -109,13 +109,15 @@ th{font-weight:500;color:var(--muted);font-size:13px}
 .need-mark{outline:2px solid var(--warn);outline-offset:6px;border-radius:10px;animation:needpulse 1s ease-out 2}
 @keyframes needpulse{0%{outline-color:transparent}50%{outline-color:var(--warn)}}
 .bar .need{color:var(--warn);font-weight:500}
-/* SUS 五點量表：數字＋文字標籤 */
-.lk{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-.lk button{font:inherit;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
-.lk button b{font-size:17px;font-variant-numeric:tabular-nums}
-.lk button span{font-size:11.5px;color:var(--muted);line-height:1.3}
-.lk button[aria-checked="true"]{background:var(--btn);border-color:var(--btn);color:var(--btn-fg)}
-.lk button[aria-checked="true"] span{color:var(--btn-fg)}
+/* SUS 五點量表：打勾方塊（像紙本問卷），方塊下方寫分數與文字 */
+.lk{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.lk button{font:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 2px;border:0;border-radius:10px;background:none;color:var(--ink);cursor:pointer}
+.lk button:hover{background:var(--teal-soft)}
+.lk .box{width:30px;height:30px;border:2px solid var(--muted);border-radius:6px;display:grid;place-items:center;background:var(--surface);color:transparent;font-size:20px;font-weight:700;line-height:1}
+.lk button[aria-checked="true"] .box{border-color:var(--teal);background:var(--teal);color:var(--btn-fg)}
+.lk button span{font-size:11.5px;color:var(--muted);line-height:1.3;text-align:center}
+.lk button span b{display:block;font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
+.lk button[aria-checked="true"] span{color:var(--teal);font-weight:500}
 .tk-help{background:var(--paper);border:1px dashed var(--line);border-radius:12px;padding:12px 14px}
 .seqbox{background:var(--teal-soft);border-radius:12px;padding:14px 14px 10px}
 details.more summary{cursor:pointer;color:var(--teal);font-size:14px}
@@ -348,9 +350,9 @@ function render(scroll){
   if(kind==='sus'){
     const vi=+a, v=S.order[vi], U=S.ver[v]||{}, sus=U.sus||[];
     h=`<div class="stack view"><div><span class="ver">${VNAME[vi]}・整體感受</span></div><h2>${VNAME[vi]}用起來怎麼樣？</h2>
-    <p class="lead">請依照剛才使用「這個版本」的實際感受回答，是你自己的感受，不用猜觀眾會怎麼想。每一題都要回答，沒有對錯。</p>
+    <p class="lead">請依照剛才使用「這個版本」的實際感受回答，是你自己的感受，不用猜觀眾會怎麼想。每一題在最符合的格子打勾，十題都要回答，沒有對錯。</p>
     <div class="card stack" style="gap:22px">${SUS.map((s,i)=>`<div id="sus-${v}-${i}"><div class="q">${i+1}. ${esc(s)}</div>
-      <div class="lk" role="radiogroup">${LIKERT5.map((l,x)=>`<button type="button" role="radio" aria-checked="${sus[i]===x+1}" data-set="ver.${v}.sus.${i}" data-val="${x+1}" data-num="1"><b>${x+1}</b><span>${l}</span></button>`).join('')}</div></div>`).join('')}</div>
+      <div class="lk" role="radiogroup">${LIKERT5.map((l,x)=>`<button type="button" role="radio" aria-checked="${sus[i]===x+1}" data-set="ver.${v}.sus.${i}" data-val="${x+1}" data-num="1" aria-label="${x+1} ${l}"><i class="box" aria-hidden="true">✓</i><span><b>${x+1}</b>${l}</span></button>`).join('')}</div></div>`).join('')}</div>
     <div class="card stack" style="gap:22px">
       <div id="cl-${v}"><div class="q">介面簡潔度：這個版本的畫面看起來簡潔、不雜亂</div>${scale('ver.'+v+'.clean',U.clean,'非常不同意','非常同意',5)}</div>
       <div id="tx-${v}"><div class="q">文字大小：這個版本畫面上的字，讀起來大小剛好、不吃力</div>${scale('ver.'+v+'.text',U.text,'非常不同意','非常同意',5)}</div>
