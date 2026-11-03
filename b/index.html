@@ -129,7 +129,7 @@ button.mapbar{padding:0 16px}
 .mnav{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none!important}
 .mzoom{position:absolute;right:24px;top:440px;z-index:7;display:flex;flex-direction:column;background:#fff;border-radius:14px;box-shadow:0 8px 12px -4px rgba(0,0,0,.14);overflow:hidden}
 .mzoom button{width:44px;height:44px;display:grid;place-items:center} .mzoom button+button{border-top:1px solid var(--border)}
-.pincard{height:250px}
+.pincard{}
 .mfac{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:15px;background:#fff;border:1.5px solid var(--teal7);display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:pointer;z-index:1}
 .mfac::before{content:'';position:absolute;inset:-7px} .mfac.on{background:var(--teal7);transform:translate(-50%,-50%) scale(1.15);z-index:3}
 .mfac .mflab{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:3px;white-space:nowrap;font-size:10px;line-height:1.4;font-weight:500;color:var(--ink);background:rgba(255,255,255,.92);padding:1px 6px;border-radius:7px;box-shadow:0 1px 3px rgba(0,0,0,.15);pointer-events:none}   /* 全區地圖：點位下方標名稱（照 A 版） */
@@ -144,7 +144,7 @@ button.mapbar{padding:0 16px}
 .zrow .zcard .t{flex:1;padding:10px 12px}
 .zrow .zcard b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:18px;min-height:36px}   /* 名稱最多兩行，短的也留兩行高 */
 .pickmode .facbar,.pickmode .floorsel,.pickmode .maphead,.pickmode .mini,.pickmode .mclu,.pickmode .mpin:not(.on){display:none!important}
-.pickmode .mapwrap{bottom:250px}
+.pickmode .mapwrap{bottom:var(--sh,250px)}
 .pickhead{position:absolute;left:0;right:0;top:0;z-index:9;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 20px;background:var(--ink);color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25)}
 .pickhead div{flex:1;display:flex;flex-direction:column;gap:2px} .pickhead b{font-size:17px;font-weight:700} .pickhead small{font-size:12px;color:rgba(255,255,255,.7)}
 .pickhead button{width:44px;height:44px;display:grid;place-items:center;border-radius:22px;background:rgba(255,255,255,.12)}
@@ -156,8 +156,8 @@ button.mapbar{padding:0 16px}
 /* 帶我去模式：選起點 A → 選目的地 B → 路線建議，整段都在這個模式裡 */
 .waymode .facbar,.waymode .maphead,.waymode .mini,.waymode .mclu,.waymode .mchip:not(.wayel){display:none!important}
 .waymode .mpin.inclu{visibility:visible;pointer-events:auto}
-.waymode .mapwrap{bottom:var(--wh,300px)} .waymode .floorsel{top:76px} .waymode .mzoom{top:auto;bottom:calc(var(--wh,300px) + 96px)}
-.waymode .zonesheet{height:var(--wh,300px);gap:12px}
+.waymode .mapwrap{bottom:var(--sh,300px)} .waymode .floorsel{top:76px} .waymode .mzoom{top:auto;bottom:calc(var(--sh,300px) + 96px)}
+.waymode .zonesheet{gap:12px}
 .pickhead .wb{background:none}
 .wpl{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:4px;height:28px;padding:0 9px 0 3px;border-radius:14px;background:#fff;border:1.5px solid var(--teal7);
   font-size:11px;font-weight:500;color:var(--ink);white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:pointer;pointer-events:auto!important;z-index:2}
@@ -186,10 +186,10 @@ button.mapbar{padding:0 16px}
 .waybtn{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 14px;border-radius:18px;background:var(--tealL);color:var(--teal7);font-size:13px;font-weight:500}   /* 帶我去改放面板標題旁：要用的人自己按 */
 .roomchip{min-height:32px;padding:0 12px;border-radius:16px;background:var(--cream);font-size:13px;color:var(--text)} .roomchip.on{background:var(--teal7);color:#fff;font-weight:500}
 /* 地圖上有迷你播放器時：下方面板加高、內容往上讓位，樓層列與縮放鍵一起上移，卡片不會被迷你播放器蓋住 */
-.withmini .zonesheet{height:338px;padding-bottom:104px} .withmini .mapwrap{bottom:338px}
+.withmini .zonesheet{padding-bottom:104px} .withmini .mapwrap{bottom:var(--sh,338px)}
 .withmini .mzoom{top:352px}
 .maponly .floorsel{display:none}   /* 單件展品地圖：只看這一層這一件 */
-.navsheet{height:250px} .navk{font-size:12px;color:var(--teal7);font-weight:500}
+.navk{font-size:12px;color:var(--teal7);font-weight:500}
 .navt{font-weight:700;font-size:18px;line-height:1.3;color:var(--ink);margin-top:-6px}
 .lmchip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:18px;background:var(--tealL);color:var(--teal7);font-weight:500;font-size:13px}
 .maphint{top:112px;justify-content:center;pointer-events:none;background:var(--ink);color:#fff;animation:hintin .3s ease-out}
@@ -466,7 +466,7 @@ button.mapbar{padding:0 16px}
 .mini .pr b{font-weight:400;font-size:12px;line-height:1.6;letter-spacing:.72px;color:var(--ink)}
 
 /* 地圖 */
-.mapwrap{position:absolute;left:0;right:0;top:0;bottom:250px;overflow:hidden;background:#F0F0F0}
+.mapwrap{position:absolute;left:0;right:0;top:0;bottom:var(--sh,250px);overflow:hidden;background:#F0F0F0}
 .maphead{position:absolute;left:0;right:0;top:0;height:108px;background:linear-gradient(to bottom,rgba(0,0,0,.6),rgba(0,0,0,0));z-index:6;pointer-events:none}
 .maphead>*{pointer-events:auto}
 .maphead::before{content:'';position:absolute;left:0;right:0;top:0;height:56px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
@@ -487,7 +487,7 @@ button.mapbar{padding:0 16px}
 .floortabs button.on{color:#fff;font-weight:500}
 .ftind{position:absolute;left:11px;top:11px;height:40px;width:calc((100% - 22px)/3);border-radius:100px;background:var(--teal7);transform:translateX(calc(var(--i)*100%));
   transition:transform .38s cubic-bezier(.2,.8,.2,1)}
-.zonesheet{position:absolute;left:0;right:0;bottom:0;height:250px;background:#fff;border-radius:24px;filter:drop-shadow(0 -4px 8px rgba(0,0,0,.1));
+.zonesheet{position:absolute;left:0;right:0;bottom:0;height:auto;max-height:calc(100% - 150px);overflow-y:auto;background:#fff;border-radius:24px;filter:drop-shadow(0 -4px 8px rgba(0,0,0,.1));
   padding:20px 0 16px;display:flex;flex-direction:column;gap:14px;z-index:8}
 .zonesheet .hs{flex:0 0 auto}
 .zcard{flex:0 0 156px;background:#fff;border-radius:24px;box-shadow:0 8px 24px -4px rgba(26,23,15,.14);overflow:hidden;cursor:pointer}
@@ -2229,6 +2229,8 @@ function langBanner(){
    ===================================================================== */
 const SCREENS={leave:scrLeave, landing:scrLanding, login:scrLogin, feedback:scrFeedback, home:scrHome, theme:scrTheme, sign:scrSign, scan:scrScan, exlist:scrExList, ex:scrEx, route:scrRoute, stop:scrStop, player:()=>S.player?scrPlayer():scrHome(), map:scrMap, member:scrMember};
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* 底部面板高度跟著內容走（不再固定 250px），地圖可視區的下緣跟著面板上緣 */
+function syncSheet(){ document.querySelectorAll('#app > .scr').forEach(scr=>{ const z=scr.querySelector(':scope .zonesheet'); if(z) scr.style.setProperty('--sh',z.offsetHeight+'px'); else scr.style.removeProperty('--sh'); }); }
 function render(resetScroll, anim){
   const app=document.getElementById('app');
   let ghost=null;
@@ -2261,6 +2263,7 @@ function render(resetScroll, anim){
   const lb=langBanner(); if(lb) html+=`<div style="position:absolute;left:0;right:0;top:${S.screen==='home'?67:64}px;z-index:7">${lb}</div>`;
   if(S.sheet==='howto') html+=`<div class="scr" style="background:transparent;z-index:45">${howtoSheet()}</div>`;
   app.innerHTML=html;
+  syncSheet();
   const toMini = anim==='down' && ghost ? rel(app.querySelector(':scope > .scr .mini .box')) : null;
   const ins=m=>`inset(${m.t}px ${m.r}px ${m.b}px ${m.l}px round 20px)`, EASE='cubic-bezier(.32,.72,0,1)';
   if(fly && ghost && (toMini||fromMini)){ const dur=toMini?460:480;
