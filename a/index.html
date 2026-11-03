@@ -726,8 +726,7 @@ const P = [
   {id:'bd4',n:'四、邊界上的未盡旅程',v:'main',fl:'4F',z:'第三特展室｜邊界之外',x:19.7,y:43.2,lvl:'full',dur:120,no:'435',
    tracks:{general:['zh','en'],expert:['zh']},themes:{borderR:'must'},tags:['特展'],
    text:'「當全球的流離與遷徙來到臺灣，我們將讓邊界變窄，還是讓關係展開？」我們看見人們在動盪中離開家園，看見人的身分如何在穿越邊界後被重新定義，也看見許多人在不安的處境中，仍努力在這裡生活、行動並照顧彼此。'},
-  {id:'kidtrain',n:'時光車站：火車劇場',v:'main',fl:'1F',z:'時光車站',x:46.1,y:23.7,lvl:'full',dur:90,no:'111',
-   tracks:{kid:['zh'],general:['zh']},themes:{kids:'must'},tags:['親子'],
+  {id:'kidtrain',n:'時光車站：火車劇場',v:'main',fl:'1F',z:'時光車站',x:46.1,y:23.7,lvl:'place',fac:'info',tracks:{},themes:{},tags:['親子'],   /* 時光車站沒有導覽，只當地點（本日活動「火車劇場」帶路用） */
    text:'火車站內熙來攘往、好不熱鬧！等待火車發車的時候，可以逛逛車站大廳，聞一聞、摸一摸、聽一聽。嗚～嗚～～火車就要開了！搖晃的火車結合動畫《小鯨魚的臺灣冒險號》，準備展開一場充滿臺灣特色的五感奇幻旅程吧！'},
   {id:'k_cloth',n:'我會做衣服',v:'main',fl:'1F',z:'兒童廳',x:29.2,y:55.7,lvl:'full',dur:90,no:'112',
    tracks:{kid:['zh'],general:['zh']},themes:{kids:'must'},tags:['親子'],
@@ -3591,7 +3590,7 @@ function scrCode(){
       <span style="color:var(--ink-3)">›</span>
     </button>`:''}
     ${rt&&!q?`<div class="tiny" style="margin:2px 2px 10px">這條路線的展品（${hit.length}）</div>`:''}
-    ${isNo&&!hit.length?`<div class="emptybox">沒有這個編號。<br><span class="tiny">館內 111–112／201–211／401–412・園區 P01–P02</span></div>`:''}
+    ${isNo&&!hit.length?`<div class="emptybox">沒有這個編號。<br><span class="tiny">館內 112–118／201–246／411–435・園區 P01–P02</span></div>`:''}
     ${hit.map(cardR).join('')}
     <div style="height:8px"></div>
   </div>
