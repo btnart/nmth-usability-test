@@ -389,7 +389,10 @@ button.mapbar{padding:0 16px}
 .gentry .gt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .gentry .gt b{font-weight:500;font-size:15px;color:var(--ink)} .gentry .gt small{font-size:11px;color:var(--text2)}
 .gentry .gc{width:44px;height:44px;border-radius:22px;background:var(--gold);display:grid;place-items:center;font-weight:500;font-size:14px;color:var(--ink);flex:0 0 44px}
-.cardrow>.card{flex:0 0 300px;min-height:296.1px;scroll-snap-align:start}
+.cardrow>.card{flex:0 0 300px;min-width:0;min-height:296.1px;scroll-snap-align:start}
+.card,.cardt>div{min-width:0} .cardt>div{flex:1} .cardt>div>div{min-width:0}   /* 長標題（英文）不可把卡片撐寬 */
+.meta{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.cardtitle.lc2{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}   /* 英文標題長，最多兩行 */
 
 /* 播放器 */
 .pl-bg{position:absolute;inset:0;background:var(--cream);overflow:hidden}
@@ -709,8 +712,8 @@ function exCard(key, isRoute, listMeta, over){
     <div class="cardimg${e.mapImg?' mapimg':''}"><img src="${A(e.card)}" alt=""></div>
     <div class="cardt">
       <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
-        ${e.date&&!isRoute?`<div style="display:flex;flex-direction:column"><span class="cardtitle">${L(e.n)}</span><span style="font-size:${listMeta?13:12}px;color:var(--text2)">${e.date}</span></div>`
-          :`<div class="ttlbox"><span class="cardtitle">${L(e.n)}</span></div>`}
+        ${e.date&&!isRoute?`<div style="display:flex;flex-direction:column"><span class="cardtitle${S.lang==='en'?' lc2':''}">${L(e.n)}</span><span style="font-size:${listMeta?13:12}px;color:var(--text2)">${e.date}</span></div>`
+          :`<div class="ttlbox"><span class="cardtitle${S.lang==='en'?' lc2':''}">${L(e.n)}</span></div>`}
         <div class="metas">${meta.map(m=>`<div class="meta"><i></i>${L(m)}</div>`).join('')}${!isRoute&&EXHIBITIONS[key]?`<div class="meta"><i></i>導覽語言：${exLangs(key)}</div>`:''}</div>
         ${e.desc?`<p style="font-size:12px;line-height:1.5;color:var(--text2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${e.desc}</p>`:''}
       </div>
