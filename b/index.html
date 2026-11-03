@@ -1210,6 +1210,9 @@ function collapsePlayer(){ back(); }
 function pImgs(x){ const pool=['rec-1.jpg','work-3.jpg','zone-card-4.jpg','rec-2.jpg','work-2.jpg']; const o=[x.img]; for(const f of pool){ if(o.length>=4) break; if(f!==x.img) o.push(f); } return o; }
 const SENT = TRANSCRIPT.join('').split(/(?<=。)/).filter(Boolean);
 function curSent(){ const p=S.player; return Math.min(SENT.length-1, Math.floor(p.pos/it(p.id).d*SENT.length)); }
+/* 手語導覽影片：先統一用臺史博 YouTube 上的一支手語影片示意（2026-11-03），正式版每件展品換成各自的影片 */
+const SIGN_YT='https://www.youtube-nocookie.com/embed/ti0MCOL7o6U?playsinline=1&rel=0&modestbranding=1';
+const signYT=()=>`<iframe src="${SIGN_YT}" title="手語導覽影片" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`;
 const SIGNER = `<svg viewBox="40 44 300 186" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
   <defs><linearGradient id="sgbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A5866"/><stop offset="1" stop-color="#22343C"/></linearGradient></defs>
   <rect width="380" height="236" fill="url(#sgbg)"/>
@@ -1247,13 +1250,7 @@ function playPane(){
     <button onclick="S.typeTip=null;this.parentNode.remove()" aria-label="關閉提示">${MI(MD.close,18,'#3C3C3C')}</button></div>` : S.earSeen?'':`<div class="eartip" role="status">${MI(MD.head,18,'#2E5C6E')}<span>請戴上耳機收聽，展廳內不要外放聲音</span>
     <button onclick="S.earSeen=true;this.parentNode.remove()" aria-label="知道了，關閉提醒">${MI(MD.close,18,'#3C3C3C')}</button></div>`;
   const body = p.sign
-    ? `<div aria-label="手語導覽影片：${x.n}" class="sgvid ${p.playing?'signing':''} ${S.sgCtl!==false||!p.playing?'ctl-on':''}" style="flex:none;height:236px;max-height:none" onclick="sgTap()">
-          ${SIGNER}
-          <span style="position:absolute;left:12px;top:12px;background:rgba(0,0,0,.45);color:#fff;border-radius:6px;padding:4px 8px;font-size:11px">手語老師影片（示意）</span>
-          <div class="sgtools"><button onclick="event.stopPropagation();S.player.cc=!S.player.cc;render()" aria-pressed="${p.cc}" class="ccbtn">字幕 ${p.cc?'開':'關'}</button></div>
-          <button onclick="event.stopPropagation();openSignFs()" class="fsbtn" aria-label="全螢幕觀看手語影片">${MI('M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z',24,'#fff')}</button>
-          ${p.cc?`<p id="sgCap" class="sgcap">${SENT[curSent()]}</p>`:''}
-          ${vidCtl(false)}</div>
+    ? `<div aria-label="手語導覽影片：${x.n}" class="sgvid" style="flex:none;height:auto;aspect-ratio:16/9;max-height:none;background:#000">${signYT()}</div>
         <div id="sgtx" class="sgtx" style="flex:none;max-height:none;overflow:visible" aria-label="逐字稿">${SENT.map((t,i)=>`<p data-i="${i}" class="${i===curSent()?'cur':''}" style="font-size:${Math.round(fz*.85)}px">${t}</p>`).join('')}</div>`
     : TRANSCRIPT.map(t=>`<p style="font-size:${fz}px;line-height:1.7;color:var(--text);margin-bottom:14px">${t}</p>`).join('');
   return `<div class="pscroll" style="padding-bottom:${p.sign?170:300}px">${ear}
@@ -1378,7 +1375,7 @@ function goSlide(i){ const p=S.player; if(!p) return; const n=pImgs(it(p.id)).le
 function openSignFs(){ S.player.fsCc=true; S.sheet='signfs'; S.vwIn=true; render(); S.vwIn=false; setTimeout(()=>{ const b=document.getElementById('sfClose'); if(b) b.focus(); },50); }
 function signFs(){ const p=S.player, x=it(p.id);
   return `<div class="viewer signfs ${S.vwIn?'fadein':''}" role="dialog" aria-label="手語影片全螢幕：${x.n}" onkeydown="if(event.key==='Escape'){S.sheet=null;render()}">
-    <div class="sfvid ${p.playing?'signing':''}" role="img" aria-label="手語老師影片（示意）">${SIGNER.replace('viewBox="40 44 300 186"','viewBox="20 30 340 206"').replace('xMidYMid slice','xMidYMid meet')}</div>
+    <div class="sfvid" style="position:relative">${signYT()}</div>
     <div class="sfbar">
       ${p.fsCc?`<p id="sgCapFs" class="sfcap" aria-live="polite">${SENT[curSent()]}</p>`:'<p class="sfcap" style="opacity:.5">字幕已關閉</p>'}
       <div style="display:flex;align-items:center;gap:12px">

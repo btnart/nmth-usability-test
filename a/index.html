@@ -3779,6 +3779,9 @@ function openPSheet(k){ S.pSheet = S.pSheet===k?null:k; render(); }
 function copyTx(){ toast('逐字稿已複製'); say('複製逐字稿'); }
 function toggleTxBig(){ S.txBig=!S.txBig; say('逐字稿'+(S.txBig?'放大':'還原')); render(); }
 /* 語音／手語並列切換（標規 AUDIO-13／SIGN-05：同點位並列，不另建網站） */
+/* 手語導覽影片：先統一用臺史博 YouTube 上的一支手語影片示意（2026-11-03），正式版每件展品換成各自的影片 */
+const SIGN_YT='https://www.youtube-nocookie.com/embed/ti0MCOL7o6U?playsinline=1&rel=0&modestbranding=1';
+const signYT=()=>`<iframe src="${SIGN_YT}" title="手語導覽影片" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`;
 function signMode(p){
   const has = anyLang(p,'tsl');
   if(!has) return 'voice';
@@ -4004,27 +4007,7 @@ function scrPlayer(){
     ${(!isSeg&&S.pView==='intro')?introView(p):`<div style="margin:-4px 0 16px">
       <button class="chip out" style="height:34px;padding:0 13px;font-size:12.5px;gap:6px" aria-label="切換導覽語言，目前 ${langName(playLang(p)||S.lang)}" onclick="openPSheet('track')">${I.globe2} 導覽語言：${langName(playLang(p)||S.lang)} ${I.chev}</button></div>`}
     ${(isSeg||S.pView!=='intro')&&sign?`
-    <div style="position:relative;border-radius:18px;overflow:hidden;background:#23232A;aspect-ratio:16/10;margin-bottom:20px">
-      <div style="position:absolute;inset:0;background:${thumbArt(p.id)};opacity:.22"></div>
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#fff">
-        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity=".92">
-          <path d="M7 11V5.5a1.5 1.5 0 013 0V10M10 10V4.5a1.5 1.5 0 013 0V10M13 10V5.5a1.5 1.5 0 013 0V11"/>
-          <path d="M16 11l1.8-1.8a1.4 1.4 0 012 2L15 16c-.8 2-2.5 3.5-5 3.5-3.2 0-5-2-5-5V8.5a1.5 1.5 0 013 0"/>
-        </svg>
-        <div style="font-size:13px;font-weight:700">手語導覽影片</div>
-        <div style="font-size:11px;opacity:.75">與下方字幕同步播放${S.signFull?'':'・點右下角放大'}</div>
-      </div>
-      <!-- 影片自己的播放控制（只有手語時，播放卡不放播放鍵） -->
-      <div style="position:absolute;left:10px;right:52px;bottom:12px;display:flex;align-items:center;gap:10px;color:#fff">
-        <button style="width:34px;height:34px;flex:0 0 34px;border-radius:999px;background:rgba(255,255,255,.18);color:#fff;display:grid;place-items:center"
-          aria-label="${S.paused?'播放手語影片':'暫停手語影片'}" onclick="S.paused=!S.paused;render()">${S.paused?I.play:I.pause}</button>
-        <div style="flex:1;height:3px;border-radius:999px;background:rgba(255,255,255,.3)"><div style="height:100%;width:${(S.pPos*100).toFixed(1)}%;background:#fff;border-radius:999px"></div></div>
-        <span style="font-size:11px;opacity:.8">${mmss(p.dur*S.pPos)}</span>
-      </div>
-      <button style="position:absolute;right:10px;bottom:10px;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.16);
-        color:#fff;display:grid;place-items:center;font-size:15px" aria-label="展開手語影片" onclick="S.signFull=true;render()">⤢</button>
-      <span class="chip" style="position:absolute;left:10px;top:10px;background:rgba(255,255,255,.92)">台灣手語</span>
-    </div>`:''}
+    <div style="position:relative;border-radius:18px;overflow:hidden;background:#000;aspect-ratio:16/9;margin-bottom:20px">${signYT()}</div>`:''}
     ${(!isSeg&&S.pView==='intro')?'':sents.map((x,i)=>`<p style="font-size:${S.txBig?26:20}px;font-weight:700;line-height:1.62;margin-bottom:20px;
       color:${i===cur?'var(--ink)':'#C4C4C4'}">${x}</p>`).join('')}
   </div>
