@@ -1233,7 +1233,14 @@ function capsule(){ const t=S.pTab||'play';   /* 上方分頁改用 B 版共用�
   const b=(k,label)=>`<button role="tab" class="cb ${t===k?'on':''}" data-k="${k}" aria-selected="${t===k}" onclick="switchPTab('${k}')">${label}</button>`;
   return `<div class="tabs2" id="capsule" role="tablist" aria-label="播放器分頁">
     ${ptabs().includes('play')?b('play','導覽內容'):''}${b('detail','展品介紹')}</div>`; }
-function switchPTab(t){ if(t===S.pTab) return; S.pTab=t; const tr=document.getElementById('ptrack'), cap=document.getElementById('capsule');
+function bindProg(){ const pr=document.getElementById('prog'); if(pr){
+    pr.onpointerdown=ev=>{ const r=pr.getBoundingClientRect(); S.player.pos=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))*it(S.player.id).d; tickDOM(); };
+    pr.onkeydown=ev=>{ const k={ArrowRight:5,ArrowUp:5,ArrowLeft:-5,ArrowDown:-5}[ev.key]; if(k){ ev.preventDefault(); const p=S.player; p.pos=Math.max(0,Math.min(it(p.id).d,p.pos+k)); tickDOM(); } }; } }
+/* 換分頁時底部播放卡馬上跟著換：導覽內容展開播放控制、展品介紹收合（不等下一次整頁重繪），高度用動畫過渡 */
+function swapPCard(){ const pc=document.getElementById('pcard'); if(!pc) return; const h0=pc.offsetHeight;
+  pc.outerHTML=playerCard(); const nc=document.getElementById('pcard'); bindProg(); const h1=nc.offsetHeight;
+  if(!REDUCED&&h0!==h1) nc.animate([{height:h0+'px',overflow:'hidden'},{height:h1+'px',overflow:'hidden'}],{duration:240,easing:'cubic-bezier(.2,.8,.2,1)'}); }
+function switchPTab(t){ if(t===S.pTab) return; S.pTab=t; swapPCard(); const tr=document.getElementById('ptrack'), cap=document.getElementById('capsule');
   if(tr){ const T=ptabs(); tr.style.transform=`translateX(-${T.indexOf(t)*100/T.length}%)`; tr.querySelectorAll('.ppane').forEach((p,i)=>{ p.setAttribute('aria-hidden',String(i!==T.indexOf(t))); p.inert=i!==T.indexOf(t); }); }
   if(cap){ cap.querySelectorAll('.cb').forEach(b=>{ const on=b.dataset.k===t; b.classList.toggle('on',on); b.setAttribute('aria-selected',String(on)); }); placeInd(true); } }
 /* 底色跟著選中那格的內容走；按鈕寬度也在過渡，所以用 rAF 跟 0.4 秒 */
@@ -1471,9 +1478,7 @@ function playerMount(){
     pi.onpointerdown=e=>{ x0=e.clientX; t0=Date.now(); };
     pi.onpointerup=e=>{ if(x0==null) return; const dx=e.clientX-x0; x0=null;
       if(Math.abs(dx)>40) goSlide(S.ci+(dx<0?1:-1)); else if(Date.now()-t0<400 && !e.target.closest('.pzoom') && !S.player.transcript) openViewer(); }; }
-  const pr=document.getElementById('prog'); if(pr){
-    pr.onpointerdown=ev=>{ const r=pr.getBoundingClientRect(); S.player.pos=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))*it(S.player.id).d; tickDOM(); };
-    pr.onkeydown=ev=>{ const k={ArrowRight:5,ArrowUp:5,ArrowLeft:-5,ArrowDown:-5}[ev.key]; if(k){ ev.preventDefault(); const p=S.player; p.pos=Math.max(0,Math.min(it(p.id).d,p.pos+k)); tickDOM(); } }; }
+  bindProg();
   /* 逐字稿只捲自己這一格：scrollIntoView 會連帶把三分頁的外框橫向捲走，返回或重繪時分頁就錯位 */
   const sgb=document.getElementById('sgtx'), sg=sgb&&sgb.querySelector('.cur'); if(sg) sgb.scrollTop=sg.offsetTop-sgb.offsetTop-(sgb.clientHeight-sg.offsetHeight)/2;
   const pt=document.getElementById('ptrack'); if(pt) pt.parentElement.scrollLeft=0;
