@@ -1160,6 +1160,9 @@ function go(scr){
   S.mapSheet=null; S.mapFocus=false; S.detail=null; S.kbd=false; S.stopsOpen=false; S.ivBox=null; S.signFull=false; S.rsearch=null; S.screen=scr; S._noAnim=false; render();
 }
 function stationNo(id){ return S.route ? S.route.list.indexOf(id)+1 : 0; }
+/* 正在導覽＝路線真的開始了（聽過一站，或正在播路線的站／導聆）；只做完設定、還沒按開始不算（2026-11-03） */
+function onTour(){ const r=S.route; return !!r && !r.done && (r.heard.length>0 || !!(S.player&&S.player.mode!=='single')); }
+function routeNo(id){ return onTour() ? stationNo(id) : 0; }
 const TABS = ['home','map','code','member'];
 
 /* =====================================================================
@@ -1416,11 +1419,11 @@ function miniPlayer(off){
   const p = byId(S.player.id), no = S.player.mode==='route' ? stationNo(p.id) : 0;
   const pct = (S.player.mode==='route' && S.route) ? (S.route.heard.length/S.route.list.length*100) : 34;
   const segOn = S.player.mode==='seg', inRt = !!S.route && (no>0 || segOn);   /* 路線中：播放鍵兩側加上一站／下一站 */
-  const ex = !inRt && !segOn && exThemeOf(p);   /* 搜尋或掃碼單獨聽一件：給回到整個展覽導覽的入口 */
+  const ex0 = exThemeOf(p), ex = !inRt && !segOn && ex0 && !(onTour()&&S.route.themeId===ex0.id) ? ex0 : null;   /* 單獨聽一件：給整個展覽導覽的入口（正在走同一個展覽就不給） */
   return `<div class="minifloat" style="${off?'bottom:'+off+'px':''}">${inRt?`<div class="skrow">
     <button class="fchip" ${mapPos().i<=0?'disabled':''} onclick="mapStep(-1)">${I.prev} 上一站</button>
     <button class="fchip" ${mapPos().i>=mapPos().seq.length-1?'disabled':''} onclick="mapStep(1)">下一站 ${I.next}</button></div>`
-    :ex?`<div class="skrow"><button class="fchip" onclick="startEntry('${ex.id}')">開始「${ex.n.split('：')[0]}」展覽導覽 ${I.arrow}</button></div>`:''}<div class="mini" onclick="growFrom(this);go('player')">
+    :ex?`<div class="skrow"><button class="fchip" onclick="startEntryFrom('${ex.id}','${p.id}')">${onTour()?'改聽':'開始'}「${ex.n.split('：')[0]}」展覽導覽 ${I.arrow}</button></div>`:''}<div class="mini" onclick="growFrom(this);go('player')">
     <div class="thumb" style="background:${thumbArt(p.id)}"></div>
     <div style="flex:1;min-width:0">
       <div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.n}</div>
@@ -2652,6 +2655,7 @@ function finishRoute(){
   const list=plan(e.themeId,e.lang,e.persona,e.minutes).map(p=>p.id);
   if(!list.length){ say('組路線失敗：'+theme(e.themeId).n+' 在這個語言／時間沒有站點'); toast('這個時間放不下任何一站，請把時間拉長一點'); render(); return; }
   S.route={themeId:e.themeId,list,idx:0,heard:[]};
+  if(S.entryPin){ if(S.entryPin.themeId===e.themeId) pinIntoRoute(S.route,S.entryPin.id); S.entryPin=null; }
   /* 換了一條新路線：上一條路線還在播的那一則要停掉，不然「回到播放」會跳回舊路線的樓層（例：從常設展 2F 換到萬相天后 4F） */
   if(S.player && S.player.mode!=='single' && !list.includes(S.player.id) && !(SEGS[S.player.id]&&SEGS[S.player.id].themeId===e.themeId)){ S.player=null; S.paused=false; S.microOpen=false; }
   if(list.length){ S.at=list[0]; S.venue=byId(list[0]).v; S.floor=byId(list[0]).fl; }
@@ -2776,7 +2780,7 @@ function scrRouteInfo(){
   const playing = id => S.player && S.player.id===id;
   const pbtn=(id,seg)=>`<button style="width:42px;height:42px;flex:0 0 42px;border-radius:14px;display:grid;place-items:center;
       background:${playing(id)?'var(--acc)':'var(--acc-l)'};color:${playing(id)?'#fff':'var(--acc-d)'}"
-      onclick="event.stopPropagation();${seg?`playSeg('${id}')`:`playPoint('${id}')`}">
+      onclick="event.stopPropagation();${seg?`playSeg('${id}')`:`playPoint('${id}',1)`}">
       ${playing(id)?(S.paused?I.play:I.pause):I.play}</button>`;
   let rows='', lastZone=null;
   if(t.overview) rows+=`<div style="background:var(--grey);border-radius:16px;padding:12px 12px 12px 16px;margin-bottom:10px;
@@ -2893,7 +2897,7 @@ function scrRouteInfo(){
     <div style="font-size:16px;font-weight:700;margin-bottom:6px">要接著上次繼續嗎？</div>
     <div class="muted" style="margin-bottom:16px">上次聽到第 ${S.lastStop.no} 站「${byId(S.lastStop.id).n}」就先休息了。</div>
     <button class="btn gold" style="width:100%;height:50px;margin-bottom:10px"
-      onclick="const id=S.lastStop.id;S.resumeAsk=false;S.lastStop=null;playPoint(id)">${I.play} 從中斷的地方繼續</button>
+      onclick="const id=S.lastStop.id;S.resumeAsk=false;S.lastStop=null;playPoint(id,1)">${I.play} 從中斷的地方繼續</button>
     <button class="btn ghost" style="width:100%;height:46px"
       onclick="S.resumeAsk=false;S.lastStop=null;S.entryForce=true;startEntry('${t.id}')">重新設計導覽路線</button>
   </div>`:''}
@@ -3443,7 +3447,7 @@ function pickVenue(v){
 
 /* 統一 sheet：通吃三種內容級別 */
 function pointSheet(){
-  const p = byId(S.sheet), no = stationNo(p.id);
+  const p = byId(S.sheet), no = routeNo(p.id);
   const inRoute = no>0;
   const playable = canPlay(p);
   const langMissing = p.lvl==='full' && !playable;
@@ -3465,7 +3469,8 @@ function pointSheet(){
       </div>
       <h3 style="font-size:20px;margin-bottom:6px">${p.n}</h3>
       ${inRoute?`<div class="tiny" style="color:var(--acc-d);margin-bottom:8px">本站為「${theme(S.route.themeId).n}」第 ${no} 站</div>`
-                :(p.lvl==='full'?`<div class="tiny" style="margin-bottom:8px">不在目前路線上・單獨聆聽不影響路線進度</div>${exEntryBtn(p)}`:'')}
+                :(p.lvl==='full'?`<div class="tiny" style="margin-bottom:8px">${!onTour()?'可以單獨聽這一件，或照順序聽整個展覽'
+                  :(exThemeOf(p)&&exThemeOf(p).id===S.route.themeId)?'這次的路線沒有排到這件・單獨聆聽不影響路線進度':'不在目前路線上・單獨聆聽不影響路線進度'}</div>${exEntryBtn(p)}`:'')}
       ${(()=>{ const long=p.text.length>64 && !full;
         return `<p class="muted" style="margin-bottom:14px;line-height:1.85;${long
           ?'display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden':''}">${p.text}</p>
@@ -3477,7 +3482,7 @@ function pointSheet(){
           const goBtn = `<button class="btn ghost" style="flex:0 0 auto;padding:0 16px" onclick="startNav('${p.id}')">${I.nav} 帶我去</button>`;
           if(p.lvl==='place') return `<button class="btn gold" style="flex:1" onclick="startNav('${p.id}')">${I.nav} 帶我去</button>`;
           return playable
-            ? `<button class="btn gold" style="flex:1" onclick="playPoint('${p.id}')">${I.play} ${inRoute?'聽導覽・路線第 '+stationNo(p.id)+' 站':'聽導覽'}</button>`+goBtn
+            ? `<button class="btn gold" style="flex:1" onclick="playPoint('${p.id}')">${I.play} ${inRoute?'聽導覽・路線第 '+no+' 站':'聽導覽'}</button>`+goBtn
             : `<div class="btn ghost" style="flex:1;cursor:default">${I.text} 僅有文字說明</div>`+goBtn;
         })()}
       </div>
@@ -4589,7 +4594,7 @@ function scrPlaylist(){
     const cur=id===S.player.id;
     return `<button style="width:44px;height:44px;flex:0 0 44px;border-radius:14px;display:grid;place-items:center;
       background:${cur?'var(--acc)':'var(--acc-l)'};color:${cur?'#fff':'var(--acc-d)'}"
-      onclick="event.stopPropagation();${seg?`playSeg('${id}')`:`playPoint('${id}')`}">
+      onclick="event.stopPropagation();${seg?`playSeg('${id}')`:`playPoint('${id}',1)`}">
       ${cur?(S.paused?I.play:I.pause):I.play}</button>`;
   };
   /* 群組頭卡（灰底）：區名＋位置；有分區導聆才有播放鈕 */
@@ -4720,9 +4725,15 @@ function setLang(l){
 }
 /* 展品所屬的展覽（themes 裡 scope=exhibition 的那個）；搜尋／掃碼直接聽單件時，用來帶回整個展覽的導覽 */
 function exThemeOf(p){ return p&&Object.keys(p.themes||{}).map(theme).find(t=>t&&t.scope==='exhibition'); }
-function exEntryBtn(p){ const t=exThemeOf(p); if(!t) return '';
-  return `<button class="btn ghost" style="width:100%;margin-bottom:12px;justify-content:space-between;padding:0 16px" onclick="startEntry('${t.id}')">
-    <span>開始「${t.n.split('：')[0]}」整個展覽的導覽</span>${I.arrow}</button>`; }
+function exEntryBtn(p){ const t=exThemeOf(p); if(!t || (onTour()&&S.route.themeId===t.id)) return '';
+  return `<button class="btn ghost" style="width:100%;margin-bottom:12px;justify-content:space-between;padding:0 16px" onclick="startEntryFrom('${t.id}','${p.id}')">
+    <span>${onTour()?'改聽':'開始'}「${t.n.split('：')[0]}」整個展覽的導覽</span>${I.arrow}</button>`; }
+/* 從某件展品進展覽導覽：路線一定包含這件（就算選的時間排不進去），免得「剛剛那件不見了」 */
+function pinIntoRoute(r,id){ if(id && byId(id) && !r.list.includes(id)){ r.list.push(id); r.list.sort((a,b)=>ORDER.indexOf(a)-ORDER.indexOf(b)); } }
+function startEntryFrom(tid,id){
+  if(S.route && S.route.themeId===tid && !onTour()){ pinIntoRoute(S.route,id); openThemeInfo(tid); return; }   // 設定過但還沒開始：沿用那條，補進這件
+  S.entryPin={themeId:tid,id}; startEntry(tid);
+}
 function startEntry(id){
   if(S.route && S.route.themeId===id && !S.entryForce){ openThemeInfo(id); return; }  // 同個導覽已在進行 → 直接進內頁
   S.entryForce=false;
@@ -4754,7 +4765,7 @@ function goStation(i){ const l=S.route.list; i=Math.max(0,Math.min(l.length-1,i)
   if(isTextStop(S.route.themeId,id)){ S.route.idx=i; if(!S.route.heard.includes(id)) S.route.heard.push(id);
     const p=byId(id); S.at=id; S.venue=p.v; S.floor=p.fl;
     S.player={id,mode:'route',tonly:true}; S.paused=true; go('player'); return; }   /* 文字站也進導覽內頁，只換排版（不再跳到另一頁） */
-  playPoint(id); }
+  playPoint(id,1); }
 function walkAskBox(){ if(!S.walkAsk) return ''; const t=theme(S.walkAsk), cur=byId(S.player.id);
   return `<div class="dim${once('walkask')}" style="z-index:40" onclick="S.walkAsk=null;render()"></div>
   <div class="popc${once('walkask-box')}" role="alertdialog" style="position:absolute;left:22px;right:22px;top:50%;transform:translateY(-50%);z-index:41;
@@ -4807,7 +4818,7 @@ function mapHintDone(){ S.mapHintOff=true; try{ localStorage.setItem('nmth.mapHi
 function openDetail(id){ if(S.screen==='player'&&S.player&&S.player.id===id){ S.pView='intro'; render(); } else openSheetFrom(id); }
 /* 展品詳情頁：播放器內點正在播的展品 → 從右側滑入的整頁詳情 */
 function detailPage(){
-  const p = byId(S.detail), no = stationNo(p.id);
+  const p = byId(S.detail), no = routeNo(p.id);
   const views = ['展件正面','細部特寫','展場實景'];               /* 標規 EXH-08：多張圖片＋頁面指示點 */
   const tab = S.detailTab || 'intro';
   const playing = S.player && S.player.id===p.id;
@@ -4922,8 +4933,8 @@ function detailPage(){
 function openSheetFrom(id){ const p=byId(id); S.sheet=id; S.sheetExpand=false; S.sheetFullId=null; S.kbd=false;
   if(document.activeElement&&document.activeElement.blur) document.activeElement.blur();   // 收鍵盤：先讓輸入框失焦
   S.venue=p.v; S.floor=p.fl; render(); }
-function playPoint(id){
-  const no=stationNo(id), p=byId(id);
+function playPoint(id, asRoute){                 /* asRoute：從路線相關的按鈕進來（開始導覽／上下站／路線清單）＝照路線算 */
+  const no=(asRoute||onTour())?stationNo(id):0, p=byId(id);
   const prevZone = byId(S.at) ? byId(S.at).z : null;
   const zoneChanged = prevZone!==p.z || byId(S.at).v!==p.v;
   S.player={id,mode:no?'route':'single'};
@@ -5029,7 +5040,7 @@ function playRoute(i){
   if(!S.route||!S.route.list.length) return;
   const t=theme(S.route.themeId);
   if(i===0 && !S.route.heard.length && t.overview) return playSeg('sg-'+t.id);  // 尚未開始 → 先聽總覽
-  playPoint(S.route.list[i]);
+  playPoint(S.route.list[i],1);
 }
 /* 上一則／下一則：照完整播放序列走，路線總覽、分區導聆這些音檔也算一則（2026-11-02） */
 function seqPos(){ const r=S.route, seq=seqOf(r); let i=seq.indexOf(S.player&&S.player.id); if(i<0) i=seq.indexOf(r.list[r.idx]); return {seq,i}; }
@@ -5039,7 +5050,7 @@ function seqStep(d){
   const id=seq[j];
   if(SEGS[id]){ S.paused=false; return playSeg(id); }
   if(isRouteTheme(r.themeId)) return goStation(r.list.indexOf(id));
-  playPoint(id);
+  playPoint(id,1);
 }
 function nextStation(){ if(!S.route) return; seqStep(1); }
 function prevStation(){ if(!S.route){ toast('單獨聆聽沒有上一則'); return; } seqStep(-1); }
@@ -5052,7 +5063,7 @@ function mapStep(d){
   const {seq,i:k}=mapPos(), j=k+d; if(j<0||j>=seq.length) return;
   if(SEGS[seq[j]]){ S.paused=false; return playSeg(seq[j]); }
   const l=S.route.list, id=seq[j], i=l.indexOf(id);
-  if(!isTextStop(S.route.themeId,id)) return playPoint(id);
+  if(!isTextStop(S.route.themeId,id)) return playPoint(id,1);
   const p=byId(id);
   const sameFloor = S.screen==='tourmap' && S.venue===p.v && S.floor===p.fl;
   S.route.idx=i; S.venue=p.v; S.floor=p.fl; S.mapView='floor'; S.sheet=null;
@@ -5065,7 +5076,7 @@ function mapStep(d){
 function jumpNextPlayable(){
   if(!S.route) return;
   const nx = S.route.list.slice(S.route.idx).find(id=>canPlay(byId(id)));
-  if(nx){ say('跳至下一可播站點：'+byId(nx).n); playPoint(nx); }
+  if(nx){ say('跳至下一可播站點：'+byId(nx).n); playPoint(nx,1); }
   else { say('本語系後續無可播站點'); }
 }
 /* 帶我去：不開彈窗——直接在地圖上畫 A→B 動態路徑。
