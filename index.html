@@ -254,7 +254,8 @@ function taskCard(vi,q,t,j,locked){
   else body+=`<div class="stack" style="gap:16px">
     <div><div class="q">結果</div>${choices('task.'+k+'.status',STATUS,T.status)}<button type="button" class="linkbtn" data-act="redo" data-k="${k}">重新計時</button></div>
     ${T.status==='gaveup'?'':`<div><label class="q" for="ans-${k}">${esc(t.ask)}</label><input type="text" id="ans-${k}" data-in="task.${k}.answer" value="${esc(T.answer)}" placeholder="${esc(t.ph)}" autocomplete="off"></div>`}
-    ${t.how?`<div><div class="q">你用了哪一種方式？</div>${choices('task.'+k+'.how',HOW,T.how)}</div>`:''}
+    ${t.how?`<div><div class="q">你用了哪一種方式？</div>${choices('task.'+k+'.how',HOW,T.how)}
+      ${T.how==='other'?`<label class="hint" for="how-${k}" style="display:block;margin:12px 0 6px">是什麼方式？</label><input type="text" id="how-${k}" data-in="task.${k}.howtxt" value="${esc(T.howtxt)}" placeholder="例如：從首頁的熱門展品找到" autocomplete="off">`:''}</div>`:''}
     ${t.taps?`<div><div class="q">從開始到看到位置，你大約點了幾下？</div>${choices('task.'+k+'.taps',TAPS,T.taps)}</div>`:''}
     <div><div class="q">過程中有遇到下面這些情況嗎？<span class="hint">（可複選）</span></div>${multi('task.'+k+'.fr',FRICTION,T.fr)}
       <label class="hint" for="frn-${k}" style="display:block;margin:12px 0 6px">想補充發生了什麼？<span>（選填）</span></label><textarea id="frn-${k}" data-in="task.${k}.frnote" style="min-height:64px" placeholder="例如：我以為○○可以按，按了沒反應">${esc(T.frnote)}</textarea></div>
@@ -332,7 +333,7 @@ function render(scroll){
     const at=step=>st.indexOf(step), P=S.profile;
     const row=(k,v)=>`<div style="display:flex;gap:12px;font-size:14px;line-height:1.6"><span class="hint" style="flex:0 0 76px;font-size:14px">${k}</span><span style="flex:1;min-width:0;overflow-wrap:anywhere">${v?esc(v):'<span class="hint">（沒填）</span>'}</span></div>`;
     const card=(title,go,body)=>`<div class="card stack" style="gap:8px"><div style="display:flex;align-items:center;gap:12px"><strong style="flex:1">${title}</strong><button class="btn ghost" type="button" style="padding:6px 14px;font-size:14px" data-goto="${go}">修改</button></div>${body}</div>`;
-    const trow=(T,j)=>row('任務 '+(j+1),[label(STATUS,T.status), T.secs!=null?mmss(T.secs):'', T.status==='gaveup'?'':T.answer, (T.fr||[]).map(x=>label(FRICTION,x)).join('、'), T.frnote, T.errs!=null?'點錯 '+label(ERRS,T.errs):''].filter(Boolean).join('・'));
+    const trow=(T,j)=>row('任務 '+(j+1),[label(STATUS,T.status), T.secs!=null?mmss(T.secs):'', T.status==='gaveup'?'':T.answer, T.how?(T.how==='other'&&T.howtxt?'其他方式：'+T.howtxt:label(HOW,T.how)):'', (T.fr||[]).map(x=>label(FRICTION,x)).join('、'), T.frnote, T.errs!=null?'點錯 '+label(ERRS,T.errs):''].filter(Boolean).join('・'));
     h=`<div class="stack view"><div><div class="eyebrow">送出前</div><h2>檢查一下你的回答</h2><p class="lead">想改哪裡就按「修改」，改完會回到這一頁。確認沒問題再按「送出」。</p></div>
     ${card('基本資料',at('profile'),row('稱呼',P.nick)+row('年齡',P.age)+row('館內負責',P.role)+row('熟悉導覽',P.guide))}
     ${S.order.map((v,vi)=>`<h3 style="margin:8px 0 0;font-size:17px">${VNAME[vi]}</h3>`+QS.map((q,qi)=>{ const Q=S.qs[qkey(v,q)]||{};
@@ -361,6 +362,7 @@ function missing(kind,a,b){
     for(const [j,t] of q.tasks.entries()){ const T=S.tasks[tk(v,q,t)]||{}, n='任務 '+(j+1);
       if(!T.status) return n+'還沒做完';
       if(t.how&&!T.how) return n+'：請選用了哪種方式';
+      if(t.how&&T.how==='other'&&!(T.howtxt||'').trim()) return n+'：請寫下是什麼方式';
       if(t.taps&&!T.taps) return n+'：請選大約點了幾下';
       if(!(T.fr||[]).length) return n+'：請勾有沒有遇到狀況';
       if(T.errs==null) return n+'：請選點錯幾次'; }
@@ -413,7 +415,7 @@ function payload(){
 function gfInputs(data){
   const p=data.profile||{}, r={sid:data.sid, order:data.order.split('').join(' → '), nick:p.nick, age:p.age, role:p.role, guide:p.guide, started:data.startedAt, finished:data.finishedAt};
   Object.entries(data.tasks).forEach(([k,x])=>{ r[k+'_status']=label(STATUS,x.status); r[k+'_secs']=x.secs; r[k+'_answer']=x.status==='gaveup'?'':x.answer;
-    r[k+'_how']=label(HOW,x.how); r[k+'_taps']=label(TAPS,x.taps); r[k+'_fr']=(x.fr||[]).map(f=>label(FRICTION,f)).join('、'); r[k+'_frnote']=x.frnote; r[k+'_errs']=label(ERRS,x.errs); });
+    r[k+'_how']=x.how==='other'&&x.howtxt?'其他方式：'+x.howtxt:label(HOW,x.how); r[k+'_taps']=label(TAPS,x.taps); r[k+'_fr']=(x.fr||[]).map(f=>label(FRICTION,f)).join('、'); r[k+'_frnote']=x.frnote; r[k+'_errs']=label(ERRS,x.errs); });
   Object.entries(data.qs||{}).forEach(([k,x])=>{ r[k+'_clean']=x.clean; r[k+'_text']=x.text; r[k+'_note']=x.note; r[k+'_pref']=x.pref==='any'?'都可以':label(HOW,x.pref); });
   Object.entries(data.umux||{}).forEach(([v,u])=>{ r[v+'_umux_q1']=u.q1; r[v+'_umux_q2']=u.q2; r[v+'_umux_note']=u.note; });
   const c=data.compare||{}; if(c.pick) r.pick=c.pick==='same'?'差不多':(S.order[c.pick==='v1'?0:1]+' 版'); r.why=c.why;
@@ -499,7 +501,7 @@ async function results(){
     const head=['sid','order','nick','age','role','guide','version','scenario','task','status','secs','answer','how','taps','friction','frnote','errs','clean','text','note'];
     const lines=[head.join(',')];
     rows.forEach(r=>{ const p=r.profile||{}; ['A','B'].forEach(v=>QS.forEach(q=>{ const Q=(r.qs||{})[qkey(v,q)]||{}; q.tasks.forEach(t=>{ const x=(r.tasks||{})[tk(v,q,t)]; if(!x) return;
-      lines.push([r.sid,r.order,p.nick,p.age,p.role,p.guide,v,q.id,t.id,x.status,x.secs,x.answer,x.how,x.taps,(x.fr||[]).join('|'),x.frnote,x.errs,Q.clean,Q.text,Q.note].map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')); }); })); });
+      lines.push([r.sid,r.order,p.nick,p.age,p.role,p.guide,v,q.id,t.id,x.status,x.secs,x.answer,x.how==='other'&&x.howtxt?'other:'+x.howtxt:x.how,x.taps,(x.fr||[]).join('|'),x.frnote,x.errs,Q.clean,Q.text,Q.note].map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')); }); })); });
     try{ await navigator.clipboard.writeText(lines.join('\n')); $('#csvm').textContent='已複製，可貼進試算表'; }catch(e){ $('#csvm').textContent='瀏覽器不允許複製'; }
   };
 }
