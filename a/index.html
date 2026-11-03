@@ -2345,7 +2345,7 @@ function scrHome(){
   <div class="nav">
     <div class="icb bare" style="width:auto"><span style="width:28px;height:29.15px;overflow:hidden;position:relative;display:block">
       <img src="assets-a/logo.png" alt="國立臺灣歷史博物館" style="position:absolute;left:0;top:0;height:100%;width:524.66%;max-width:none"></span></div><div style="flex:1"></div>
-    <button class="icb" title="掃描 QR Code 或編號牌" onclick="${NMTH?'openCam()':"go('code')"}">${I.scan}</button>
+    <button class="icb" title="掃描 QR Code" aria-label="掃描展品 QR Code（開啟相機）" onclick="${NMTH?'scanNative()':"go('code')"}">${I.scan}</button>
     <button class="icb" onclick="S.drawer=true;render()">${I.menu}</button>
   </div>
   <div class="body">
@@ -3718,6 +3718,21 @@ async function camDecode(v){
   c.width=w; c.height=h; const x=c.getContext('2d'); x.drawImage(v,0,0,w,h);
   const r=jsQR(x.getImageData(0,0,w,h).data,w,h); return r&&r.data;
 }
+/* 掃描＝打開手機原生相機拍 QR Code，拍完在頁面裡解碼（有 BarcodeDetector 用內建，否則載 jsQR）。不用網頁內的相機串流，artifact 裡也能用 */
+let _jsqrP=null;
+function loadJsQR(){ return _jsqrP||(_jsqrP=new Promise((ok,no)=>{ const sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'; sc.onload=()=>ok(window.jsQR); sc.onerror=no; document.head.appendChild(sc); })); }
+async function decodePhoto(file){
+  const img=await createImageBitmap(file);
+  if('BarcodeDetector' in window){ try{ const r=await new BarcodeDetector({formats:['qr_code']}).detect(img); if(r[0]) return r[0].rawValue; }catch(e){} }
+  const jsQR=await loadJsQR(), w=Math.min(1200,img.width), h=Math.round(img.height*w/img.width);
+  const c=document.createElement('canvas'); c.width=w; c.height=h; const x=c.getContext('2d'); x.drawImage(img,0,0,w,h);
+  const r=jsQR(x.getImageData(0,0,w,h).data,w,h); return r&&r.data; }
+function nativeScan(onText){ const i=document.createElement('input'); i.type='file'; i.accept='image/*'; i.setAttribute('capture','environment');
+  i.onchange=async()=>{ const f=i.files&&i.files[0]; if(!f) return; toast('辨識中…'); let t=null; try{ t=await decodePhoto(f); }catch(e){} onText(t); };
+  i.click(); }
+function scanNative(){ nativeScan(txt=>{ const hit=txt&&camMatch(txt);
+  if(hit){ toast('已掃到：'+hit.n); openSheetFrom(hit.id); }
+  else toast(txt?'這個 QR Code 不是本館的導覽碼':'沒有讀到 QR Code，靠近一點再拍一次'); }); }
 /* QR 內容對到展品：比對導覽編號（如 201、P01）或展品 id */
 function camMatch(txt){
   const t=String(txt||'');

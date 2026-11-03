@@ -691,7 +691,7 @@ const fwd15 = `<span style="position:relative;width:40px;height:40px;display:blo
   <span style="position:absolute;left:29.75%;top:33.5%;font:600 14px Roboto,sans-serif;letter-spacing:-1.12px;color:#3c3c3c">15</span></span>`;
 const logo = `<span style="width:30.324px;height:31.567px;overflow:hidden;position:relative;display:block;flex:0 0 auto">
   <img src="${A('logo-sprite.png')}" style="position:absolute;left:0;top:0;height:100%;width:524.66%;max-width:none" alt="國立臺灣歷史博物館"></span>`;
-const navIcons = dark => `<button onclick="go('scan',{code:''})" aria-label="掃碼或輸入編號">${img(dark?'ic-scan-white.svg':'ic-scan-dark.svg',20,20)}</button>
+const navIcons = dark => `<button onclick="scanGo()" aria-label="掃碼或輸入編號">${img(dark?'ic-scan-white.svg':'ic-scan-dark.svg',20,20)}</button>
   <button onclick="openMenu()" aria-label="主選單">${img(dark?'ic-menu-white.svg':'ic-menu-dark.svg',22,22)}</button>`;
 
 /* =====================================================================
@@ -721,7 +721,7 @@ function scrHome(){
     <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 20px 14px">
       ${logo}
       <div style="display:flex;gap:14px;align-items:center">
-        <button onclick="go('scan',{code:''})" aria-label="掃碼或輸入編號">${img('ic-scan.svg',22,22)}</button>
+        <button onclick="scanGo()" aria-label="掃碼或輸入編號">${img('ic-scan.svg',22,22)}</button>
         <button onclick="openMenu()" aria-label="主選單">${img('ic-menu.svg',24,24)}</button>
       </div>
     </div>
@@ -766,7 +766,7 @@ function homeBar(){
   return `<div class="hbar" id="hbar" aria-hidden="true">
     <div style="display:flex;align-items:center;gap:10px;padding:10px 20px 6px">${logo}
       <b style="flex:1;font-weight:700;font-size:15px;color:var(--ink)">臺史博語音導覽</b>
-      <button onclick="go('scan',{code:''})" aria-label="掃碼或輸入編號" tabindex="-1">${img('ic-scan.svg',22,22)}</button>
+      <button onclick="scanGo()" aria-label="掃碼或輸入編號" tabindex="-1">${img('ic-scan.svg',22,22)}</button>
       <button onclick="openMenu()" aria-label="主選單" tabindex="-1">${img('ic-menu.svg',24,24)}</button></div>
     <div class="hs" style="gap:8px;padding:4px 20px 10px">${secs.map(([id,t])=>`<button class="hchip" data-sec="${id}" tabindex="-1" onclick="jumpSec('${id}')">${t}</button>`).join('')}</div></div>`;
 }
@@ -834,6 +834,23 @@ function howtoSheet(){
     <button class="tealbtn" style="width:100%;margin-top:22px;height:48px;border-radius:24px;font-size:15px" onclick="S.sheet=null;render()">開始探索</button>
   </div>`;
 }
+/* 掃描＝打開手機原生相機拍 QR Code，拍完在頁面裡解碼（有 BarcodeDetector 用內建，否則載 jsQR）。不用網頁內的相機串流，artifact 裡也能用 */
+let _jsqrP=null;
+function loadJsQR(){ return _jsqrP||(_jsqrP=new Promise((ok,no)=>{ const sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'; sc.onload=()=>ok(window.jsQR); sc.onerror=no; document.head.appendChild(sc); })); }
+async function decodePhoto(file){
+  const img=await createImageBitmap(file);
+  if('BarcodeDetector' in window){ try{ const r=await new BarcodeDetector({formats:['qr_code']}).detect(img); if(r[0]) return r[0].rawValue; }catch(e){} }
+  const jsQR=await loadJsQR(), w=Math.min(1200,img.width), h=Math.round(img.height*w/img.width);
+  const c=document.createElement('canvas'); c.width=w; c.height=h; const x=c.getContext('2d'); x.drawImage(img,0,0,w,h);
+  const r=jsQR(x.getImageData(0,0,w,h).data,w,h); return r&&r.data; }
+function nativeScan(onText){ const i=document.createElement('input'); i.type='file'; i.accept='image/*'; i.setAttribute('capture','environment');
+  i.onchange=async()=>{ const f=i.files&&i.files[0]; if(!f) return; toast('辨識中…'); let t=null; try{ t=await decodePhoto(f); }catch(e){} onText(t); };
+  i.click(); }
+/* 掃碼鈕：進掃碼頁（可輸入編號）並直接打開原生相機；拍到展品 QR Code 就帶入編號、跳出展品卡 */
+function scanGo(){ go('scan',{code:''}); scanNativeB(); }
+function scanNativeB(){ nativeScan(txt=>{ const e=txt&&Object.entries(ITEMS).find(([k,v])=>v.no&&new RegExp('(^|[^0-9A-Za-z])'+v.no+'($|[^0-9A-Za-z])').test(txt));
+  if(e){ S.code=e[1].no; toast('已掃到：'+e[1].n); render(); }
+  else toast(txt?'這個 QR Code 不是本館的導覽碼':'沒有讀到 QR Code，靠近一點再拍一次'); }); }
 /* ---------- 掃碼與編號 ---------- */
 function scrScan(){
   const c=S.code, found=c.length===3?Object.entries(ITEMS).find(([k,v])=>v.no===c):null;
@@ -845,7 +862,8 @@ function scrScan(){
     <div style="display:flex;align-items:center;padding:16px 20px 8px;gap:70px">
       <button onclick="back()" aria-label="關閉">${img('ic-close-white.svg',22,22)}</button>
       <p style="font-weight:500;font-size:15px;color:#fff">掃描展品 QR Code</p></div>
-    <div style="position:absolute;left:50%;top:180px;width:232px;height:232px;margin-left:-116px;border-radius:20px;background:rgba(255,255,255,.06);box-shadow:0 8px 24px -4px rgba(26,23,15,.14)"></div>
+    <button onclick="scanNativeB()" aria-label="開啟相機掃描 QR Code" style="position:absolute;left:50%;top:180px;width:232px;height:232px;margin-left:-116px;border-radius:20px;background:rgba(255,255,255,.06);box-shadow:0 8px 24px -4px rgba(26,23,15,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;font-size:14px;font-weight:500">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.5" r="3.5"/></svg>點這裡開啟相機</button>
     ${[[ -125.5,172,0],[91.5,172,90],[-125.5,392,-90],[91.5,392,180]].map(([dx,y,r])=>`<img src="${A('scan-corner.svg')}" alt="" style="position:absolute;left:calc(50% + ${dx}px);top:${y}px;width:34px;height:34px;transform:rotate(${r}deg)">`).join('')}
     <p style="position:absolute;left:0;right:0;top:440px;text-align:center;font-size:13px;color:var(--tealL)">對準展品旁的 QR Code</p>
     <p style="position:absolute;left:0;right:0;top:468px;text-align:center;font-size:13px;color:var(--tealL)">或輸入展品編號</p>
@@ -858,7 +876,7 @@ function scrScan(){
             <span style="font-size:12px;color:var(--text2)">${found[1].fl} ${found[1].zone}</span></div>
             <b style="display:block;font-weight:700;font-size:16px;color:var(--ink);margin:6px 0 4px">${found[1].n}</b>
             <span style="font-size:12px;color:var(--text2)">語音導覽 ${mmss(found[1].d)}・華／臺／客</span></div></div>
-        <button class="tealbtn" style="width:100%;height:48px;border-radius:24px;margin-top:14px;font-size:15px" onclick="play('${found[0]}',{type:'ex',key:'perm'})">開始播放導覽</button>
+        <button class="tealbtn" style="width:100%;height:48px;border-radius:24px;margin-top:14px;font-size:15px" onclick="play('${found[0]}',{type:'ex',key:'${Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(found[0]))||'perm'}'})">開始播放導覽</button>
         <button style="display:block;margin:14px auto 0;font-size:12px;color:var(--teal7)" onclick="S.code='';render()">重新輸入編號</button></div>`
      :`<div class="sheet" style="padding:16px 24px;border-radius:24px">
         <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
