@@ -1477,8 +1477,8 @@ function drawer(){
     <div class="g"><div class="n">${t}</div>${sub?`<div class="s"><span>${sub}</span></div>`:''}</div>
     <span style="color:var(--ink-3)">›</span></button>`;
   const a=once('drawer');
-  return `<div class="dim${a}" onclick="S.drawer=false;S.drawerLang=false;render()"></div>
-  <div class="drawerp${a}" style="position:absolute;top:0;right:0;bottom:0;width:84%;background:#fff;display:flex;flex-direction:column;
+  return `<div class="dim${a}" style="z-index:45" onclick="S.drawer=false;S.drawerLang=false;render()"></div>
+  <div class="drawerp${a}" style="position:absolute;top:0;right:0;bottom:0;width:84%;z-index:46;background:#fff;display:flex;flex-direction:column;
     box-shadow:-8px 0 30px rgba(0,0,0,.18)">
     <div class="nav" style="border-bottom:1px solid var(--line)">
       <div class="t" style="text-align:left;padding-left:8px">${t('menu')}</div>
