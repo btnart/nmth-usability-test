@@ -381,7 +381,7 @@ function render(scroll){
     <div class="card"><p style="margin:0 0 12px" class="hint">送出後還想改？回到檢視頁修改後再送出一次，我們會以最後一次送出的為準。</p><button class="btn ghost" type="button" data-goto="${st.indexOf('review')}">回到檢視頁修改</button></div></div>`;
   }
   app.innerHTML=h;
-  if(window.QRCode) app.querySelectorAll('[data-qr]').forEach(el=>{ try{ new QRCode(el,{text:el.dataset.qr,width:el.closest('.lbl')?104:160,height:el.closest('.lbl')?104:160,colorDark:'#1E3C48',colorLight:'#ffffff'}); }catch(e){} });
+  if(window.QRCode) app.querySelectorAll('[data-qr]').forEach(el=>{ try{ new QRCode(el,{text:el.dataset.qr,width:el.closest('.lbl')?140:160,height:el.closest('.lbl')?140:160,colorDark:'#1E3C48',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.L}); }catch(e){} });
   tick();
   if(kind==='done') submit();
   bar(kind,a,b);

@@ -1,5 +1,4 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><style>body{margin:0}</style></head><body>
-<title>臺史博導覽原型 B 版</title>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><style>body{margin:0}</style></head><body><title>臺史博導覽原型 B 版</title>
 <script>/* 發布版：網址只能帶 #標記，#nmth＝標規版；#nmth&go=pt:412 這類參數照 ?query 讀 */
 var __QS=location.search||('?'+location.hash.slice(1).replace(/^nmth(&|$)/,'mode=nmth$1'));
 window.addEventListener('hashchange',()=>location.reload());</script>
@@ -838,15 +837,24 @@ function howtoSheet(){
 }
 /* 掃描＝打開手機原生相機拍 QR Code，拍完在頁面裡解碼（有 BarcodeDetector 用內建，否則載 jsQR）。不用網頁內的相機串流，artifact 裡也能用 */
 let _jsqrP=null;
-function loadJsQR(){ return _jsqrP||(_jsqrP=new Promise((ok,no)=>{ const sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'; sc.onload=()=>ok(window.jsQR); sc.onerror=no; document.head.appendChild(sc); })); }
+function loadJsQR(){ return _jsqrP||(_jsqrP=new Promise((ok,no)=>{ const sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js'; sc.onload=()=>ok(window.jsQR); sc.onerror=()=>{ _jsqrP=null; no(); }; document.head.appendChild(sc); })); }
 async function decodePhoto(file){
-  const img=await createImageBitmap(file);
+  let img; try{ img=await createImageBitmap(file); }catch(e){ img=await new Promise((ok,no)=>{ const im=new Image(); im.onload=()=>ok(im); im.onerror=no; im.src=URL.createObjectURL(file); }); }
   if('BarcodeDetector' in window){ try{ const r=await new BarcodeDetector({formats:['qr_code']}).detect(img); if(r[0]) return r[0].rawValue; }catch(e){} }
-  const jsQR=await loadJsQR(), w=Math.min(1200,img.width), h=Math.round(img.height*w/img.width);
-  const c=document.createElement('canvas'); c.width=w; c.height=h; const x=c.getContext('2d'); x.drawImage(img,0,0,w,h);
-  const r=jsQR(x.getImageData(0,0,w,h).data,w,h); return r&&r.data; }
-function nativeScan(onText){ const i=document.createElement('input'); i.type='file'; i.accept='image/*'; i.setAttribute('capture','environment');
-  i.onchange=async()=>{ const f=i.files&&i.files[0]; if(!f) return; toast('辨識中…'); let t=null; try{ t=await decodePhoto(f); }catch(e){} onText(t); };
+  const jsQR=await loadJsQR(), W=img.width, H=img.height, c=document.createElement('canvas'), x=c.getContext('2d',{willReadFrequently:true});
+  /* 先整張試，再放大中間區域試：QR Code 只佔照片一小塊時（例如拍電腦螢幕），整張縮小會糊到讀不出來 */
+  const tries=[[1,800],[1,1400],[.6,1400],[.4,1200],[.25,1000],[.25,1600]];
+  [0,.5,1].forEach(py=>[0,.5,1].forEach(px=>tries.push([.45,1800,px,py])));   /* QR Code 沒拍在正中間時，九宮格各放大一次 */
+  tries.push([1,2400]);
+  for(const [f,max,px=.5,py=.5] of tries){
+    const sw=W*f, sh=H*f, k=Math.min(1,max/Math.max(sw,sh)), w=Math.round(sw*k), h=Math.round(sh*k);
+    c.width=w; c.height=h; x.drawImage(img,(W-sw)*px,(H-sh)*py,sw,sh,0,0,w,h);
+    const r=jsQR(x.getImageData(0,0,w,h).data,w,h); if(r&&r.data) return r.data;
+    await new Promise(ok=>setTimeout(ok)); }
+  return null; }
+function nativeScan(onText){ loadJsQR().catch(()=>{}); const i=document.createElement('input'); i.type='file'; i.accept='image/*'; i.setAttribute('capture','environment');
+  i.style.cssText='position:fixed;left:-9999px;top:0;opacity:0'; document.body.appendChild(i);   /* iOS 上沒放進頁面的 input 有時拍完不會觸發 change */
+  i.onchange=async()=>{ const f=i.files&&i.files[0]; i.remove(); if(!f) return; toast('辨識中…'); let t=null; try{ t=await decodePhoto(f); }catch(e){} onText(t); };
   i.click(); }
 /* 掃碼鈕：進掃碼頁（可輸入編號）並直接打開原生相機；拍到展品 QR Code 就帶入編號、跳出展品卡 */
 function scanGo(){ go('scan',{code:''}); scanNativeB(); }
@@ -856,21 +864,23 @@ function scanNativeB(){ nativeScan(txt=>{ const e=txt&&Object.entries(ITEMS).fin
 /* ---------- 掃碼與編號 ---------- */
 function scrScan(){
   const c=S.code, found=c.length===3?Object.entries(ITEMS).find(([k,v])=>v.no===c):null;
-  const digits=[0,1,2].map(i=>`<div style="width:59px;height:82px;border-radius:20px;background:rgba(255,255,255,.06);box-shadow:0 8px 24px -4px rgba(26,23,15,.14);
-    display:grid;place-items:center;color:#fff;font-size:40px;font-weight:400">${c[i]||''}</div>`).join('');
-  const key=k=>`<button onclick="${k==='⌫'?"S.code=S.code.slice(0,-1)":`S.code=(S.code+'${k}').slice(0,3)`};render()" style="width:108px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${k===''?'transparent':'var(--cream)'};
+  const digits=[0,1,2].map(i=>`<div style="width:56px;height:min(76px,9vh);border-radius:18px;background:rgba(255,255,255,${c[i]?'.14':'.06'});box-shadow:0 8px 24px -4px rgba(26,23,15,.14);${i===c.length&&!found?'outline:2px solid var(--tealL);outline-offset:-2px;':''}
+    display:grid;place-items:center;color:#fff;font-size:min(36px,5vh);font-weight:400">${c[i]||''}</div>`).join('');
+  const key=k=>`<button onclick="${k==='⌫'?"S.code=S.code.slice(0,-1)":`S.code=(S.code+'${k}').slice(0,3)`};render()" style="width:108px;height:min(48px,6.5vh);border-radius:12px;display:flex;align-items:center;justify-content:center;background:${k===''?'transparent':'var(--cream)'};
     font-weight:500;font-size:18px;color:var(--ink)" ${k===''?'disabled':''} aria-label="${k==='⌫'?'刪除':k}">${k}</button>`;
-  return `<div class="scr" style="background:linear-gradient(to bottom,#171f24,#243038)">
-    <div style="display:flex;align-items:center;padding:16px 20px 8px;gap:70px">
+  /* 直向排列、鍵盤在下方（不再用絕對定位）：矮的手機上輸入格才不會被鍵盤蓋住 */
+  return `<div class="scr" style="background:linear-gradient(to bottom,#171f24,#243038);display:flex;flex-direction:column">
+    <div style="flex:none;display:flex;align-items:center;padding:16px 20px 8px;gap:70px">
       <button onclick="back()" aria-label="關閉">${img('ic-close-white.svg',22,22)}</button>
       <p style="font-weight:500;font-size:15px;color:#fff">掃描展品 QR Code</p></div>
-    <button onclick="scanNativeB()" aria-label="開啟相機掃描 QR Code" style="position:absolute;left:50%;top:180px;width:232px;height:232px;margin-left:-116px;border-radius:20px;background:rgba(255,255,255,.06);box-shadow:0 8px 24px -4px rgba(26,23,15,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;font-size:14px;font-weight:500">
+    <div style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:8px 20px 14px">
+    ${found?'':`<div style="position:relative;flex:none;width:min(232px,24vh);height:min(232px,24vh)">
+    <button onclick="scanNativeB()" aria-label="開啟相機掃描 QR Code" style="width:100%;height:100%;border-radius:20px;background:rgba(255,255,255,.06);box-shadow:0 8px 24px -4px rgba(26,23,15,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;font-size:14px;font-weight:500">
       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.5" r="3.5"/></svg>點這裡開啟相機</button>
-    ${[[ -125.5,172,0],[91.5,172,90],[-125.5,392,-90],[91.5,392,180]].map(([dx,y,r])=>`<img src="${A('scan-corner.svg')}" alt="" style="position:absolute;left:calc(50% + ${dx}px);top:${y}px;width:34px;height:34px;transform:rotate(${r}deg)">`).join('')}
-    <p style="position:absolute;left:0;right:0;top:440px;text-align:center;font-size:13px;color:var(--tealL)">對準展品旁的 QR Code</p>
-    <p style="position:absolute;left:0;right:0;top:468px;text-align:center;font-size:13px;color:var(--tealL)">或輸入展品編號</p>
-    <div style="position:absolute;left:0;right:0;top:515px;display:flex;justify-content:center;gap:22px">${digits}</div>
-    ${found?`<div class="sheet" style="padding:16px 24px 24px;border-radius:24px;top:auto">
+    ${[['left:-9px;top:-9px',0],['right:-9px;top:-9px',90],['left:-9px;bottom:-9px',-90],['right:-9px;bottom:-9px',180]].map(([pos,r])=>`<img src="${A('scan-corner.svg')}" alt="" style="position:absolute;${pos};width:34px;height:34px;transform:rotate(${r}deg);pointer-events:none">`).join('')}</div>
+    <p style="margin-top:12px;text-align:center;font-size:13px;line-height:1.6;color:var(--tealL)">點上方拍下展品旁的 QR Code<br>或用下方鍵盤輸入展品編號</p>`}
+    <div style="display:flex;justify-content:center;gap:18px" role="status" aria-label="已輸入 ${c||'無'}">${digits}</div></div>
+    ${found?`<div class="sheet" style="position:relative;flex:none;padding:16px 24px 24px;border-radius:24px 24px 0 0">
         <div class="grab" style="margin-bottom:16px"></div>
         <div style="background:#fff;border-radius:16px;box-shadow:0 8px 24px -4px rgba(0,0,0,.14);padding:14px;display:flex;gap:14px;align-items:center">
           <img src="${A(found[1].img)}" alt="" style="width:84px;height:84px;border-radius:10px;object-fit:cover">
@@ -880,7 +890,7 @@ function scrScan(){
             <span style="font-size:12px;color:var(--text2)">語音導覽 ${mmss(found[1].d)}・華／臺／客</span></div></div>
         <button class="tealbtn" style="width:100%;height:48px;border-radius:24px;margin-top:14px;font-size:15px" onclick="play('${found[0]}',{type:'ex',key:'${Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(found[0]))||'perm'}'})">開始播放導覽</button>
         <button style="display:block;margin:14px auto 0;font-size:12px;color:var(--teal7)" onclick="S.code='';render()">重新輸入編號</button></div>`
-     :`<div class="sheet" style="padding:16px 24px;border-radius:24px">
+     :`<div class="sheet" style="position:relative;flex:none;padding:16px 24px;border-radius:24px 24px 0 0">
         <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
           ${[[1,2,3],[4,5,6],[7,8,9],['',0,'⌫']].map(r=>`<div style="display:flex;gap:10px">${r.map(key).join('')}</div>`).join('')}
           ${c.length===3?`<p style="font-size:12px;color:#8D0E0E;margin-top:2px">查無編號 ${c}，請確認展品旁的號碼（示範可輸入 205）</p>`:''}
@@ -2290,4 +2300,8 @@ if(!__GO[0]&&!new URLSearchParams(__QS).has('skip')){ S.screen='landing'; preloa
   if(__GO[0]==='play'){ const ex=Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(e[0]))||'perm'; play(e[0],{type:'ex',key:ex}); S.hist=['home']; } })();
 render(true);
 </script>
+
+
+
+
 </body></html>
