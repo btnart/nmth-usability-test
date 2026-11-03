@@ -1155,7 +1155,7 @@ function go(scr){
     const b=document.querySelector('#frame .body'); (S.scrollMem=S.scrollMem||{})[S.screen]=b?b.scrollTop:0;   // 記住離開時的捲動位置
     S._scrAnim = S._noAnim ? null : (TABS.includes(scr)&&TABS.includes(S.screen)) ? 'tab' : 'fwd';   // tab 切換＝內容淡入；進內頁＝右滑入
     if(TABS.includes(scr)) S._tabPop=scr; }
-  if(scr!=='map'&&scr!=='tourmap') S.herePick=null;   // 離開地圖＝放棄標註位置
+  if(scr!=='map'&&scr!=='tourmap'){ S.herePick=null; S.navPath=null; clearHere(); }   // 離開地圖＝放棄標註位置、結束帶路
   S.mapSheet=null; S.mapFocus=false; S.detail=null; S.kbd=false; S.stopsOpen=false; S.ivBox=null; S.signFull=false; S.rsearch=null; S.screen=scr; S._noAnim=false; render();
 }
 function stationNo(id){ return S.route ? S.route.list.indexOf(id)+1 : 0; }
@@ -4731,6 +4731,7 @@ function back(){
   const shrink = fromPlayer ? (()=>{ const o=F.querySelector('.scr:not(.scr-exit):not(.shrink-out)'); return o&&o.cloneNode(true); })() : null;
   S._growFrom=null; S._growScreen=null;
   let prev = S.hist.pop();
+  if((S.screen==='map'||S.screen==='tourmap') && !['map','tourmap'].includes(prev||'home')){ S.navPath=null; S.herePick=null; clearHere(); }   // 從地圖返回別頁＝離開帶我去
   S.mapSheet=null; S.mapFocus=false;
   if((prev||'home')!==S.screen) S._scrAnim=S._noAnim?null:'back';
   S.screen = prev || 'home'; S._noAnim=false;
@@ -5159,7 +5160,7 @@ function startNav(id, picked){
 /* 標規版的「查看位置」：切到該點所在樓層並選取，不畫導航路徑（標規 MAP-01 只要點位標示） */
 function locatePoint(id){
   const p=byId(id); if(!p) return;
-  S.navPath=null; S.mapSheet=null; S.mapPick=false; S.dainySheet=null;
+  S.navPath=null; S.mapSheet=null; S.mapPick=false; S.dainySheet=null; clearHere();
   S.venue=p.v; S.floor=p.fl; S.mapView='floor'; S.mapZoom=1.6; S.mapPan={x:0,y:0};
   S.sheet=id;
   say('查看位置：'+p.n+'（'+vname(p.v)+' '+p.fl+'）');
@@ -5182,7 +5183,9 @@ function setHere(id){
   toast(id==='__here'?'已標註你的位置':'已標註：你在「'+p.n+'」附近');
   if(pk&&pk.to){ startNav(pk.to,true); if(S.navPath&&pk.back) S.navPath.back=true; } else render();
 }
-function cancelHere(){ const b=S.herePick&&S.herePick.back; S.herePick=null; if(b){ S._noAnim=true; back(); } else render(); }
+/* 我的位置只在「帶我去」流程裡有效：結束帶路、取消標註、離開地圖都清掉，地圖上不留「我在這」 */
+function clearHere(){ S.here=null; S.hereSpot=null; }
+function cancelHere(){ const b=S.herePick&&S.herePick.back; S.herePick=null; clearHere(); if(b){ S._noAnim=true; back(); } else render(); }
 function hereChip(){
   const h=S.here&&byId(S.here);
   return `<button class="fchip" style="pointer-events:auto;height:44px;padding:0 16px;gap:6px" onclick="askHere(null)">
@@ -5201,7 +5204,7 @@ function herePickBanner(bottom){
       <button class="icb bare" style="width:32px;height:32px;flex:0 0 32px" title="取消" onclick="cancelHere()">${I.close}</button>
     </div></div>`;
 }
-function closeNav(){ const b=S.navPath&&S.navPath.back; S.navPath=null; toast('已結束帶路，路線已收起'); if(b){ S._noAnim=true; back(); } else render(); }   /* 從別頁進來的導航，關閉就回那一頁 */
+function closeNav(){ const b=S.navPath&&S.navPath.back; S.navPath=null; clearHere(); toast('已結束帶路，路線已收起'); if(b){ S._noAnim=true; back(); } else render(); }   /* 從別頁進來的導航，關閉就回那一頁 */
 /* 目前樓層該畫哪一段路徑 */
 function navSegForFloor(){
   if(!S.navPath) return null;
