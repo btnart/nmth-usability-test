@@ -1161,7 +1161,25 @@ function go(scr){
 }
 function stationNo(id){ return S.route ? S.route.list.indexOf(id)+1 : 0; }
 /* 正在導覽＝路線真的開始了（聽過一站，或正在播路線的站／導聆）；只做完設定、還沒按開始不算（2026-11-03） */
-function onTour(){ const r=S.route; return !!r && !r.done && (r.heard.length>0 || !!(S.player&&S.player.mode!=='single')); }
+function onTour(){ const r=S.route; return !!r && !r.done && !r.suspended && (r.heard.length>0 || !!(S.player&&S.player.mode!=='single')); }
+/* 中斷導覽：路線先擱著（記住停在哪一站），回同一個展覽時會問要不要接著聽 */
+function suspendTour(){ const r=S.route; if(!r) return;
+  const cur = S.player && r.list.includes(S.player.id) ? S.player.id : r.list[r.idx];
+  S.lastStop={themeId:r.themeId, id:cur, no:r.list.indexOf(cur)+1}; r.suspended=true;
+  S.player=null; S.paused=false; S.microOpen=false; clearTimeout(window._nudge); }
+/* 導覽中要聽路線外的展品、或換到別的展覽：先跳提示確認要不要中斷（2026-11-03） */
+function tourAskBox(){ const a=S.tourAsk; if(!a||!S.route) return ''; const rt=theme(S.route.themeId), r=S.route;
+  const cur = S.player && r.list.includes(S.player.id) ? S.player.id : r.list[r.idx], no=r.list.indexOf(cur)+1;
+  const rn='「'+rt.n.split('：')[0]+'」', tn=a.kind==='entry'?'「'+theme(a.tid).n.split('：')[0]+'」':'「'+byId(a.id).n+'」';
+  return `<div class="dim${once('tourask')}" style="z-index:40" onclick="S.tourAsk=null;render()"></div>
+  <div class="popc${once('tourask-box')}" role="alertdialog" style="position:absolute;left:22px;right:22px;top:50%;transform:translateY(-50%);z-index:41;
+    background:#fff;border-radius:22px;padding:24px 22px 18px;box-shadow:0 20px 60px rgba(0,0,0,.28)">
+    <div style="font-size:17px;font-weight:700;margin-bottom:8px">${a.kind==='entry'?'中斷目前的導覽，改聽'+tn+'？':'要中斷目前的導覽嗎？'}</div>
+    <div class="muted" style="margin-bottom:18px;line-height:1.7">你正在聽${rn}導覽（第 ${no}／${r.list.length} 站）。${a.kind==='entry'?'開始新的展覽導覽後':tn+'不在這條路線上，改聽它'}，目前的導覽會先中斷；之後回到${rn}，可以從第 ${no} 站接著聽。</div>
+    <div style="display:flex;gap:10px"><button class="btn grey" style="flex:1" onclick="S.tourAsk=null;render()">繼續原本的</button>
+      <button class="btn gold" style="flex:1" onclick="tourAskGo()">${a.kind==='entry'?'中斷並開始':'中斷並改聽'}</button></div></div>`; }
+function tourAskGo(){ const a=S.tourAsk; S.tourAsk=null; suspendTour();
+  if(a.kind==='entry'){ if(a.pin) S.entryPin={themeId:a.tid,id:a.pin}; startEntry(a.tid); } else playPoint(a.id); }
 function routeNo(id){ return onTour() ? stationNo(id) : 0; }
 const TABS = ['home','map','code','member'];
 
@@ -4735,6 +4753,7 @@ function startEntryFrom(tid,id){
   S.entryPin={themeId:tid,id}; startEntry(tid);
 }
 function startEntry(id){
+  if(onTour() && S.route.themeId!==id){ S.tourAsk={kind:'entry',tid:id,pin:S.entryPin&&S.entryPin.themeId===id?S.entryPin.id:null}; S.sheet=null; render(); return; }   // 導覽中換展覽 → 先問
   if(S.route && S.route.themeId===id && !S.entryForce){ openThemeInfo(id); return; }  // 同個導覽已在進行 → 直接進內頁
   S.entryForce=false;
   S.entry={themeId:id, lang:S.lang, persona:null, minutes:null, kidAge:S.kidAge}; go('entry');
@@ -4801,7 +4820,7 @@ function viewIds(tid){
 }
 function openThemeInfo(id){
   S.viewTheme=id; S.infoTab='intro'; S.infoSheet='peek';
-  S.resumeAsk = !!(S.lastStop && S.lastStop.themeId===id && !S.player);
+  S.resumeAsk = !!(S.lastStop && S.lastStop.themeId===id && !onTour());
   const ids=viewIds(id);
   if(ids.length){ const f=byId(ids[0]); S.venue=f.v; S.floor=f.fl; }
   S.mapView='floor'; S.mapZoom=1; S.mapPan={x:0,y:0}; S.sheet=null;
@@ -4934,6 +4953,8 @@ function openSheetFrom(id){ const p=byId(id); S.sheet=id; S.sheetExpand=false; S
   if(document.activeElement&&document.activeElement.blur) document.activeElement.blur();   // 收鍵盤：先讓輸入框失焦
   S.venue=p.v; S.floor=p.fl; render(); }
 function playPoint(id, asRoute){                 /* asRoute：從路線相關的按鈕進來（開始導覽／上下站／路線清單）＝照路線算 */
+  if(!asRoute && onTour() && !stationNo(id)){ S.tourAsk={kind:'point',id}; S.sheet=null; render(); return; }   // 導覽中聽路線外的展品 → 先問
+  if(asRoute && S.route && S.route.suspended && stationNo(id)) S.route.suspended=false;   // 接著聽擱著的路線
   const no=(asRoute||onTour())?stationNo(id):0, p=byId(id);
   const prevZone = byId(S.at) ? byId(S.at).z : null;
   const zoneChanged = prevZone!==p.z || byId(S.at).v!==p.v;
@@ -5454,6 +5475,7 @@ function render(){
   if(keepY && scrEl){ const nb=scrEl.querySelector(':scope > .body'); if(nb) nb.scrollTop=keepY; }
   S._lastScreen=S.screen;
   if(scrEl && S.walkAsk) scrEl.insertAdjacentHTML('beforeend', walkAskBox());   // 開始走路線前的中斷提示
+  if(scrEl && S.tourAsk) scrEl.insertAdjacentHTML('beforeend', tourAskBox());   // 導覽中聽路線外展品／換展覽前的中斷提示
   if(scrEl && S._grow && S._scrAnim==='fwd'){         // 由迷你播放器展開
     S._scrAnim='grow'; S._growScreen=S.screen; S._growFrom=S._grow;
     scrEl.style.setProperty('--gt',S._grow.t+'px'); scrEl.style.setProperty('--gb',S._grow.b+'px'); }
