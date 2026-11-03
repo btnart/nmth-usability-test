@@ -1123,7 +1123,7 @@ const S = {
 };
 function say(msg){ S.log.unshift({t:new Date().toLocaleTimeString('zh-TW',{hour12:false}),m:msg}); if(S.log.length>40)S.log.pop(); }
 /* 原生鍵盤（視覺模擬）：任何文字輸入 focus 時滑上來；點鍵不動作、⌄ 收起 */
-function showKbd(){ if(!S.kbd){ S.kbd=true; S._kbdAnimIn=true; render(); } }
+function showKbd(){}   /* 自製鍵盤已拿掉（2026-11-03）：一律用手機原生鍵盤；保留空函式給既有 onfocus 呼叫 */
 function hideKbd(){ if(S.kbd){ S.kbd=false; render(); } }
 function kbdHTML(){
   const k=(t,cls)=>`<div class="kkey ${cls||''}">${t}</div>`;
@@ -4144,7 +4144,6 @@ function openDainy(){
   if(NMTH) return;                                  // 同上
   if(!S.dainySheet) S._dainyAnimIn=true;            // 從關到開才播滑入動畫
   S.dainyOldOpen=false;                             // 每次打開：舊對話摺疊、停在最新內容
-  if(!S.kbd){ S.kbd=true; S._kbdAnimIn=true; }      // 點開＝直接進輸入狀態（鍵盤同步展開）
   S.dainyCtxOff=false;                              // 每次喚起重抓當前畫面語境
   S.sheet=null; S.mapSheet=null;                    // 不疊 sheet：Dainy 面板是唯一一層
   if(!S.dainy.msgs.length){
@@ -4208,7 +4207,6 @@ function switchToType(){                             // 中斷語音，改用鍵
   clearInterval(window._lst);
   S.dainy.mode = S.dainy.msgs.length?'talking':'idle';
   S.dainy.live='';
-  S.kbd=true; S._kbdAnimIn=true;
   say('語音中斷 → 切換為鍵盤輸入');
   render();
   requestAnimationFrame(()=>{ const inp=document.querySelector('#dainyPanel input'); if(inp) inp.focus(); });
@@ -5489,7 +5487,6 @@ function render(){
     if(S.cam){ scrEl.insertAdjacentHTML('beforeend', camOverlay()); camAttach(); }
     if(S.dainySheet && !S._dainyClosing) scrEl.insertAdjacentHTML('beforeend', dainySheet());
     if(S.report) scrEl.insertAdjacentHTML('beforeend', reportModal());
-    if(S.kbd) scrEl.insertAdjacentHTML('beforeend', kbdHTML());
     if(closeDue()) scrEl.insertAdjacentHTML('beforeend', closeBox());   // 閉館前 30／5 分鐘提醒，蓋在所有頁面最上層
   }
   /* 逐字重繪會讓搜尋框失焦 → 補 focus；但鍵盤已收（點了卡片、開了 sheet）就不能再 focus，否則 onfocus 會把鍵盤叫回來 */
