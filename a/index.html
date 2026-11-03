@@ -2822,6 +2822,7 @@ function scrRouteInfo(){
         background:var(--acc-l);color:var(--acc-d);font-size:12px;font-weight:700">${i+1}</div>
       <div style="width:44px;height:44px;flex:0 0 44px;border-radius:12px;background:${thumbArt(p.id)}"></div>
       <div style="flex:1;min-width:0">
+        ${p.no?`<div class="tiny">展品 ${p.no}</div>`:''}   <!-- 展品編號放在名稱前面（現場對照說明牌先看到號碼） -->
         <div style="font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
           ${playing(p.id)?'color:var(--acc-d)':''}">${p.n}</div>
         <div class="tiny">${Math.round(p.dur/60*10)/10} 分${p.themes[t.id]==='must'?'・必看':''}</div>
@@ -4691,6 +4692,7 @@ function scrPlaylist(){
         background:var(--acc-l);color:var(--acc-d);font-size:12px;font-weight:700">${heard?I.check:(no||'♪')}</div>
       <div style="width:46px;height:46px;flex:0 0 46px;border-radius:10px;background:${thumbArt(id)}"></div>
       <div style="flex:1;min-width:0">
+        ${it.no?`<div class="tiny">展品 ${it.no}</div>`:''}
         <div style="font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
           ${cur?'color:var(--acc-d)':''}">${it.n}</div>
         <div class="tiny" style="margin-top:2px">${vname(it.v)} ${it.fl}・${Math.round(it.dur/60*10)/10} 分</div>
