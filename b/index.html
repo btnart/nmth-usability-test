@@ -507,6 +507,8 @@ button.mapbar{padding:0 16px}
 /* 字級（顯示設定） */
 .fs-l{zoom:1.12}
 .hc{filter:contrast(1.25)}
+/* 手機上輸入框字級至少 16px：iOS 對小於 16px 的輸入框會自動放大畫面，離開輸入後也不會縮回，畫面就會超出螢幕 */
+@media (pointer:coarse){ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=file]),textarea,select{font-size:16px!important} }
 </style>
 
 

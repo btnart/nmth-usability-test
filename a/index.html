@@ -468,6 +468,8 @@ body.embed{background:#fff;padding:0}
 body.embed .phone{width:100vw;height:100dvh;border:0;border-radius:0;box-shadow:none}
 body.embed button,body.embed input,body.embed textarea,body.embed select,
 body.embed [onclick],body.embed [onpointerdown]{pointer-events:none!important}
+/* 手機上輸入框字級至少 16px：iOS 對小於 16px 的輸入框會自動放大畫面，離開輸入後也不會縮回，畫面就會超出螢幕 */
+@media (pointer:coarse){ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=file]),textarea,select{font-size:16px!important} }
 </style>
 
 
