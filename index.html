@@ -37,6 +37,10 @@ h2{font-size:24px}
 .eyebrow{font-size:13px;letter-spacing:.12em;color:var(--teal);font-weight:500;margin-bottom:6px}
 .lead{color:var(--muted);margin:12px 0 0}
 .stack{display:flex;flex-direction:column;gap:18px}
+.sentdlg{border:0;border-radius:16px;padding:28px 24px 22px;max-width:min(360px,calc(100vw - 32px));width:100%;background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.25);text-align:center}
+.sentdlg::backdrop{background:rgba(0,0,0,.45)}
+.sentdlg .ic{width:52px;height:52px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:var(--teal);color:var(--btn-fg);font-size:26px;font-weight:700}
+.sentdlg h3{margin:0 0 6px;font-size:19px} .sentdlg p{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.6}
 .card{background:var(--surface);border-radius:var(--r);padding:20px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(46,92,110,.06)}
 .scenario{border-left:3px solid var(--gold);padding:4px 0 4px 16px;font-size:19px;line-height:1.75}
 .facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
@@ -479,13 +483,27 @@ async function submit(){
   const text='臺史博導覽試用結果\n'+JSON.stringify(data);
   const gf=!!(GFORM.url&&GFORM.entry);
   const copyBlock=`<button class="btn${gf?' ghost':''}" type="button" id="cp">複製結果</button> <span class="hint" id="cpm"></span><pre class="copy" id="raw" style="margin-top:12px">${esc(text)}</pre>`;
+  /* 外部網站（GitHub Pages）在頁面內送出＋彈窗；claude.ai 的 artifact 可能擋內嵌框架，維持開新分頁 */
+  const inPage=/github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
   box.innerHTML = gf
-    ? `<p style="margin:0 0 12px"><strong>還差最後一步：</strong>按下面的按鈕送出。會打開一個新分頁，看到「已收到您回覆的表單」就完成了。</p>
-      <form method="post" action="${esc(GFORM.url)}" target="_blank"><input type="hidden" name="entry.${esc(GFORM.entry)}" value="${esc(JSON.stringify(data))}">${gfInputs(data)}<button class="btn" type="submit">送出結果 ↗</button></form>
+    ? `<p style="margin:0 0 12px"><strong>還差最後一步：</strong>${inPage?'按下面的按鈕送出結果。':'按下面的按鈕送出。會打開一個新分頁，看到「已收到您回覆的表單」就完成了。'}</p>
+      <form id="gfform" method="post" action="${esc(GFORM.url)}" target="${inPage?'gfsink':'_blank'}"><input type="hidden" name="entry.${esc(GFORM.entry)}" value="${esc(JSON.stringify(data))}">${gfInputs(data)}<button class="btn" type="submit" id="gfbtn">送出結果${inPage?'':' ↗'}</button></form>
+      <iframe name="gfsink" id="gfsink" title="送出結果" hidden></iframe>
       <details style="margin-top:16px"><summary class="hint" style="cursor:pointer">按了沒反應？改用複製的方式</summary><p class="hint">複製下面的結果，貼給${esc(CONTACT)}（LINE 或 Email 都可以）。</p>${copyBlock}</details>`
     : `<p style="margin:0 0 12px"><strong>還差最後一步：</strong>請按下面的按鈕複製結果，貼給${esc(CONTACT)}（LINE 或 Email 都可以）。</p>${copyBlock}`;
+  /* 送到看不見的 iframe，不跳到 Google 表單的結果頁；送完跳出彈窗 */
+  const fm=$('#gfform'); if(fm&&inPage) fm.onsubmit=()=>{ const b=$('#gfbtn'); b.disabled=true; b.textContent='送出中…'; let done=false;
+    const fin=ok=>{ if(done) return; done=true; b.disabled=false; b.textContent='送出結果';
+      if(ok){ S.submitted=true; save(); } sentDialog(ok); };
+    $('#gfsink').onload=()=>fin(true); setTimeout(()=>fin(false),15000); };
   $('#cp').onclick=async()=>{ try{ await navigator.clipboard.writeText(text); $('#cpm').textContent='已複製'; }catch(e){ const r=document.createRange(); r.selectNodeContents($('#raw')); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $('#cpm').textContent='已選取，請按複製'; } };
 }
+
+function sentDialog(ok){ let d=$('#sentdlg'); if(!d){ d=document.createElement('dialog'); d.id='sentdlg'; d.className='sentdlg'; document.body.appendChild(d); }
+  d.innerHTML = ok
+    ? `<div class="ic" aria-hidden="true">✓</div><h3>已經送出，謝謝你！</h3><p>受測編號 ${esc(S.sid)}<br>結果已經收到，可以關掉這個頁面了。</p><button class="btn" type="button" id="sentok">好</button>`
+    : `<h3>好像沒有送出去</h3><p>網路可能不穩，請再按一次「送出結果」；還是不行的話，用下方「改用複製的方式」把結果傳給${esc(CONTACT)}。</p><button class="btn" type="button" id="sentok">知道了</button>`;
+  $('#sentok').onclick=()=>d.close(); try{ d.showModal(); }catch(e){ d.setAttribute('open',''); } $('#sentok').focus(); }
 
 /* ===== 研究者結果頁：網址加 #results，只有擁有者看得到全部回覆 ===== */
 async function results(){
