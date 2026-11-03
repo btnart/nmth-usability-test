@@ -1210,7 +1210,10 @@ function scrStop(){ const k=S.stopRoute, l=ROUTES[k].list, id=S.stopId, i=l.inde
       <button class="tealbtn soft" style="flex:1" onclick="back()">回路線地圖</button>
       ${i<l.length-1?`<button class="tealbtn" style="flex:1" onclick="S.walk&&walkGo(1);back()">下一站</button>`:''}</div></div>`; }
 function routeDone(){ const k=S.player.ctx.key; S.player.playing=false; (S.routeDone=S.routeDone||new Set()).add(k); go('route',{route:k}); S.sheet='after'; render(); }
-function step(d){ const p=S.player, list=ctxList(p.ctx);
+/* 已經在第一則／最後一則：按鈕停用。路線的最後一站不算，按下一站會進「完成路線」 */
+const atEdge=d=>{ const p=S.player; if(!p) return true; const list=ctxList(p.ctx), i=p.ctx.type==='route'?p.ctx.idx:list.indexOf(p.id); return d<0?i<=0:(p.ctx.type!=='route'&&i>=list.length-1); };
+const lastStop=()=>{ const p=S.player; return !!p&&p.ctx.type==='route'&&p.ctx.idx>=ctxList(p.ctx).length-1; };
+function step(d){ if(atEdge(d)) return; const p=S.player, list=ctxList(p.ctx);
   if(p.ctx.type==='route'){ const j=p.ctx.idx+d; if(j<0) return; if(j>=list.length) return routeDone();
     const was=p.id; p.id=list[j]; p.ctx.idx=j; p.pos=0; p.playing=!it(p.id).tonly; S.ci=0; applyVersion(p, pickVersion(p.id)); onStopChange(was); render(); return; }   /* 停在原本的分頁 */
   let i = list.indexOf(p.id);
@@ -1278,9 +1281,9 @@ function vidCtl(fs){ const p=S.player, x=it(p.id), d=x.d, pct=p.pos/d*100, q=fs?
   const sk=(dir)=>`<button class="vc" onclick="event.stopPropagation();seek(${dir*15});sgPoke()" aria-label="${dir<0?'後退':'前進'} 15 秒"><span style="position:relative;display:grid;place-items:center">${MI(ICW.rew,30,'#fff').replace('<svg','<svg style="'+(dir>0?'transform:scaleX(-1)':'')+'"')}<b class="vc15">15</b></span></button>`;
   return `<div class="vctl" onclick="event.stopPropagation()">
     <div class="vrow">
-      ${fs?`<button class="vc" onclick="event.stopPropagation();step(-1)" aria-label="上一則">${MI(ICW.prev,28,'#fff')}</button>`:''}${sk(-1)}
+      ${fs?`<button class="vc" onclick="event.stopPropagation();step(-1)" aria-label="上一則" ${atEdge(-1)?'disabled style="opacity:.35"':''}>${MI(ICW.prev,28,'#fff')}</button>`:''}${sk(-1)}
       <button class="vc vbig" onclick="event.stopPropagation();sgToggle()" aria-label="${p.playing?'暫停':'播放'}">${MI(p.playing?ICW.pause:ICW.play,34,'#fff')}</button>${sk(1)}
-      ${fs?`<button class="vc" onclick="event.stopPropagation();step(1)" aria-label="下一則">${MI(ICW.next,28,'#fff')}</button>`:''}</div>   <!-- 一般畫面的上一則／下一則統一在下方那排（三種站共用），全螢幕才放在影片上 -->
+      ${fs?`<button class="vc" onclick="event.stopPropagation();step(1)" aria-label="下一則" ${atEdge(1)?'disabled style="opacity:.35"':''}>${MI(ICW.next,28,'#fff')}</button>`:''}</div>   <!-- 一般畫面的上一則／下一則統一在下方那排（三種站共用），全螢幕才放在影片上 -->
     <div class="vbar"><span id="${q}Now">${mmss(p.pos)}</span>
       <div class="vprog" id="${q}Prog" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="${d}" aria-valuenow="${Math.round(p.pos)}"><i id="${q}Fill" style="width:${pct}%"></i><b id="${q}Knob" style="left:${pct}%"></b></div>
       <span id="${q}Left">-${mmss(d-p.pos)}</span>
@@ -1364,8 +1367,9 @@ function playerCard(){
   const p=S.player, x=it(p.id), ctx=p.ctx, d=x.d, pct=p.pos/d*100, voice=!x.tonly&&!p.sign&&(S.pTab||'play')==='play';
   const sub = ctx.type==='route' ? `第 ${ctx.idx+1} 站・${x.no}` : x.no;
   const restart = MI('M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z',28,'#3C3C3C');
-  const nb=(dd)=>`<button onclick="step(${dd})" style="display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border:1px solid var(--teal7);border-radius:22px;font-size:13px;color:var(--teal7)">
-      ${dd<0?`<span style="display:block;transform:rotate(180deg)">${img('ic-next.svg',18,18)}</span> 上一則`:`下一則 ${img('ic-next.svg',18,18)}`}</button>`;
+  const nb=(dd)=>{ const off=atEdge(dd); return `<button onclick="step(${dd})" ${off?'disabled aria-disabled="true"':''} style="display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border:1px solid ${off?'rgba(0,0,0,.15)':'var(--teal7)'};border-radius:22px;font-size:13px;color:${off?'var(--text2)':'var(--teal7)'};${off?'opacity:.5;cursor:default':''}">
+      ${dd<0?`<span style="display:block;transform:rotate(180deg)">${img('ic-next.svg',18,18)}</span> 上一則`:`${lastStop()?'完成路線':'下一則'} ${img('ic-next.svg',18,18)}`}</button>`; };
+  const edgeTip = atEdge(1) ? '已經是最後一則' : lastStop() ? '已經是最後一站' : atEdge(-1) ? '這是第一則' : '';
   /* 同一個模組：展品資訊列、上一則／下一則永遠在；只有語音的導覽內容才多出進度與播放鍵 */
   return `<div class="pcard" id="pcard">
     <div style="display:flex;gap:12px;align-items:center">
@@ -1385,7 +1389,7 @@ function playerCard(){
         <button onclick="seek(15)" aria-label="前進 15 秒">${fwd15}</button>
         <button class="speedbtn hit" onclick="S.sheet='speed';render()" aria-label="播放速度 ${p.speed} 倍">${p.speed}x</button></div>
       ${p.pos>=d?endCard():''}</div>`:''}
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:${voice?8:12}px;${voice?'border-top:1px solid rgba(0,0,0,.08);padding-top:10px':''}">${nb(-1)}${nb(1)}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:${voice?8:12}px;${voice?'border-top:1px solid rgba(0,0,0,.08);padding-top:10px':''}">${nb(-1)}${edgeTip?`<span role="status" style="font-size:12px;color:var(--text2)">${edgeTip}</span>`:''}${nb(1)}</div>
   </div>`;
 }
 function plistSheet(){ return `<div class="dim" onclick="S.sheet=null;render()"></div>
@@ -1535,7 +1539,7 @@ function miniDock(){
             <button onclick="event.stopPropagation();S.player=null;render()" aria-label="關閉播放">${MI(MD.close,20,'#1A1A1A')}</button></div>
           <div class="pr"><div class="bar"><i id="miniBar" style="width:${Math.max(pct,8)}%"></i></div><b id="miniLeft">-${mmss(x.d-p.pos)}</b>
             <button onclick="event.stopPropagation();S.player.playing=!S.player.playing;render()" aria-label="${p.playing?'暫停':'播放'}">${MI(p.playing?MD.pause:'M8 5v14l11-7z',24,'#1A1A1A')}</button>
-            <button onclick="event.stopPropagation();step(1)" aria-label="下一則">${MI(MD.next,24,'#1A1A1A')}</button></div></div></div></div></div>`;
+            <button onclick="event.stopPropagation();step(1)" aria-label="${atEdge(1)?'已經是最後一則':'下一則'}" ${atEdge(1)?'disabled style="opacity:.35"':''}>${MI(MD.next,24,'#1A1A1A')}</button></div></div></div></div></div>`;
 }
 /* ---------- 展區地圖 ---------- */
 /* 我的位置：館內沒有 Beacon／GPS，由觀眾手動標註；選目的地後畫出走法（旅程痛點：知道在哪但不知道怎麼走） */
