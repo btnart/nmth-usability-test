@@ -1,6 +1,5 @@
 <!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><style>body{margin:0}</style></head><body>
 
-
 <title>國立臺灣歷史博物館 語音導覽</title>
 <script>/* 發布版：網址只能帶 #標記，#nmth＝標規版 */
 var __QS='?mode=nmth';   /* A 版固定標規版：沒有 AI 陪伴導覽員 */
@@ -1417,9 +1416,11 @@ function miniPlayer(off){
   const p = byId(S.player.id), no = S.player.mode==='route' ? stationNo(p.id) : 0;
   const pct = (S.player.mode==='route' && S.route) ? (S.route.heard.length/S.route.list.length*100) : 34;
   const segOn = S.player.mode==='seg', inRt = !!S.route && (no>0 || segOn);   /* 路線中：播放鍵兩側加上一站／下一站 */
+  const ex = !inRt && !segOn && exThemeOf(p);   /* 搜尋或掃碼單獨聽一件：給回到整個展覽導覽的入口 */
   return `<div class="minifloat" style="${off?'bottom:'+off+'px':''}">${inRt?`<div class="skrow">
     <button class="fchip" ${mapPos().i<=0?'disabled':''} onclick="mapStep(-1)">${I.prev} 上一站</button>
-    <button class="fchip" ${mapPos().i>=mapPos().seq.length-1?'disabled':''} onclick="mapStep(1)">下一站 ${I.next}</button></div>`:''}<div class="mini" onclick="growFrom(this);go('player')">
+    <button class="fchip" ${mapPos().i>=mapPos().seq.length-1?'disabled':''} onclick="mapStep(1)">下一站 ${I.next}</button></div>`
+    :ex?`<div class="skrow"><button class="fchip" onclick="startEntry('${ex.id}')">開始「${ex.n.split('：')[0]}」展覽導覽 ${I.arrow}</button></div>`:''}<div class="mini" onclick="growFrom(this);go('player')">
     <div class="thumb" style="background:${thumbArt(p.id)}"></div>
     <div style="flex:1;min-width:0">
       <div style="font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.n}</div>
@@ -3464,7 +3465,7 @@ function pointSheet(){
       </div>
       <h3 style="font-size:20px;margin-bottom:6px">${p.n}</h3>
       ${inRoute?`<div class="tiny" style="color:var(--acc-d);margin-bottom:8px">本站為「${theme(S.route.themeId).n}」第 ${no} 站</div>`
-                :(p.lvl==='full'?`<div class="tiny" style="margin-bottom:8px">不在目前路線上・單獨聆聽不影響路線進度</div>`:'')}
+                :(p.lvl==='full'?`<div class="tiny" style="margin-bottom:8px">不在目前路線上・單獨聆聽不影響路線進度</div>${exEntryBtn(p)}`:'')}
       ${(()=>{ const long=p.text.length>64 && !full;
         return `<p class="muted" style="margin-bottom:14px;line-height:1.85;${long
           ?'display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden':''}">${p.text}</p>
@@ -3531,7 +3532,7 @@ function scrCode(){
     <div style="flex:1;height:46px;background:#fff;border:1px solid var(--line-2);border-radius:999px;
       display:flex;align-items:center;gap:9px;padding:0 6px 0 14px;color:var(--ink-3)">
       ${I.search}
-      <input value="${S.search}" oninput="S.search=this.value;render()" onfocus="showKbd()"
+      <input value="${S.search}" oninput="S.search=this.value;S._typing=true;render()"
         placeholder="${rt?'在「'+rt.n+'」路線中搜尋':'展品、設施，或輸入編號如 201'}"
         style="flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:14.5px;color:var(--ink)">
       ${q?`<button class="icb bare" style="width:32px;height:32px;flex:0 0 32px" onclick="S.search='';render()">${I.close}</button>`:''}
@@ -4719,6 +4720,11 @@ function setLang(l){
   }
   render();
 }
+/* 展品所屬的展覽（themes 裡 scope=exhibition 的那個）；搜尋／掃碼直接聽單件時，用來帶回整個展覽的導覽 */
+function exThemeOf(p){ return p&&Object.keys(p.themes||{}).map(theme).find(t=>t&&t.scope==='exhibition'); }
+function exEntryBtn(p){ const t=exThemeOf(p); if(!t) return '';
+  return `<button class="btn ghost" style="width:100%;margin-bottom:12px;justify-content:space-between;padding:0 16px" onclick="startEntry('${t.id}')">
+    <span>開始「${t.n.split('：')[0]}」整個展覽的導覽</span>${I.arrow}</button>`; }
 function startEntry(id){
   if(S.route && S.route.themeId===id && !S.entryForce){ openThemeInfo(id); return; }  // 同個導覽已在進行 → 直接進內頁
   S.entryForce=false;
@@ -5487,7 +5493,8 @@ function render(){
     if(closeDue()) scrEl.insertAdjacentHTML('beforeend', closeBox());   // 閉館前 30／5 分鐘提醒，蓋在所有頁面最上層
   }
   /* 逐字重繪會讓搜尋框失焦 → 補 focus；但鍵盤已收（點了卡片、開了 sheet）就不能再 focus，否則 onfocus 會把鍵盤叫回來 */
-  if(S.screen==='code'&&S.kbd&&!S.sheet){ const inp=F.querySelector('input'); if(inp&&S.search){ inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length); } }
+  if(S.screen==='code'&&S._typing&&!S.sheet){ const inp=F.querySelector('input'); if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length); } }
+  S._typing=false;
   S._shown=S._nowShown; S._tabPop=null;
 }
 /* 點微型播放器以外的地方＝收合它。不能在 pointerdown 就重繪：重繪會換掉手指下的按鈕，那一下點擊就被吃掉（語言、速度鈕「沒反應」） */
@@ -5576,7 +5583,6 @@ if(__PV.get('embed')){
 render();
 
 </script>
-
 
 
 </body></html>
