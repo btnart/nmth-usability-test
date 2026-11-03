@@ -5607,7 +5607,9 @@ if(__PV.get('embed')){
   }
 }
 /* 易用性測試的情境入口：?go=pt:412 掃到展籤 QR Code（先開展品卡）；?go=play:203 參觀到一半、正在聽這一件 */
-(()=>{ const [k,no]=(new URLSearchParams(__QS).get('go')||'').split(':'); const p=no&&P.find(x=>x.no===no); if(!p) return;
+(()=>{ const [k,no]=(new URLSearchParams(__QS).get('go')||'').split(':');
+  if(k==='ex'){ const e=EXHIBITIONS.find(x=>x.id===no); if(e){ openThemeInfo(e.themeId); S.infoSheet='full'; } return; }   /* ?go=ex:ex_mazu 掃展場入口的 QR Code：開這檔展覽的導覽頁 */
+  const p=no&&P.find(x=>x.no===no); if(!p) return;
   if(k==='pt') openSheetFrom(p.id);
   if(k==='play'){ playPoint(p.id); go('player'); } })();
 render();

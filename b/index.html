@@ -2260,7 +2260,8 @@ try{ S.signPref = localStorage.getItem('nmth.signPref')==='1'; }catch(e){ S.sign
 /* 易用性測試的情境入口：?go=home 直接到首頁；?go=pt:412 掃到展籤 QR Code（開掃碼頁並帶入編號）；?go=play:205 參觀到一半、正在聽這一件 */
 const __GO=(_qs.get('go')||'').split(':');
 if(!__GO[0]&&!new URLSearchParams(__QS).has('skip')){ S.screen='landing'; preloadHome(); }
-(()=>{ const e=Object.entries(ITEMS).find(([k,v])=>v.no===__GO[1]); if(!e) return;
+(()=>{ if(__GO[0]==='ex'&&EXHIBITIONS[__GO[1]]){ openEx(__GO[1]); S.hist=['home']; return; }   /* ?go=ex:zj 掃展場入口的 QR Code：開這檔展覽頁 */
+  const e=Object.entries(ITEMS).find(([k,v])=>v.no===__GO[1]); if(!e) return;
   if(__GO[0]==='pt'){ S.hist=['home']; S.screen='scan'; S.code=__GO[1]; }
   if(__GO[0]==='play'){ const ex=Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(e[0]))||'perm'; play(e[0],{type:'ex',key:ex}); S.hist=['home']; } })();
 render(true);
