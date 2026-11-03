@@ -2358,17 +2358,17 @@ function scrHome(){
     </div>`}
 
 
-    ${(typeof hbOn!=='function'||hbOn('theme'))?`<div class="sec" style="margin-top:26px">
-      <div class="sec-h2"><h3>${t('themed')}</h3><em>themed routes</em><span class="all">共 ${list.length} 條</span></div>
-      <div class="sec-sub">依你預計參觀的時間，為你組一份剛好走得完的內容</div>
-      <div class="hscroll">${list.map(themeCard).join('')}</div>
-    </div>`:''}
-
-    ${(typeof hbOn!=='function'||hbOn('carousel'))?`<div class="sec">
+    ${(typeof hbOn!=='function'||hbOn('carousel'))?`<div class="sec" style="margin-top:26px">
       <div class="sec-h2"><h3>${t('exhibitions')}</h3><em>exhibitions</em>
         <span class="all" style="cursor:pointer" onclick="go('exlist')">查看全部 ›</span></div>
       <div class="sec-sub">常設展與特展，一張門票一次看完</div>
       <div class="hscroll">${EXHIBITIONS.filter(e=>!e.online).map(exCard).join('')}</div>
+    </div>`:''}
+
+    ${(typeof hbOn!=='function'||hbOn('theme'))?`<div class="sec">
+      <div class="sec-h2"><h3>${t('themed')}</h3><em>themed routes</em><span class="all">共 ${list.length} 條</span></div>
+      <div class="sec-sub">依你預計參觀的時間，為你組一份剛好走得完的內容</div>
+      <div class="hscroll">${list.map(themeCard).join('')}</div>
     </div>`:''}
 
     <!-- 附近展覽已拿掉：館內沒有定位服務，無法判斷「附近」 -->
