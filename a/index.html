@@ -4014,7 +4014,7 @@ function scrPlayer(){
       <button class="chip out" style="height:34px;padding:0 13px;font-size:12.5px;gap:6px" aria-label="切換導覽語言，目前 ${langName(playLang(p)||S.lang)}" onclick="openPSheet('track')">${I.globe2} 導覽語言：${langName(playLang(p)||S.lang)} ${I.chev}</button></div>`}
     ${(isSeg||S.pView!=='intro')&&sign?`
     <div style="position:relative;border-radius:18px;overflow:hidden;background:#000;aspect-ratio:16/9;margin-bottom:20px">${signYT()}</div>`:''}
-    ${(!isSeg&&S.pView==='intro')?'':sents.map((x,i)=>`<p style="font-size:${S.txBig?26:20}px;font-weight:700;line-height:1.62;margin-bottom:20px;
+    ${(sign||(!isSeg&&S.pView==='intro'))?'':sents.map((x,i)=>`<p style="font-size:${S.txBig?26:20}px;font-weight:700;line-height:1.62;margin-bottom:20px;
       color:${i===cur?'var(--ink)':'#C4C4C4'}">${x}</p>`).join('')}
   </div>
 

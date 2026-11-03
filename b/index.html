@@ -1256,8 +1256,7 @@ function playPane(){
     <button onclick="S.typeTip=null;this.parentNode.remove()" aria-label="關閉提示">${MI(MD.close,18,'#3C3C3C')}</button></div>` : S.earSeen?'':`<div class="eartip" role="status">${MI(MD.head,18,'#2E5C6E')}<span>請戴上耳機收聽，展廳內不要外放聲音</span>
     <button onclick="S.earSeen=true;this.parentNode.remove()" aria-label="知道了，關閉提醒">${MI(MD.close,18,'#3C3C3C')}</button></div>`;
   const body = p.sign
-    ? `<div aria-label="手語導覽影片：${x.n}" class="sgvid" style="flex:none;height:auto;aspect-ratio:16/9;max-height:none;background:#000">${signYT()}</div>
-        <div id="sgtx" class="sgtx" style="flex:none;max-height:none;overflow:visible" aria-label="逐字稿">${SENT.map((t,i)=>`<p data-i="${i}" class="${i===curSent()?'cur':''}" style="font-size:${Math.round(fz*.85)}px">${t}</p>`).join('')}</div>`
+    ? `<div aria-label="手語導覽影片：${x.n}" class="sgvid" style="flex:none;height:auto;aspect-ratio:16/9;max-height:none;background:#000">${signYT()}</div>`   /* 手語影片本身有中文字幕，下方不再放逐字稿 */
     : TRANSCRIPT.map(t=>`<p style="font-size:${fz}px;line-height:1.7;color:var(--text);margin-bottom:14px">${t}</p>`).join('');
   return `<div class="pscroll" style="padding-bottom:${p.sign?170:300}px">${ear}
     <div style="display:flex;flex-direction:column;gap:12px;padding:4px 4px 0">
