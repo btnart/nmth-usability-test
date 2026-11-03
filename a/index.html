@@ -3781,7 +3781,13 @@ function toggleTxBig(){ S.txBig=!S.txBig; say('逐字稿'+(S.txBig?'放大':'還
 /* 語音／手語並列切換（標規 AUDIO-13／SIGN-05：同點位並列，不另建網站） */
 /* 手語導覽影片：先統一用臺史博 YouTube 上的一支手語影片示意（2026-11-03），正式版每件展品換成各自的影片 */
 const SIGN_YT='https://www.youtube-nocookie.com/embed/ti0MCOL7o6U?playsinline=1&rel=0&modestbranding=1';
-const signYT=()=>`<iframe src="${SIGN_YT}" title="手語導覽影片" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`;
+/* claude.ai artifact 不允許嵌入 YouTube：artifact 版改放一張卡片，點了到 YouTube 播；GitHub Pages／本機直接嵌入播放 */
+const YT_EMBED=/github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
+const signYT=()=>YT_EMBED
+  ? `<iframe src="${SIGN_YT}" title="手語導覽影片" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
+  : `<a href="https://www.youtube.com/watch?v=ti0MCOL7o6U" target="_blank" rel="noopener" aria-label="到 YouTube 播放手語導覽影片" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#1B1B20;color:#fff;text-decoration:none">
+      <span style="width:64px;height:44px;border-radius:12px;background:#E62117;display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span>
+      <span style="font-size:14px;font-weight:700">播放手語導覽影片</span><span style="font-size:11.5px;opacity:.7">預覽環境無法內嵌，會在 YouTube 開啟 ↗</span></a>`;
 function signMode(p){
   const has = anyLang(p,'tsl');
   if(!has) return 'voice';
