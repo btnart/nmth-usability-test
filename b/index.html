@@ -2201,8 +2201,8 @@ const LANDMARKS={'1F':[['服務臺',1177,675,'大廳右側 i 標誌'],['正門�
 const ELEV={'1F':[649,781], '2F':[717,777], '4F':[620,433]};   /* 從別層上來：從這一層的電梯口開始畫 */
 /* 帶我去可以選的地點：每一層的設施＋入口（位置照平面圖，名稱與部分位置為示意） */
 const PL_IC={ wc:FAC_TYPES.wc[1], elev:FAC_TYPES.elev[1], stair:FAC_TYPES.stair[1],
-  exit:'M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z',   /* 2026-11-13 留言：出口、入口都改成向左箭頭 */
-  door:'M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z',
+  exit:'M13.91 15.59L12.5 17l-5-5 5-5 1.41 1.41L11.33 11H21v2h-9.67l2.58 2.59zM5 3H19c1.11 0 2 .9 2 2v4h-2V5H5v14h14v-4h2v4c0 1.1-.89 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2z',   /* 2026-11-13 留言：出口、入口都用同一個圖示，箭頭朝左；2026-11-16 改回出口圖示（門框＋箭頭）左右翻轉，不是只有箭頭 */
+  door:'M13.91 15.59L12.5 17l-5-5 5-5 1.41 1.41L11.33 11H21v2h-9.67l2.58 2.59zM5 3H19c1.11 0 2 .9 2 2v4h-2V5H5v14h14v-4h2v4c0 1.1-.89 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2z',
   info:'M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z',
   park:'M13 3H6v18h4v-6h3c3.31 0 6-2.69 6-6s-2.69-6-6-6zm.2 8H10V7h3.2c1.1 0 2 .9 2 2s-.9 2-2 2z',
   bus:'M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z',
@@ -2599,7 +2599,7 @@ function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F'
       ${!(S.navFl&&f!==S.navFl)&&(S.nav||S.navPending)==='entry'&&navTarget('entry')?anchor(navTarget('entry').x,navTarget('entry').y,'mchip goal','⚑ 目的地：展區入口'):''}
       ${pinIds.map(id=>{ const [x,y]=PINS[f][id], wk=(S.walk||S.mapRoute&&ROUTES[S.mapRoute])?ROUTES[S.walk?S.walk.k:S.mapRoute].list.indexOf(id):-1, on=(S.walk&&wk===S.walk.i)||S.mapSel===id||S.nav===id||S.navPending===id, tnow=S.player&&!S.nav&&S.player.id===id, tnx=S.tour&&S.player&&!S.nav&&tourNextId()===id;
         return `<button class="mpin${wk>=0&&it(id).tonly&&!on?' tonly':''}${on||tnow?' on':''}${tnx?' nxt':''}${nx===id||(S.arrived&&firstOf(S.arrived)===id)?' next':''}${fst===id?' first':''}${it(id).maint?' maint':''}${tnow?' playing':''}" data-mx="${x}" data-my="${y}" style="left:${toScr(x,y)[0]}px;top:${toScr(x,y)[1]}px"
-          onclick="event.stopPropagation();pinTap('${id}')" aria-label="${wk>=0?'第 '+(wk+1)+' 站・'+it(id).n+(it(id).tonly?'（文字導覽）':'（語音導覽）'):'展品 '+it(id).no}${nx===id?'（下一站）':fst===id?'（第一件展品）':''}" aria-pressed="${on}">${fst===id?'<i class="tip">第一件展品<small>點一下開始聽</small></i>':nx===id?'<i>下一站</i>':S.arrived&&firstOf(S.arrived)===id?'<i>第一件</i>':tnow?`<i>${S.player.playing?'播放中':'已暫停'}</i>`:tnx?'<i>下一件</i>':''}${tnow?`<span class="peq${S.player.playing?' go':''}" aria-hidden="true"><b></b><b></b><b></b></span>`:''}${wk>=0?wk+1:it(id).no}</button>`; }).join('')}
+          onclick="event.stopPropagation();pinTap('${id}')" aria-label="${wk>=0?'第 '+(wk+1)+' 站・'+it(id).n+'（'+gKind(it(id))+'導覽）':'展品 '+it(id).no}${nx===id?'（下一站）':fst===id?'（第一件展品）':''}" aria-pressed="${on}">${fst===id?'<i class="tip">第一件展品<small>點一下開始聽</small></i>':nx===id?'<i>下一站</i>':S.arrived&&firstOf(S.arrived)===id?'<i>第一件</i>':tnow?`<i>${S.player.playing?'播放中':'已暫停'}</i>`:tnx?'<i>下一件</i>':''}${tnow?`<span class="peq${S.player.playing?' go':''}" aria-hidden="true"><b></b><b></b><b></b></span>`:''}${wk>=0?wk+1:it(id).no}</button>`; }).join('')}
       ${S.herePick?(LANDMARKS[f]||[]).map(([n,x,y],i)=>anchor(x,y,'mlm',`<span class="lmn">${String.fromCharCode(65+i)}</span>${n}`,`role="button" tabindex="0" aria-label="我在${n}" onclick="event.stopPropagation();setHere(${x},${y})"`)).join(''):''}
       ${S.way?wayLayer(f,anchor):facLayer(f)}</div>`
     : `<div style="position:absolute;inset:0;display:grid;place-items:center;color:var(--text2);font-size:13px">1F 平面圖待館方提供</div>`;
@@ -3351,9 +3351,14 @@ function render(resetScroll, anim){
       const inner=scr.firstElementChild; if(inner) inner.animate([{transform:'scale(.94)'},{transform:'scale(1)'}],{duration:480,easing:EASE}); }
     setTimeout(()=>ghost.remove(),900);
   } else if(ghost){ const scr=app.querySelector('.scr');
+    /* 2026-11-16 留言：換頁時迷你播放器固定不動，只有後面的頁面切換——轉場期間把新頁的迷你播放器拉到最上層、原位不動，舊頁的藏起來 */
+    const mO=ghost.querySelector('.mini'), mN=app.querySelector(':scope > .scr .mini'); let pin=null;
+    if(mO&&mN&&(anim==='push'||anim==='pop')){ const wN=mN.parentElement, home=wN.parentElement, nx=wN.nextSibling, r=rel(wN), css=wN.style.cssText;
+      mO.parentElement.style.visibility='hidden'; app.appendChild(wN); Object.assign(wN.style,{left:r.l+'px',right:r.r+'px',bottom:r.b+'px',top:'auto',zIndex:60});
+      pin=()=>{ if(!pin) return; pin=null; wN.style.cssText=css; if(home.isConnected) home.insertBefore(wN, nx&&nx.parentNode===home?nx:null); else wN.remove(); }; }
     if(anim==='pop'||anim==='down'){ app.appendChild(ghost); if(scr&&anim==='pop') scr.classList.add('in-back'); }
     else { app.insertBefore(ghost, app.firstChild); if(scr) scr.classList.add('in-'+anim); }
-    const done=()=>{ ghost.remove(); app.querySelectorAll('.in-push,.in-up,.in-fade,.in-back').forEach(e=>e.classList.remove('in-push','in-up','in-fade','in-back')); };
+    const done=()=>{ ghost.remove(); if(pin) pin(); app.querySelectorAll('.in-push,.in-up,.in-fade,.in-back').forEach(e=>e.classList.remove('in-push','in-up','in-fade','in-back')); };
     ghost.addEventListener('animationend',done,{once:true}); setTimeout(done,600); }
   app.className=(S.fs==='l'?'fs-l ':'')+(S.hc?'hc ':'')+(FROM_PLAT?'plat ':'')+'lang-'+S.lang;
   const sc2=app.querySelector(':scope > .scr .scroll'); if(sc2) sc2.scrollTop=top;
