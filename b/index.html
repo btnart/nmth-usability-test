@@ -680,6 +680,13 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .landlogin button svg{display:block}
 .landlogin em{font-style:normal;font-size:11px;font-weight:500;padding:2px 8px;border-radius:9px;background:rgba(255,255,255,.2);color:#fff}
 .landlogin p{font-size:11px;line-height:1.6;color:rgba(255,255,255,.8)}
+.loginscr{display:flex;flex-direction:column;overflow:hidden;background:#fff}
+.loginscr .lgtop{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:clamp(6px,1.6vh,14px);padding:clamp(16px,6vh,96px) 0 clamp(8px,2vh,24px)}
+.loginscr .lgtop>span{flex:none;height:clamp(40px,7vh,58px)!important;width:clamp(39px,6.8vh,56px)!important}
+.loginscr .lgbot{flex:none;display:flex;flex-direction:column;gap:clamp(8px,1.4vh,12px);padding:0 32px calc(clamp(12px,3vh,32px) + env(safe-area-inset-bottom,0px))}
+.loginscr .lgbot>button,.loginscr .lgbot>input{padding-top:clamp(10px,1.6vh,13px)!important;padding-bottom:clamp(10px,1.6vh,13px)!important}
+.loginscr .lgbot>div{padding:clamp(2px,.8vh,8px) 0!important}
+.loginscr .lgbot>div i{flex:1;width:auto!important} .loginscr .lgbot>div span{white-space:nowrap}   /* 「或使用 Email」不換行，兩側線條撐滿 */
 </style>
 
 
@@ -2660,20 +2667,20 @@ function doLogin(){ const n=S.fav.size; S.loggedIn=true; if(S.fromLanding) retur
   el.innerHTML=`${img('ic-check-toast.svg',16,16)}<span>已將您未登入時的 ${n} 筆收藏合併至帳號</span>`; document.getElementById('app').appendChild(el); setTimeout(()=>el.remove(),2600); }
 function scrLogin(){
   const btn=t=>`<button onclick="doLogin()" style="width:100%;background:var(--cream);border-radius:24px;padding:13px 0;font-weight:500;font-size:14px;line-height:normal;color:var(--text)">${t}</button>`;
-  return `<div class="scr"><div class="scroll">
-    <div style="padding:120px 0 40px;display:flex;flex-direction:column;gap:14px;align-items:center">
+  return `<div class="scr loginscr">   <!-- 2026-11-16 留言：登入頁高度貼齊螢幕、不捲動；上方標題區吃剩下的空間，螢幕矮就縮小留白 -->
+    <div class="lgtop">
       <span style="width:56px;height:58px;overflow:hidden;position:relative;display:block"><img src="${A('logo-sprite.png')}" style="position:absolute;left:0;top:0;height:100%;width:524.66%;max-width:none" alt="國立臺灣歷史博物館"></span>
       <h1 style="font-weight:700;font-size:24px;line-height:normal;color:var(--ink)">臺史博手機導覽</h1>
       <p style="font-size:13px;color:var(--text2)">登入後收藏與導覽歷程可跨裝置同步</p></div>
-    <div style="padding:36px 32px 0;display:flex;flex-direction:column;gap:12px">
+    <div class="lgbot">
       ${btn('以 Google 帳號繼續')}${btn('以 Apple 帳號繼續')}${btn('以 LINE 帳號繼續')}
       <div style="display:flex;gap:12px;align-items:center;padding:8px 0"><i style="width:120px;height:1px;background:var(--border)"></i><span style="font-size:12px;color:var(--text2)">或使用 Email</span><i style="width:120px;height:1px;background:var(--border)"></i></div>
       <label class="sr" for="em">Email</label>
       <input id="em" type="email" placeholder="輸入 Email 註冊或登入" style="width:100%;background:var(--cream);border:0;border-radius:24px;padding:13px 16px;font:400 13px 'Noto Sans TC',sans-serif;color:var(--text)">
       <button onclick="doLogin()" style="width:100%;background:var(--teal7);border:1px solid var(--border);border-radius:24px;padding:13px 0;font-weight:500;font-size:14px;line-height:normal;color:#fff">繼續</button>
       <p style="font-size:10px;color:var(--text2)">繼續即表示同意隱私權政策；可隨時於會員中心刪除帳號與資料</p>
-      <button onclick="${S.fromLanding?'loginToHome()':'back()'}" style="padding-top:14px;font-weight:500;font-size:13px;color:var(--teal7)">先不登入，直接開始導覽 →</button></div>
-  </div></div>`;
+      <button onclick="${S.fromLanding?'loginToHome()':'back()'}" style="min-height:44px;font-weight:500;font-size:13px;color:var(--teal7)">先不登入，直接開始導覽 →</button></div>
+  </div>`;
 }
 /* ---------- 意見回饋（全站入口） ---------- */
 function scrFeedback(){
