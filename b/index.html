@@ -571,6 +571,8 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .mini .box.tx .tt span{font-size:16px;font-weight:500;line-height:1.35;letter-spacing:.2px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;-webkit-mask-image:none;mask-image:none}
 .mini .box.tx .mm{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);white-space:nowrap}
 .mini .box.tx .nx{flex:0 0 44px;width:44px;height:44px;border-radius:22px;background:var(--tealL);display:grid;place-items:center}
+.mini .box.tx .pb{flex:0 0 44px;width:44px;height:44px;border-radius:22px;background:var(--teal7);display:grid;place-items:center}   /* 2026-11-16 留言：播放是主要動作，用實心底跟「下一則」區隔 */
+.mini .box.tx .pb:disabled{opacity:.35}
 .mini .box.tx .nx:disabled{opacity:.35}
 .mini .box.tx .cx{flex:0 0 32px;width:32px;height:44px;display:grid;place-items:center}
 .mtag{flex:0 0 auto;font-style:normal;background:var(--tealL);color:var(--teal7);font-weight:500;font-size:10px;line-height:1;padding:4px 7px;border-radius:9px}
@@ -2165,7 +2167,7 @@ function trackSheet(){ const p=S.player, x=it(p.id);
 /* ---------- 常駐播放器（離開播放頁時） ---------- */
 function miniDock(){
   const p=S.player; if(!p||(S.mapSheet&&S.screen==='map')) return '';
-  const x=it(p.id), pct=p.pos/x.d*100;
+  const x=it(p.id);
   /* 迷你播放器只放「正在播什麼、暫停、下一則」；完整進度在展開的播放器裡。主題路線多一個站數標籤 */
   const stop = p.ctx.type==='route' ? `<em class="mtag">第 ${p.ctx.idx+1}／${ROUTES[p.ctx.key].stations} 站</em>` : '';
   if(x.tonly){ const l=ctxList(p.ctx), i=l.indexOf(p.id), OB={zh:'展品',en:'Object',ja:'展示品',ko:'전시품'}[S.lang]||'展品';
@@ -2178,16 +2180,19 @@ function miniDock(){
           <div class="mm">${stop}<span translate="no">${x.no?OB+' '+x.no:''}${x.no&&i>=0?'・':''}${i>=0?(i+1)+' / '+l.length:''}</span></div></div>
         <button class="nx" onclick="event.stopPropagation();step(1)" aria-label="${atEdge(1)?'已經是最後一則':'下一則'}" ${atEdge(1)?'disabled':''}>${MI(MD.next,24,'#2E5C6E')}</button>
         <button class="cx" onclick="event.stopPropagation();S.player=null;render()" aria-label="關閉">${MI(MD.close,20,'#5F5F5F')}</button></div></div></div>`; }
+  const l=ctxList(p.ctx), i=l.indexOf(p.id);
+  /* 2026-11-16 留言：右側按鈕原本擠在進度條那一行很難按——改用文字導覽那套排版，
+     播放／下一則／關閉三顆各自獨立並排，播放放在下一則左邊；進度條拿掉，只留剩餘時間 */
   return `<div style="position:absolute;left:0;right:0;bottom:0;z-index:20">
     <div class="mini" style="position:relative">
-      <div class="box">
-        <button class="th" onclick="go('player')" aria-label="打開播放器">${p.sign&&!x.tonly?`<img src="${sgPoster(x)}" alt="" style="object-position:72% 40%">`:`<img src="${A(x.img)}" alt="">`}</button>   <!-- 2026-11-11 留言：播手語導覽時，縮圖換成手語影片的畫面 -->
+      <div class="box tx">
+        <button class="th" onclick="go('player')" aria-label="打開播放器">${p.sign&&!x.tonly?`<img src="${sgPoster(x)}" alt="" style="object-position:72% 40%">`:`<img src="${A(x.img)}" alt="">`}</button>   <!-- 2026-11-13：手語用影片縮圖（固定一張海報），不要展品照 -->
         <div class="info" onclick="go('player')" style="cursor:pointer">
-          <div class="tt">${stop}<span>${x.n}</span>
-            <button onclick="event.stopPropagation();S.player=null;render()" aria-label="關閉播放">${MI(MD.close,20,'#1A1A1A')}</button></div>
-          <div class="pr">${x.tonly?'<span style="flex:1"></span>':`<div class="bar"><i id="miniBar" style="width:${Math.max(pct,8)}%"></i></div><b id="miniLeft">-${mmss(x.d-p.pos)}</b>
-            <button onclick="event.stopPropagation();S.player.playing=!S.player.playing;render()" aria-label="${p.playing?'暫停':'播放'}">${MI(p.playing?MD.pause:'M8 5v14l11-7z',24,'#1A1A1A')}</button>`}   <!-- 2026-11-12：只有展品文字（閱讀／瀏覽）時拿掉進度條與播放鍵，保留下一則 -->
-            <button onclick="event.stopPropagation();step(1)" aria-label="${atEdge(1)?'已經是最後一則':'下一則'}" ${atEdge(1)?'disabled style="opacity:.35"':''}>${MI(MD.next,24,'#1A1A1A')}</button></div></div></div></div></div>`;
+          <div class="tt"><span>${x.n}</span></div>
+          <div class="mm">${stop}<span id="miniLeft" translate="no">-${mmss(x.d-p.pos)}</span>${i>=0?`<span>・</span><span translate="no">${i+1} / ${l.length}</span>`:''}</div></div>
+        <button class="pb" onclick="event.stopPropagation();S.player.playing=!S.player.playing;render()" aria-label="${p.playing?'暫停':'播放'}">${MI(p.playing?MD.pause:'M8 5v14l11-7z',24,'#fff')}</button>
+        <button class="nx" onclick="event.stopPropagation();step(1)" aria-label="${atEdge(1)?'已經是最後一則':'下一則'}" ${atEdge(1)?'disabled':''}>${MI(MD.next,24,'#2E5C6E')}</button>
+        <button class="cx" onclick="event.stopPropagation();S.player=null;render()" aria-label="關閉">${MI(MD.close,20,'#5F5F5F')}</button></div></div></div>`;
 }
 /* ---------- 展區地圖 ---------- */
 /* 我的位置：館內沒有 Beacon／GPS，由觀眾手動標註；選目的地後畫出走法（旅程痛點：知道在哪但不知道怎麼走） */
