@@ -568,7 +568,10 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .mini .box.tx{height:84px;padding:0 10px 0 8px;gap:10px}   /* 2026-11-12 留言：只有展品文字時重新排版——標題放大、兩行，右側只留下一則與關閉 */
 .mini .box.tx .th{height:84px;padding:12px 6px 12px 10px}
 .mini .box.tx .info{gap:3px;padding:0}
-.mini .box.tx .tt span{font-size:16px;font-weight:500;line-height:1.35;letter-spacing:.2px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;-webkit-mask-image:none;mask-image:none}
+.mini .box.tx .tt{overflow:hidden}
+.mini .box.tx .tt span{font-size:16px;font-weight:500;line-height:1.35;letter-spacing:.2px;white-space:nowrap;display:block;overflow:hidden;text-overflow:ellipsis;-webkit-mask-image:none;mask-image:none}   /* 2026-11-16 留言：標題維持一排，放不下就跑馬燈（見 miniMarquee） */
+.mini .box.tx .tt span.mq{text-overflow:clip;animation:mqs var(--mqd,8s) linear infinite alternate}
+@keyframes mqs{0%,12%{transform:translateX(0)}88%,100%{transform:translateX(var(--mqx,0))}}
 .mini .box.tx .mm{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);white-space:nowrap}
 .mini .box.tx .nx{flex:0 0 44px;width:44px;height:44px;border-radius:22px;background:var(--tealL);display:grid;place-items:center}
 .mini .box.tx .pb{flex:0 0 44px;width:44px;height:44px;border-radius:22px;background:var(--teal7);display:grid;place-items:center}   /* 2026-11-16 留言：播放是主要動作，用實心底跟「下一則」區隔 */
@@ -1764,6 +1767,13 @@ function capsule(){ const t=S.pTab||'play';   /* 上方分頁改用 B 版共用�
   const b=(k,label)=>`<button role="tab" class="cb ${t===k?'on':''}" data-k="${k}" aria-selected="${t===k}" onclick="switchPTab('${k}')">${label}</button>`;
   return `<div class="tabs2" id="capsule" role="tablist" aria-label="播放器分頁">
     ${ptabs().includes('play')?b('play','導覽'):''}${b('detail','介紹')}   <!-- 2026-11-16 留言：導覽可能是展區層級、裡面也有圖片，分頁只叫「介紹」；分頁名稱求簡潔，「導覽內容」縮成「導覽」 --></div>`; }
+/* 迷你播放器的標題只放一行：量得出放不下才加跑馬燈，來回跑並在兩端各停一下。
+   減動效（prefers-reduced-motion）時不跑，維持省略號。每次 render 後重算。 */
+function miniMarquee(){ const sp=document.querySelector('.mini .box.tx .tt span'); if(!sp) return;
+  sp.classList.remove('mq'); sp.style.removeProperty('--mqx'); sp.style.removeProperty('--mqd');
+  if(REDUCED) return;
+  const over=sp.scrollWidth-sp.clientWidth;
+  if(over>4){ sp.style.setProperty('--mqx',-over+'px'); sp.style.setProperty('--mqd',Math.max(5,over/28+4)+'s'); sp.classList.add('mq'); } }
 function bindProg(){ const pr=document.getElementById('prog'); if(pr){
     pr.onpointerdown=ev=>{ const r=pr.getBoundingClientRect(); S.player.pos=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))*it(S.player.id).d; tickDOM(); };
     pr.onkeydown=ev=>{ const k={ArrowRight:5,ArrowUp:5,ArrowLeft:-5,ArrowDown:-5}[ev.key]; if(k){ ev.preventDefault(); const p=S.player; p.pos=Math.max(0,Math.min(it(p.id).d,p.pos+k)); tickDOM(); } }; } }
@@ -3513,7 +3523,7 @@ function render(resetScroll, anim){
   const sc2=app.querySelector(':scope > .scr .scroll'); if(sc2) sc2.scrollTop=top;
   if(hx) [...app.querySelectorAll(':scope > .scr .cardrow, :scope > .scr .hs')].forEach((e,i)=>{ if(hx[i]) e.scrollLeft=hx[i]; });
   if(S.screen==='landing') setTimeout(()=>{ S.landIn=true; },1200);
-  sgMount(); if(S.sheet==='signfs') sfFit();
+  sgMount(); miniMarquee(); if(S.sheet==='signfs') sfFit();
   if(S.screen==='home'){ homeScroll(); S.heroPlayed=true; }   /* 說明牌式進場只在第一次進首頁播放 */ if(S.screen==='ex'||S.screen==='route') exNavMount(); if(S.screen==='player') playerMount(); if(S.screen==='map') mapMount();
   const pr=document.getElementById('prog');
   if(pr) pr.onpointerdown=ev=>{ const r=pr.getBoundingClientRect(); const f=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width)); S.player.pos=f*it(S.player.id).d; render(); };
