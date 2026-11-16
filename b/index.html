@@ -541,7 +541,9 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 :where(.card,.zcard,.wk):active:not(:has(button:active)){scale:.97;filter:brightness(.95)}
 :where(.capsule>button,.mpin,.hchip,.vc):active{scale:.92}
 @media (prefers-reduced-motion:reduce){ :where(button,.card,.zcard,.wk){transition:none} }
-.pnav,#pimg{touch-action:none}
+.pnav,.ptop #pimg{touch-action:none} .pscroll #pimg{touch-action:pan-y}   /* 2026-11-16 留言：展品介紹的輪播圖也能上下捲動（往下拖收合播放器只留給標題列與聆聽頁的圖） */
+.sgvid .vbig,.sgvid .sgfs{transition:opacity .25s} .sgvid.signing:not(.ctl-on) .vbig,.sgvid.signing:not(.ctl-on) .sgfs{opacity:0;pointer-events:none}   /* 2026-11-16 留言：手語影片播放中 3 秒後收起播放／全螢幕鈕，點影片再叫出 */
+video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-webkit-media-controls-enclosure,video.sgv::-webkit-media-controls-panel,video.sgv::-webkit-media-controls-overlay-play-button,video.sgv::-webkit-media-controls-start-playback-button{display:none!important;opacity:0!important;-webkit-appearance:none}   /* 擋掉瀏覽器原生的影片按鈕（含 iOS 省電模式的大播放鈕） */
 /* 常駐播放器 */
 .mini{position:absolute;left:0;right:0;bottom:0;z-index:20;padding:28px 8px 12px;background:linear-gradient(to top,rgba(20,26,31,.34),rgba(20,26,31,0));pointer-events:none}
 .mini .box{pointer-events:auto}
@@ -1807,7 +1809,7 @@ function playPane(){
     ${['有幫助','沒幫助'].map(t=>`<button class="ratebtn" onclick="(S.rated=S.rated||{})['${p.id}']='${t}';toast('謝謝你的回饋');render()">${t}</button>`).join('')}
     <button onclick="(S.rateX=S.rateX||{})['${p.id}']=true;this.parentNode.remove()" aria-label="關閉">${MI(MD.close,18,'#3C3C3C')}</button></div>` : '';
   const body = p.sign
-    ? `<div aria-label="手語導覽影片：${x.n}" class="sgvid" style="flex:none;height:auto;aspect-ratio:16/9;max-height:none;background:#000">${signYT()}<button class="sgfs" onclick="event.stopPropagation();openSignFs()" aria-label="全螢幕放大觀看手語影片">${MI('M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z',24,'#fff')}</button></div>`   /* 手語影片本身有中文字幕，下方不再放逐字稿 */
+    ? `<div aria-label="手語導覽影片：${x.n}" class="sgvid${p.playing?' signing':''}${S.sgCtl||!p.playing?' ctl-on':''}" onclick="sgTap()" style="flex:none;height:auto;aspect-ratio:16/9;max-height:none;background:#000">${signYT()}<button class="sgfs" onclick="event.stopPropagation();openSignFs()" aria-label="全螢幕放大觀看手語影片">${MI('M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z',24,'#fff')}</button></div>`   /* 手語影片本身有中文字幕，下方不再放逐字稿 */
     : (it(p.id).tx||TRANSCRIPT).map(t=>`<p style="font-size:${fz}px;line-height:1.7;color:var(--text);margin-bottom:14px">${t}</p>`).join('');
   return `<div class="pscroll" style="padding-bottom:${p.sign?170:300}px">
     <div style="display:flex;flex-direction:column;gap:12px;padding:4px 4px 0">
@@ -1971,7 +1973,7 @@ function playerMount(){
       e.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateY(-12px)'}],{duration:320,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'}).onfinish=()=>e.remove(); }); },5000);
   /* 從標題列或圖片往下拖：整頁跟著手指往下，放手超過 120px 就收合成迷你播放器，不夠就彈回 */
   const scr=document.querySelector('#app > .scr'); if(scr&&!REDUCED){ let d=null, dragT=0;
-    scr.addEventListener('pointerdown',e=>{ if(S.sheet||!e.target.closest('.pnav,#pimg')) return; d={x:e.clientX,y:e.clientY,id:e.pointerId,on:false,dy:0}; });
+    scr.addEventListener('pointerdown',e=>{ const tg=e.target; if(S.sheet||!(tg.closest('.pnav')||(tg.closest('#pimg')&&!tg.closest('.pscroll')))) return; d={x:e.clientX,y:e.clientY,id:e.pointerId,on:false,dy:0}; });
     scr.addEventListener('pointermove',e=>{ if(!d||e.pointerId!==d.id) return; const dx=e.clientX-d.x, dy=e.clientY-d.y;
       if(!d.on){ if(Math.hypot(dx,dy)<8) return; if(dy<=0||Math.abs(dx)>Math.abs(dy)){ d=null; return; } d.on=true; scr.style.transition='none'; try{scr.setPointerCapture(e.pointerId);}catch(_){} }
       d.dy=Math.max(0,dy); scr.style.transform=`translateY(${d.dy}px) scale(${1-Math.min(d.dy,400)/4000})`; scr.style.borderRadius='28px'; scr.style.overflow='hidden'; });
@@ -3194,7 +3196,7 @@ function scrLanding(){
   return `<div class="scr landing ${S.landIn?'':'enter'}" style="background:#0f212b">
     <img class="lbg" src="${A('landing-b.jpg')}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
     <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(15,33,43,.5),rgba(15,33,43,.86))"></div>
-    <div style="position:absolute;left:0;right:0;top:330px;display:flex;flex-direction:column;gap:16px;align-items:center;white-space:nowrap">
+    <div style="position:absolute;left:0;right:0;top:clamp(40px,calc(100% - 460px - env(safe-area-inset-bottom,0px)),330px);display:flex;flex-direction:column;gap:16px;align-items:center;white-space:nowrap">   <!-- 2026-11-16 留言：螢幕較矮時整組往上移，登入區塊不會被切到畫面外 -->
       <h1 style="font-weight:700;font-size:26px;line-height:normal;color:#fff">臺史博手機導覽</h1>
       <p style="font-size:12px;color:var(--tealL)">National Museum of Taiwan History</p>
       <button class="landgo" onclick="leaveLanding()">開始導覽</button>
