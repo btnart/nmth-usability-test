@@ -2266,7 +2266,8 @@ function setHere(x,y,via){ S.here={x:Math.round(x),y:Math.round(y),fl:S.floor,vi
 function clusterPins(){ const root=document.querySelector('#app > .scr .mpins'); if(!root) return;
   /* 2026-11-16：所有點位（展品、設施、帶我去的地點）縮小後疊在一起就合成一個聚點，點了拉近；帶我去也一樣 */
   root.querySelectorAll('.mclu').forEach(e=>e.remove());
-  const all=[...root.querySelectorAll('.mpin,.mfac,.wpl')]; all.forEach(p=>p.classList.remove('inclu'));
+  root.querySelectorAll('.inclu').forEach(p=>p.classList.remove('inclu'));
+  const all=[...root.querySelectorAll('.mpin')];   /* 2026-11-16 留言：設施（廁所、電梯、樓梯、出入口等）不聚，只聚展品點位；設施疊到時由 facDeclutter 錯開 */
   const rb=root.getBoundingClientRect();
   const free=all.filter(p=>!/\b(on|nxt|next|hl)\b/.test(p.className)&&p.getAttribute('aria-pressed')!=='true'&&p.offsetParent!==null&&getComputedStyle(p).visibility!=='hidden')
     .map(p=>{ const r=p.getBoundingClientRect(); return {p,r,mx:+p.dataset.mx,my:+p.dataset.my}; });
