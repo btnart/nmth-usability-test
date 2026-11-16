@@ -3206,7 +3206,7 @@ function scrLanding(){
       <button onclick="S.sheet='lang';render()" aria-label="${LANG_LBL[S.lang]}" style="border:1px solid rgba(255,255,255,.7);border-radius:18px;padding:0 16px;min-height:44px;display:inline-flex;gap:10px;align-items:center;font-weight:500;font-size:13px;line-height:16px;color:#fff">
         <span style="display:flex">${MI(GLOBE,16,'#fff')}</span><span class="lgtx" translate="no" style="display:block;line-height:16px">${LANG_LBL[S.lang]}</span><span style="transform:rotate(90deg);display:flex;width:12px;height:12px">${img('ic-chevron-right-white12.svg',12,12)}</span></button>   <!-- 第 1 輪測試修正（T1）（合併 2026-11-11 留言版）：地球／文字／箭頭對齊同一條水平中線 -->
       <div class="landlogin">   <!-- 2026-11-16 留言：落地頁放登入，標明選填；不登入也能完整使用（審查 #22），登入才保留紀錄、換手機接著聽（審查 #21） -->
-        <button onclick="landLogin()">${MI('M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',16,'#fff')}<span>登入會員</span><em>選填</em></button>
+        <button onclick="landLogin()">${MI('M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',16,'#fff')}<span>登入會員</span></button>
         <p>不登入也能使用全部導覽<br>登入後會保留收藏與收聽紀錄，換手機也能接著聽</p></div>
     </div></div>`;
 }
