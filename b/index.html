@@ -690,6 +690,8 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 @keyframes cluhit{0%{box-shadow:0 0 0 0 rgba(201,145,46,.9)}35%{box-shadow:0 0 0 7px rgba(201,145,46,.55)}100%{box-shadow:0 0 0 12px rgba(201,145,46,0)}}
 .mpins .cluhit{animation:cluhit .8s ease-out 2}
 @media (prefers-reduced-motion:reduce){.mpins .cluhit{animation:none;outline:3px solid #C9912E;outline-offset:2px}}
+#app .scr .mapwrap{bottom:0!important}   /* 地圖鋪滿到底，面板疊在上面（見 mapVisH） */
+#app .mapwrap .pickpin{top:calc((100% - var(--sh,0px))/2)}   /* 標位置的圖釘＝看得到的地圖正中間 */
 </style>
 
 
@@ -2168,7 +2170,7 @@ function fxHead(k,inEx){   /* inEx＝從展覽頁進來的展覽地圖：已經�
       <button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="${on?"go('player')":`startExGuide('${k}')`}">${on?`<span class="eq go" aria-hidden="true"><i></i><i></i><i></i></span>正在導覽中`:`${MI('M8 5v14l11-7z',18,'#fff')}開始導覽`}</button>
       <button class="waybtn" style="min-height:44px" onclick="startNav('entry')" aria-label="帶我去${e.n.split('：')[0]}入口">${MI(MD.nav,16,'#2E5C6E')}帶我去</button></div></div>`; }
 /* 選展覽／切到 4F「全部」後，把該展室（或整層）放到地圖可見範圍（標頭下緣到面板上緣）的正中間 */
-function fxFocus(){ const w=document.querySelector('#app > .scr .mapwrap'); if(!w) return; if(S.exOnly) return exFocus(w); if(S.floor!=='4F') return; const v=mapView(), W=w.clientWidth, H=w.clientHeight, top=fvOn()&&S.mapAll?120:104;
+function fxFocus(){ const w=document.querySelector('#app > .scr .mapwrap'); if(!w) return; if(S.exOnly) return exFocus(w); if(S.floor!=='4F') return; const v=mapView(), W=w.clientWidth, H=mapVisH(w), top=fvOn()&&S.mapAll?120:104;
   const ar=(S.fx&&ROOMS4[S.fx]?[S.fx]:Object.keys(ROOMS4)).flatMap(k=>ROOMS4[k].area.split(' ').map(q=>q.split(',').map(Number)).concat(EXHIBITIONS[k].items.filter(id=>PINS['4F'][id]).flatMap(id=>{ const [x,y]=PINS['4F'][id]; return [[x-70,y-70],[x+70,y+70]]; })));   /* 範圍含走廊延伸展區的點位 */   /* 全部＝兩間特展室合起來的範圍 */
   let x0,y0,x1,y1; { const p=ar; x0=Math.min(...p.map(q=>q[0])); x1=Math.max(...p.map(q=>q[0])); y0=Math.min(...p.map(q=>q[1])); y1=Math.max(...p.map(q=>q[1])); }
   const ah=Math.max(120,H-top), sc=Math.min((S.fx?W-152:W-40)/(x1-x0), ah*.8/(y1-y0)), to={s:sc, x:W/2-(x0+x1)/2*sc, y:top+ah/2-(y0+y1)/2*sc};
@@ -2178,7 +2180,7 @@ function animView(to){ const v=mapView(), from={...v}, t0=performance.now(), D=P
   const step=n=>{ if(done) return; const k=Math.min(1,(n-t0)/D), e=ez(k); v.s=from.s+(to.s-from.s)*e; v.x=from.x+(to.x-from.x)*e; v.y=from.y+(to.y-from.y)*e; placePins(); if(k<1) requestAnimationFrame(step); else done=true; };
   requestAnimationFrame(step); setTimeout(()=>{ if(done) return; done=true; Object.assign(v,to); placePins(); },D+150); }
 /* 展覽地圖：把這檔展覽的範圍（4F＝特展室、2F＝所有導覽點外框）放到可見範圍正中間 */
-function exFocus(w){ const f=S.floor, k=S.exOnly, v=mapView(), W=w.clientWidth, H=w.clientHeight, top=104;
+function exFocus(w){ const f=S.floor, k=S.exOnly, v=mapView(), W=w.clientWidth, H=mapVisH(w), top=104;
   const pad=70; let p=EXHIBITIONS[k].items.filter(id=>PINS[f]&&PINS[f][id]).map(id=>PINS[f][id]).flatMap(([x,y])=>[[x-pad,y-pad],[x+pad,y+pad]]);   /* 範圍＝展室外框＋所有導覽點（含走廊延伸展區） */
   if(f==='4F'&&ROOMS4[k]) p=p.concat(ROOMS4[k].area.split(' ').map(q=>q.split(',').map(Number))); if(!p.length) return;
   const x0=Math.min(...p.map(q=>q[0])), x1=Math.max(...p.map(q=>q[0])), y0=Math.min(...p.map(q=>q[1])), y1=Math.max(...p.map(q=>q[1]));
@@ -2286,13 +2288,13 @@ function clusterPins(){ const root=document.querySelector('#app > .scr .mpins');
     const short=free.length<=20&&nos.every(Boolean)&&g.length<=3?nos.join('・'):'';   /* 點位多時泡泡只寫件數，避免互相疊住 */
     b.innerHTML=`${MI('M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z',16,'#fff').replace('class="ico"','class="ico ci"')}<span class="cn">${g.length}</span>${short?`<span class="cs">${short}</span>`:''}`;   /* 11-13 另一個對話改的膠囊樣式（疊層圖示＋N 件）合併進來 */
     const xs=g.map(q=>q.mx), ys=g.map(q=>q.my), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
-    b.onclick=ev=>{ ev.stopPropagation(); const w=document.querySelector('.mapwrap'), cur=mapView().s, W=w?w.clientWidth:375, H=w?w.clientHeight:600;
+    b.onclick=ev=>{ ev.stopPropagation(); const w=document.querySelector('.mapwrap'), cur=mapView().s, W=w?w.clientWidth:375, H=w?mapVisH(w):600;
       const fit=Math.min((W-96)/Math.max(x1-x0,1), (H*.5)/Math.max(y1-y0,1)), sep=1/Math.max(dmin,.001)*1.2;   /* 拉近到整組都還在畫面裡（fit），但不超過剛好分得開的倍率（sep） */
       mapZoomTo((x0+x1)/2,(y0+y1)/2,Math.min(2.6,Math.max(cur*1.2,Math.min(fit,sep))));
       const keys=new Set(g.map(q=>q.mx+','+q.my)); setTimeout(()=>{ document.querySelectorAll('#app .mpins .mpin,#app .mpins .mfac,#app .mpins .wpl').forEach(e=>{ if(keys.has(e.dataset.mx+','+e.dataset.my)){ e.classList.remove('cluhit'); void e.offsetWidth; e.classList.add('cluhit'); setTimeout(()=>e.classList.remove('cluhit'),1700); } }); },380); };   /* 拉近後，剛才聚在一起的點亮一圈，分得出是哪幾個（旁邊原本就分開的點不亮） */
     root.appendChild(b); }); }
 /* 放大到某一點：平滑過渡，點位跟著一起移動 */
-function mapZoomTo(mx,my,s){ const v=mapView(), w=document.querySelector('.mapwrap'); if(!w) return; const W=w.clientWidth, H=w.clientHeight;
+function mapZoomTo(mx,my,s){ const v=mapView(), w=document.querySelector('.mapwrap'); if(!w) return; const W=w.clientWidth, H=mapVisH(w);
   const from={...v}, to={s, x:W/2-mx*s, y:H/2-my*s};
   if(REDUCED){ Object.assign(v,to); mapClamp(); return placePins(); }
   const t0=performance.now(), ease=t=>1-Math.pow(1-t,3);
@@ -2315,10 +2317,10 @@ function facDeclutter(){ const root=document.querySelector('#app > .scr .mpins')
       if(c){ e.style.marginLeft=c[0]+'px'; e.style.marginTop=c[1]+'px'; } }
     fixed.push(box(e)); }); }
 function mapZoom(k, cx, cy){ const v=mapView(), w=document.querySelector('.mapwrap'); if(!w) return;
-  if(cx==null){ cx=w.clientWidth/2; cy=parseFloat(S._railc)||w.clientHeight/2; }   /* 2026-11-12 留言：＋／－以「可見範圍」中心縮放（標頭下緣到面板上緣），放大時看的那一塊不會跑到標頭底下 */
+  if(cx==null){ cx=w.clientWidth/2; cy=parseFloat(S._railc)||mapVisH(w)/2; }   /* 2026-11-12 留言：＋／－以「可見範圍」中心縮放（標頭下緣到面板上緣），放大時看的那一塊不會跑到標頭底下 */
   const s=Math.max(Math.min(.4,fitV(MAPS[S.floor].fit).s),Math.min(2.2,v.s*k)), ix=(cx-v.x)/v.s, iy=(cy-v.y)/v.s; v.s=s; v.x=cx-ix*s; v.y=cy-iy*s; mapClamp(); placePins();
   if(S.zsFull&&!S.mapSel){ clearTimeout(S._zdT); S._zdT=setTimeout(()=>{ S.zsFull=false; render(); },250); } }   /* 縮放地圖時清單降回矮版 */
-function mapClamp(){ const v=mapView(), M=MAPS[S.floor], w=document.querySelector('.mapwrap'); if(!w) return; const W=w.clientWidth, H=w.clientHeight;
+function mapClamp(){ const v=mapView(), M=MAPS[S.floor], w=document.querySelector('.mapwrap'); if(!w) return; const W=w.clientWidth, H=mapVisH(w);
   v.x=Math.min(W*.6, Math.max(W*.4-M.w*v.s, v.x)); v.y=Math.min(H*.6, Math.max(H*.4-M.h*v.s, v.y)); }
 function floorRailFit(){ const scr=(document.querySelector('#app > .scr.mapsheet')||document.querySelector('#app > .scr'));   /* 地圖面板模式：播放器在後面，要抓地圖那一層 */ if(!scr||!scr.querySelector(':scope > .floorsel, :scope > .mzoom, .mzoom')) return;
   const vis=e=>e&&e.offsetParent!==null, bot=e=>e.offsetTop+e.offsetHeight;
@@ -2536,7 +2538,7 @@ function pickFloor(fl){ const i=['1F','2F','4F']; S.navFl=S.navFl||S.floor; S.ft
 function upFloor(){ const fl=S.navFl, from=S.floor, e=ELEV[fl]; S.ftPrev=['1F','2F','4F'].indexOf(from); S.floor=fl; S.navFl=null;
   S.here={x:e[0],y:e[1],fl,via:from}; S.mv=S.mv||{}; S.mv[fl]=fitV(mapOf(fl).fit); const t=navTarget(); if(t) mapFocus((e[0]+t.x)/2,(e[1]+t.y)/2); render(); }
 /* 中間的圖釘對準的位置＝我的位置 */
-function pickCenter(){ const w=document.querySelector('.mapwrap'), v=mapView(); if(!w) return; setHere((w.clientWidth/2-v.x)/v.s,(w.clientHeight/2-v.y)/v.s); toast('已標出你的位置，可以拖曳調整'); }
+function pickCenter(){ const w=document.querySelector('.mapwrap'), v=mapView(); if(!w) return; setHere((w.clientWidth/2-v.x)/v.s,(mapVisH(w)/2-v.y)/v.s); toast('已標出你的位置，可以拖曳調整'); }
 /* 帶路中面板：距離、到了就播放、重新標註、結束 */
 function navSheet(){ const t=navTarget(), d=navMeters();
   if(t&&t.leg){ const ft=finalTarget(); return `<div class="zonesheet navsheet" role="status" aria-live="polite">${closeX('endNav()','結束帶路')}
@@ -3267,8 +3269,14 @@ const FROM_PLAT=_qs.get('from')==='platform';
 const SCREENS={note:scrNote, a11y:scrA11y, faq:scrFaq, leave:scrLeave, landing:scrLanding, login:scrLogin, feedback:scrFeedback, home:scrHome, theme:scrTheme, sign:scrSign, scan:scrScan, exlist:scrExList, ex:scrEx, route:scrRoute, stop:scrStop, player:()=>S.player?scrPlayer():scrHome(), map:scrMap, member:scrMember};
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* 底部面板高度跟著內容走（不再固定 250px），地圖可視區的下緣跟著面板上緣 */
-function syncSheet(){ const w0=document.querySelector('#app > .scr .mapwrap'), h0=w0?w0.clientHeight:0; syncSheet0(); const w1=document.querySelector('#app > .scr .mapwrap');
-  if(w0&&w1===w0&&Math.abs(w1.clientHeight-h0)>2) mapKeep(h0,w1.clientHeight); }
+/* 2026-11-16 留言（徹底解決地圖被面板殘留白底遮住）：地圖一律鋪滿整個畫面，底部面板直接疊在地圖上；
+   「看得到的地圖高度」＝地圖高度扣掉面板高度，置中、縮放、拉近都用這個算，面板變高變矮或圓角後面都還是地圖，不會再露出白底 */
+function mapVisH(w){ w=w||document.querySelector('#app > .scr .mapwrap'); if(!w) return 0; const scr=w.closest('.scr'), z=scr&&[...scr.querySelectorAll(':scope .zonesheet')].find(e=>e.offsetParent!==null);
+  return z?Math.max(120,w.clientHeight-+(z.dataset.fh||z.offsetHeight)):w.clientHeight; }
+function syncSheet(){ syncSheet0(); const w=document.querySelector('#app > .scr .mapwrap'); if(!w){ S._visK=null; return; }
+  const scr=w.closest('.scr'), key=S.screen+'|'+S.floor+'|'+(S.mapSheet?1:0), h1=mapVisH(w);
+  const h0=S._visK===key?S._visH:w.clientHeight-(scr.classList.contains('waymode')?300:scr.classList.contains('withmini')?338:250);   /* 剛進這張地圖：照舊版預設面板高度當起點，跟原本的定位一致 */
+  S._visK=key; S._visH=h1; if(Math.abs(h1-h0)>2) mapKeep(h0,h1); }
 /* 2026-11-16：底部面板打開或變高時，地圖往上挪：可見範圍中心不變；整張平面圖放得下就整張放在面板上方，選中的點也不會被面板蓋住（不再像被切到） */
 function mapKeep(oldH,newH){ const M=MAPS[S.floor]; if(!M||S.screen!=='map') return; const v=mapView(), top=110, bot=newH-16;
   v.y+=(newH-oldH)/2; const ch=M.h*v.s;
