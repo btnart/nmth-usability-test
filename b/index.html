@@ -687,6 +687,9 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .loginscr .lgbot>button,.loginscr .lgbot>input{padding-top:clamp(10px,1.6vh,13px)!important;padding-bottom:clamp(10px,1.6vh,13px)!important}
 .loginscr .lgbot>div{padding:clamp(2px,.8vh,8px) 0!important}
 .loginscr .lgbot>div i{flex:1;width:auto!important} .loginscr .lgbot>div span{white-space:nowrap}   /* 「或使用 Email」不換行，兩側線條撐滿 */
+@keyframes cluhit{0%{box-shadow:0 0 0 0 rgba(201,145,46,.9)}35%{box-shadow:0 0 0 7px rgba(201,145,46,.55)}100%{box-shadow:0 0 0 12px rgba(201,145,46,0)}}
+.mpins .cluhit{animation:cluhit .8s ease-out 2}
+@media (prefers-reduced-motion:reduce){.mpins .cluhit{animation:none;outline:3px solid #C9912E;outline-offset:2px}}
 </style>
 
 
@@ -2270,7 +2273,8 @@ function clusterPins(){ const root=document.querySelector('#app > .scr .mpins');
   free.forEach(q=>{ const [x,y]=toScr(q.mx,q.my); q.ax=x; q.ay=y; });
   let groups=free.map(q=>[q]);
   const anc=g=>[g.reduce((s,q)=>s+q.ax,0)/g.length, g.reduce((s,q)=>s+q.ay,0)/g.length];
-  const near=(A,B)=>{ if(A.length===1&&B.length===1) return hit(A[0].r,B[0].r); const [ax,ay]=anc(A),[bx,by]=anc(B); return Math.abs(ax-bx)<74&&Math.abs(ay-by)<40; };
+  const kd=q=>q.p.classList.contains('mpin')?'p':'f';   /* 2026-11-16 留言：展品跟設施分開聚，聚點的數字才會等於拉近後看到的展品數 */
+  const near=(A,B)=>{ if(kd(A[0])!==kd(B[0])) return false; if(A.length===1&&B.length===1) return hit(A[0].r,B[0].r); const [ax,ay]=anc(A),[bx,by]=anc(B); return Math.abs(ax-bx)<74&&Math.abs(ay-by)<40; };
   for(let changed=true,guard=0;changed&&guard<200;guard++){ changed=false;
     for(let i=0;i<groups.length&&!changed;i++) for(let j=i+1;j<groups.length;j++) if(near(groups[i],groups[j])){ groups[i]=groups[i].concat(groups[j]); groups.splice(j,1); changed=true; break; } }
   groups.forEach(g=>{ if(g.length<2) return;
@@ -2278,11 +2282,14 @@ function clusterPins(){ const root=document.querySelector('#app > .scr .mpins');
     let dmin=1e9; g.forEach((q,i)=>g.slice(i+1).forEach(r=>{ dmin=Math.min(dmin,Math.max(Math.abs(q.mx-r.mx)/56,Math.abs(q.my-r.my)/40)); }));
     g.forEach(q=>q.p.classList.add('inclu'));
     const names=g.map(q=>(q.p.getAttribute('aria-label')||q.p.textContent||'').trim()).join('、'), nos=g.map(q=>q.p.classList.contains('mpin')?q.p.textContent.trim():null);
-    const b=document.createElement('button'); b.className='mclu'; b.style.left=cx+'px'; b.style.top=cy+'px'; b.setAttribute('aria-label',`${g.length} 個點位：${names}，點一下放大`);
+    const b=document.createElement('button'); b.className='mclu'; b.dataset.k=g.map(q=>q.mx+','+q.my).join(';'); b.style.left=cx+'px'; b.style.top=cy+'px'; b.setAttribute('aria-label',`${g.length} 個點位：${names}，點一下放大`);
     const short=free.length<=20&&nos.every(Boolean)&&g.length<=3?nos.join('・'):'';   /* 點位多時泡泡只寫件數，避免互相疊住 */
-    const unit=nos.every(Boolean)?'件':'個';
-    b.innerHTML=`${MI('M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z',16,'#fff').replace('class="ico"','class="ico ci"')}<span class="cn">${g.length} ${unit}</span>${short?`<span class="cs">${short}</span>`:''}`;   /* 11-13 另一個對話改的膠囊樣式（疊層圖示＋N 件）合併進來 */
-    b.onclick=ev=>{ ev.stopPropagation(); mapZoomTo(mx,my,Math.min(2.6,Math.max(mapView().s*1.4,1/Math.max(dmin,.001)*1.2))); };
+    b.innerHTML=`${MI('M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z',16,'#fff').replace('class="ico"','class="ico ci"')}<span class="cn">${g.length}</span>${short?`<span class="cs">${short}</span>`:''}`;   /* 11-13 另一個對話改的膠囊樣式（疊層圖示＋N 件）合併進來 */
+    const xs=g.map(q=>q.mx), ys=g.map(q=>q.my), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+    b.onclick=ev=>{ ev.stopPropagation(); const w=document.querySelector('.mapwrap'), cur=mapView().s, W=w?w.clientWidth:375, H=w?w.clientHeight:600;
+      const fit=Math.min((W-96)/Math.max(x1-x0,1), (H*.5)/Math.max(y1-y0,1)), sep=1/Math.max(dmin,.001)*1.2;   /* 拉近到整組都還在畫面裡（fit），但不超過剛好分得開的倍率（sep） */
+      mapZoomTo((x0+x1)/2,(y0+y1)/2,Math.min(2.6,Math.max(cur*1.2,Math.min(fit,sep))));
+      const keys=new Set(g.map(q=>q.mx+','+q.my)); setTimeout(()=>{ document.querySelectorAll('#app .mpins .mpin,#app .mpins .mfac,#app .mpins .wpl').forEach(e=>{ if(keys.has(e.dataset.mx+','+e.dataset.my)){ e.classList.remove('cluhit'); void e.offsetWidth; e.classList.add('cluhit'); setTimeout(()=>e.classList.remove('cluhit'),1700); } }); },380); };   /* 拉近後，剛才聚在一起的點亮一圈，分得出是哪幾個（旁邊原本就分開的點不亮） */
     root.appendChild(b); }); }
 /* 放大到某一點：平滑過渡，點位跟著一起移動 */
 function mapZoomTo(mx,my,s){ const v=mapView(), w=document.querySelector('.mapwrap'); if(!w) return; const W=w.clientWidth, H=w.clientHeight;
