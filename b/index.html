@@ -1193,6 +1193,10 @@ function homeScroll(){
       if(line) line.style.transform=`scaleY(${1-cl((y-20)/260)})`;
       const g=document.getElementById('hgrad'); if(g) g.style.opacity=String(1-cl((y-30)/240));
       /* 只有遮罩的框往左右撐開：卡片本身尺寸不變，文字、圖片都留在原位不縮放；用負的 inset 把卡片外的圖片露出來，撐到超出畫面、圓角收成 0 */
+      /* 2026-11-16：這裡的負值 inset 在 Safari 會被整條丟掉，但 overflow 切成 visible 後，
+         底圖本來就比卡片寬（hpan 是 left:-65.7%、width:auto），會自然溢出，視覺結果與 clip-path 相同——
+         也就是說 Safari 走的是 overflow 這條 fallback。動下面兩行前務必在 iOS 實機確認，
+         尤其別把 overflow 固定成 hidden：展覽頁主圖就是沒有這層保險，負值失效後整個撐不開（見 v360–v362）。 */
       const k=cl(y/260), W=sc.clientWidth, e=((W-hero.offsetWidth)/2+20)*k;
       if(k>0){ hero.style.overflow='visible'; hero.style.clipPath=`inset(0 ${-e}px round ${20*(1-k)}px)`; }
       else { hero.style.overflow='hidden'; hero.style.clipPath=''; } }   /* 白色漸層跟著退去，露出整張照片 */

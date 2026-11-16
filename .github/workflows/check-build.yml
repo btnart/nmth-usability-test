@@ -1,0 +1,16 @@
+name: check build
+
+# b/index.html 是 src/app-b.html 的產出物。忘記跑 tools/build-b.py 就直接推上來的話，
+# Pages 上的頁面會跟源檔對不起來，而且不會有任何警告——這個 workflow 就是為了擋住它。
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: b/index.html 是否與 src/ 一致
+        run: python3 tools/build-b.py --check
