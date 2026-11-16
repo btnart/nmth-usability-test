@@ -1743,7 +1743,8 @@ function step(d){ if(atEdge(d)) return; const p=S.player, list=ctxList(p.ctx);
   let i = list.indexOf(p.id);
   if(d>0 && p.ctx.type==='route' && i===list.length-1) return routeDone();   /* 走完最後一站 → 參觀後延伸 */
   i=Math.max(0,Math.min(list.length-1,i+d));
-  p.id=list[i]; if(p.ctx.type==='route') p.ctx.idx=i; p.pos=0; p.playing=true; S.ci=0; applyVersion(p, verFor(p)); markHeard(); render(); }
+  playIdx(i); }   /* 2026-11-16：原本這裡自己抄一份換站邏輯，漏了「有導覽就切回導覽分頁」、onStopChange 的類型提示，
+                     而且把文字點位也設成 playing=true。改成直接走 playIdx，兩條路徑不再分歧 */
 function guideProgress(){
   const p=S.player; if(!p) return '';
   if(p.ctx.type==='route'){ const r=ROUTES[p.ctx.key], n=p.ctx.idx+1, nx=r.list[p.ctx.idx+1];
