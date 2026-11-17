@@ -1068,9 +1068,10 @@ function placeFab(){ const f=document.getElementById('scanFab'), app=document.ge
   document.querySelectorAll('#app > .scr .mini .box, #app > .scr .zonesheet').forEach(el=>{ const r=el.getBoundingClientRect(), cs=getComputedStyle(el); let dy=0; try{ dy=new DOMMatrix(cs.transform==='none'?undefined:cs.transform).m42; }catch(e){} if(r.height>0&&cs.display!=='none') b=Math.max(b,ab-(el.dataset.fh?r.bottom-dy-(+el.dataset.fh):r.top-dy)+12); });   /* 2026-11-11 留言：面板正在滑入（收合後再展開）時，扣掉動畫位移，用最後停的位置算 FAB 高度 */
   const fabOn=f&&f.offsetParent!==null&&getComputedStyle(f).display!=='none';
   const zbv=(b+(fabOn?f.offsetHeight+12:0))+'px', z=document.querySelector('#app > .scr .mzoom');
-  if(z&&!z.dataset.placed){ z.style.transition='none'; app.style.setProperty('--zb',S._zb||zbv); z.offsetHeight; z.style.transition=''; z.dataset.placed='1'; }   /* 新畫出來的縮放鍵先放在上一次的位置（剛進地圖就直接定位），之後才滑動 */
-  app.style.setProperty('--zb',zbv); S._zb=zbv;   /* 2026-11-11：縮放鍵放在底部面板與 FAB 上方，靠右對齊 */
-  if(!f) return; f.style.bottom=b+'px'; f.style.right=S.screen==='map'?'20px':'';   /* 地圖上 FAB 跟縮放鍵同一條右邊線 */ const ms=document.querySelector('#app > .scr .mapsw'); if(ms) ms.style.bottom=(b+4)+'px';   /* 地圖切換鈕跟 FAB 一起往上讓 */
+  if(z&&!z.dataset.placed){ z.style.transition='none'; app.style.setProperty('--zb',S._zb||zbv); z.offsetHeight; z.style.transition=''; z.dataset.placed='1'; }
+  /* 2026-11-17：值沒變就不寫——--zb 掛在 #app（最外層），每寫一次整頁樣式都要重算，進站時會多排一次版造成卡頓 */   /* 新畫出來的縮放鍵先放在上一次的位置（剛進地圖就直接定位），之後才滑動 */
+  if(app.style.getPropertyValue('--zb')!==zbv) app.style.setProperty('--zb',zbv); S._zb=zbv;   /* 2026-11-11：縮放鍵放在底部面板與 FAB 上方，靠右對齊 */
+  if(!f) return; if(f.style.bottom!==b+'px') f.style.bottom=b+'px'; const fr=S.screen==='map'?'20px':''; if(f.style.right!==fr) f.style.right=fr;   /* 地圖上 FAB 跟縮放鍵同一條右邊線 */ const ms=document.querySelector('#app > .scr .mapsw'); if(ms) ms.style.bottom=(b+4)+'px';   /* 地圖切換鈕跟 FAB 一起往上讓 */
 }
 /* 頂層頁標頭（2026-11-11）：跟首頁同一個位置與高度——logo、標題靠左緊接在 logo 後、右邊選單鈕 24px */
 const topBar = (t,dark) => `<div style="${dark?'position:relative;z-index:1':'position:sticky;top:0;z-index:6;background:#fff'};display:flex;align-items:center;gap:12px;padding:24px 20px 16px"><button onclick="go('home')" aria-label="回首頁" style="display:flex;margin:-6px;padding:6px">${dark?`<span style="filter:brightness(0) invert(1)">${logo}</span>`:logo}</button><p style="flex:1;min-width:0;font-weight:700;font-size:18px;line-height:1.3;color:${dark?'#fff':'var(--ink)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t}</p><button onclick="openMenu()" aria-label="主選單">${img(dark?'ic-menu-white.svg':'ic-menu.svg',24,24)}</button></div>`;
@@ -3376,11 +3377,26 @@ function loginToHome(msg){ S.fromLanding=false; S.screen='home'; S.hist=[]; S.hi
 function leaveLanding(){ const l=document.querySelector('#app > .scr.landing'); if(!l||REDUCED) return setLang(S.lang);
   l.classList.add('leaving'); setTimeout(()=>setLang(S.lang),420); }
 function landMsg(){ return S.loadPct>=100?'內容已準備好':S.slowNet?'網路較慢，可以先進入，內容會邊用邊載入':'正在準備導覽內容…'; }
+/* 2026-11-17：進站卡頓的主因是中文字型——Google Fonts 把 Noto Sans TC 切成上百片，頁面出現哪些字才下載哪幾片，
+   每抵達一片文字就重排一次。首頁進站後還要再下載約 7 片、展覽頁約 9 片，正好在觀眾開始捲動時陸續抵達。
+   改成在落地頁就把主要畫面（首頁、展覽列表、各展覽、主題路線、手語導覽）會出現的字先載好。字型與設計不變。 */
+function screenChars(){ const keep={ex:S.ex, exTab:S.exTab, route:S.route, rStops:S.rStops, screen:S.screen}; let h='';
+  const add=f=>{ try{ h+=f(); }catch(e){} };
+  S.screen='home'; add(scrHome); add(scrExList); add(scrTheme); add(scrSign);
+  Object.keys(EXHIBITIONS).forEach(k=>{ S.ex=k; S.exTab='intro'; add(scrEx); });
+  Object.keys(ROUTES).forEach(k=>{ S.route=k; S.rStops=false; add(scrRoute); S.rStops=true; add(scrRoute); });
+  Object.assign(S,keep);
+  return [...new Set(h.replace(/<[^>]*>/g,' ').match(/[\u2e80-\u9fff\uff00-\uffef\u3000-\u303f]/g)||[])].join(''); }
+function preloadFonts(){ if(!document.fonts||!document.fonts.load) return Promise.resolve();
+  const t=screenChars(); if(!t) return Promise.resolve();
+  return Promise.all(['400','500','700'].map(w=>document.fonts.load(w+' 16px "Noto Sans TC"', t).catch(()=>{}))); }
 function preloadHome(){
   const list=['home-hero.jpg','ex-permanent.jpg','mazu.jpg','route-listen.jpg','route-mustsee.jpg','map-site-v2.png','logo-sprite.png'];
-  let n=0; S.loadPct=0; S.slowNet=false;
+  let n=0; S.loadPct=0; S.slowNet=false; const total=list.length+1;   /* +1＝主要畫面的字型 */
   const upd=()=>{ const f=document.getElementById('landFill'), m=document.getElementById('landMsg'); if(f) f.style.width=S.loadPct+'%'; if(m) m.textContent=landMsg(); };
-  list.forEach(f=>{ const im=new Image(); im.onload=im.onerror=()=>{ n++; S.loadPct=Math.round(n/list.length*100); upd(); }; im.src=A(f); });
+  const one=()=>{ n++; S.loadPct=Math.round(n/total*100); upd(); };
+  list.forEach(f=>{ const im=new Image(); im.onload=im.onerror=one; im.src=A(f); });
+  setTimeout(()=>preloadFonts().then(one),0);
   setTimeout(()=>{ if(S.loadPct<100){ S.slowNet=true; upd(); } },5000);
 }
 function setLang(k){ const ch=k!==S.lang; S.lang=k; S.sheet=null; if(S.screen==='landing'){ S.screen='home'; S.hist=[]; render(true,'fade'); } else render(true);
@@ -3506,7 +3522,7 @@ function render(resetScroll, anim){
     shOut.querySelectorAll('.lgmodal').forEach(e=>e.animate([{opacity:1,transform:'translateY(-50%) scale(1)'},{opacity:0,transform:'translateY(-50%) scale(.96)'}],{duration:PAN_MS,easing:PAN_EZ,fill:'forwards'}));
     setTimeout(()=>shOut.remove(),PAN_MS+30); }
   document.documentElement.lang=LANGS[S.lang][1];
-  syncSheet(); placeFab(); camSync(); fitLangTags();
+  syncSheet(); requestAnimationFrame(placeFab); camSync(); fitLangTags();   /* 2026-11-17：placeFab 要讀版面位置，留在 render 裡會逼瀏覽器當場排整頁——延到下一幀畫面之前再算（仍在新畫面第一次出現前，不會閃） */
   const toMini = anim==='down' && ghost ? rel(app.querySelector(':scope > .scr .mini .box')) : null;
   const ins=m=>`inset(${m.t}px ${m.r}px ${m.b}px ${m.l}px round 20px)`, EASE='cubic-bezier(.32,.72,0,1)';
   if(fly && ghost && (toMini||fromMini)){ const dur=toMini?460:480;
