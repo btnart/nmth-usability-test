@@ -1115,6 +1115,18 @@ function exCard(key, isRoute, listMeta, over){
       </div>
     </div></div>`;   /* 箭頭移進標題區，跟著標題垂直置中 */
 }
+/* 2026-11-17 留言：首頁「無障礙專區」——只列純手語導覽的展覽（有手語影片、沒有語音導覽）。
+   手語影片只在中文介面提供，所以外文介面不顯示這一區；demo 展覽不列（同手語導覽頁的規則） */
+function signOnlyEx(){ return S.lang!=='zh'?[]:Object.keys(EXHIBITIONS).filter(k=>{ const ids=EXHIBITIONS[k].items||[];
+  return !/^demo/.test(k) && ids.some(id=>it(id).sign&&!it(id).tonly) && !ids.some(id=>it(id).voice!==false&&!it(id).tonly); }); }
+function a11ySection(){ const ks=signOnlyEx(); if(!ks.length) return '';
+  const cards=ks.map(k=>{ const e=EXHIBITIONS[k], ids=(e.items||[]).filter(id=>it(id).sign&&!it(id).tonly), m=Math.round(ids.reduce((n,id)=>n+it(id).d,0)/60);
+    return exCard(k,false,[`${ids.length} 支手語影片・約 ${m} 分鐘`,(e.meta||[]).find(x=>/^\dF/.test(x))||'']); }).join('');
+  return `<div class="divider"></div>
+    <div class="secthead" id="secA11y"><div class="r"><b>無障礙專區</b><em>accessibility</em>
+      <button onclick="go('sign')" style="margin-left:auto;min-height:44px;padding:0 2px;display:flex;align-items:center;gap:4px;font-size:13px;font-weight:500;color:var(--teal7)">全部手語導覽${img('ic-arrow-right-dark2.svg',14,14)}</button></div>
+      <p>只有手語導覽的展覽・臺灣手語影片，附中文字幕</p></div>
+    <div class="cardrow">${cards}</div>`; }
 function scrHome(){
   return `<div class="scr"><div class="scroll" id="sc">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 20px 14px">
@@ -1149,11 +1161,12 @@ function scrHome(){
       <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left"><b>${L('參觀前先聽 3 分鐘')}</b>
         <small>場館概覽：各樓層有什麼、怎麼逛</small></span>
       ${MI('M8 5v14l11-7z',26,'#fff')}</button>`}
-    ${S.lang==='zh'?`<button class="signhome" onclick="go('sign')" aria-label="手語導覽：臺灣手語影片，附中文字幕">${SIGN_IC}<span><b>手語導覽</b><small>臺灣手語影片・附中文字幕</small></span>${img('ic-arrow-right-dark2.svg',16,16)}</button>`:''}   <!-- 第 1 輪測試 T4：首頁放手語入口（手語只在中文介面提供） -->
+    <!-- 2026-11-17 留言：參觀前先聽下方的手語導覽入口拿掉，改由「無障礙專區」承接（見 a11ySection） -->
     <div class="divider"></div>
     <div id="secEv">${eventsSection()}</div>   <!-- 第 1 輪測試修正：英文版首頁也有本日活動 -->
     <div class="secthead" id="secEx"><div class="r"><b>${L('現正展出')}</b><em>exhibitions</em></div><p>${L('常設展與特展')}</p></div>   <!-- 第 1 輪測試修正：說明只留「常設展與特展」，拿掉掃描聆聽的描述 -->
     <div class="cardrow">${exCard('perm')}${exCard('zj')}${exCard('asia')}${exCard('demoA')}${exCard('demoB')}${exCard('demoC')}${exCard('demoD')}${exCard('demoE')}</div>
+    ${a11ySection()}
     <div class="divider"></div>
     <div class="secthead" id="secRt"><div class="r"><b>${L('主題路線')}</b><em>themed routes</em></div><p>${L('邀請你從不同主題路徑探索臺史博')}</p></div>   <!-- 第 1 輪測試修正：主題路線說明改短 -->
     <div class="cardrow">${exCard('must',true)}${exCard('listen',true)}${exCard('touch',true)}</div>
@@ -1175,7 +1188,7 @@ function scrHome(){
 }
 /* 首頁往下捲：主視覺縮小淡出，頂端浮出精簡列（logo＋區塊跳轉），一眼知道下面有什麼 */
 function homeBar(){   /* 第 1 輪測試修正：本日活動各語系都有，精簡列也都列出 */
-  const secs=[['secEv',S.lang==='en'?'Today':'本日活動'],['secEx',L('現正展出')],['secRt',L('主題路線')],['secMap',L('展區地圖')]];
+  const secs=[['secEv',S.lang==='en'?'Today':'本日活動'],['secEx',L('現正展出')],...(signOnlyEx().length?[['secA11y','無障礙']]:[]),['secRt',L('主題路線')],['secMap',L('展區地圖')]];
   return `<div class="hbar" id="hbar" aria-hidden="true">
     <div style="display:flex;align-items:center;gap:12px;padding:24px 20px 16px">${logo}   <!-- 2026-11-11 留言：精簡列標題列跟其他頁 navbar 同高（72px）、同位置 -->
       <b style="flex:1;font-weight:700;font-size:18px;line-height:1.3;color:var(--ink)">臺史博手機導覽</b>
@@ -1217,13 +1230,13 @@ function homeScroll(){
 }
 function openMenu(){ S.sheet='menu'; render(); }
 const GLOBE='M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z';
-/* 漢堡選單（2026-11-11 留言改版）：照「點了會發生什麼」分三區，每一區只有一種行為
-   逛展＝關選單、換到主要頁面；服務與協助＝整頁疊在選單上，返回回選單；設定＝底部面板就地調整，關掉回選單 */
+/* 漢堡選單（2026-11-11 留言改版）：照「點了會發生什麼」分區，每一區只有一種行為
+   服務與協助＝整頁疊在選單上，返回回選單；設定＝底部面板就地調整，關掉回選單（2026-11-17 拿掉「逛展」區） */
 const OPEN_IC='M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z';
 function menuOverlay(){
   const cur=S.screen, RO="S.reopen={sheet:'menu',d:S.hist.length};";
   const sec=t=>`<p style="font-size:12px;font-weight:500;letter-spacing:.6px;color:var(--text2);padding:22px 0 4px">${t}</p>`;
-  const browse=[['首頁','home',"go('home')",['home']],['主題路線','themed routes',"go('theme')",['theme','route','stop']],['展覽','exhibitions',"go('exlist')",['exlist','ex']],['手語導覽','sign language',"go('sign')",['sign']],['展區地圖','floor map',"openMapAll()",['map']]];   /* 手語導覽＝規格 SIGN-01 要求的獨立入口（影片清單＋地圖），放在逛展 */
+  /* 2026-11-17 留言：選單拿掉「逛展」區塊——首頁各區已是主要入口；網站導覽（服務與協助、首頁頁尾）仍列出所有頁面 */
   const svc=[['無障礙服務',RO+"go('a11y')",['a11y','note']],['常見問題',RO+"go('faq')",['faq']],['意見回饋',RO+"go('feedback')",['feedback']],['網站導覽（Sitemap）',RO+"go('sitemap')",['sitemap']]];   /* 審查 #11：AA 2.4.5 多種方式到達，選單放 Sitemap 入口 */
   const offDone=Object.values(S.offline).filter(v=>v==='done').length;
   const sets=[['語言',`<span translate="no" lang="${LANGS[S.lang][1]}">${LANGS[S.lang][0]}</span>`,"S.menuUnder=true;S.sheet='lang';render()"],['字級與高對比',`<span>${({s:'小字級',l:'大字級'}[S.fs]||'標準字級')}</span>${S.hc?'<span>・高對比</span>':''}`,"S.menuUnder=true;S.sheet='display';render()"],
@@ -1234,8 +1247,6 @@ function menuOverlay(){
     <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><b style="font-weight:700;font-size:17px;color:var(--ink)">${S.loggedIn?'會員中心':'登入會員'}</b>
       <span style="font-size:12px;line-height:1.5;color:var(--text2)">${S.loggedIn?'我的收藏・導覽歷程・我的筆記':'登入後可收藏展品、保存導覽歷程，換手機也接得上'}</span></span>
     ${img('ic-arrow-right-dark2.svg',16,16)}</button>`;
-  const big=([t,en,fn,scr])=>{ const on=scr.includes(cur); return `<button onclick="S.sheet=null;${fn}" ${on?'aria-current="page"':''} style="display:flex;align-items:center;gap:10px;padding:14px 0;width:100%">
-      ${on?img('dot-gold-8.svg',8,8):''}<span style="font-weight:${on?700:500};font-size:24px;color:${on?'var(--ink)':'var(--text)'}">${t}</span><span style="font-size:12px;color:var(--text2)">${en}</span></button>`; };
   const row=([t,fn,scr])=>{ const on=scr.includes(cur); return `<button onclick="S.sheet=null;${fn}" ${on?'aria-current="page"':''} style="display:flex;align-items:center;gap:10px;min-height:52px;width:100%;text-align:left;border-top:1px solid var(--line)">
       ${on?img('dot-gold-8.svg',8,8):''}<span style="flex:1;font-weight:${on?700:500};font-size:17px;color:var(--ink)">${t}</span>${img('ic-arrow-right-dark2.svg',16,16)}</button>`; };
   const setRow=([t,st,fn])=>`<button onclick="${fn}" style="display:flex;align-items:center;gap:10px;min-height:52px;width:100%;text-align:left;border-top:1px solid var(--line)">
@@ -1245,7 +1256,6 @@ function menuOverlay(){
       ${logo}<p style="flex:1;min-width:0;font-weight:700;font-size:18px;line-height:1.3;color:var(--ink)">臺史博手機導覽</p>
       <button onclick="S.sheet=null;render()" aria-label="關閉選單" style="display:grid;place-items:center;margin:-10px;padding:10px">${img('ic-close.svg',24,24)}</button></div>
     <nav style="padding:12px 24px 32px">${mbCard}
-      ${sec('逛展')}${browse.map(big).join('')}
       ${sec('服務與協助')}${svc.map(row).join('')}
       ${NMTH?'':`<div style="display:flex;align-items:center;gap:10px;min-height:52px;border-top:1px solid var(--line);opacity:.6" aria-disabled="true"><span style="flex:1;font-weight:500;font-size:17px;color:var(--ink)">AI 館員</span><span style="background:var(--gold);color:var(--ink);font-weight:700;font-size:10px;padding:2px 8px;border-radius:9px;white-space:nowrap">COMING SOON</span></div>`}
       ${sec('設定')}${sets.map(setRow).join('')}
