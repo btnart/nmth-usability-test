@@ -947,7 +947,8 @@ EXHIBITIONS.demoE={n:'【Demo E】特展｜只有華語語音、沒有展覽與�
 const NOINTRO={zh:'無展覽介紹',en:'No exhibition introduction',ja:'展示紹介はありません',ko:'전시 소개가 없습니다'};   /* 展覽沒有介紹文字時（不分介面語言） */
 /* 方案 C：手語導覽只走有手語影片的展品（ctx.sg） */
 const verFor=p=>pickVersion(p.id);
-const gV=k=>guiding('ex',k)&&!S.player.ctx.sg, gS=k=>guiding('ex',k)&&!!S.player.ctx.sg;
+const gV=k=>guiding('ex',k)&&(!S.player.ctx.sg||pureSign(k)), gS=k=>guiding('ex',k)&&!!S.player.ctx.sg;
+const pureSign=k=>{ const ids=guideIds(k)||[]; return ids.some(id=>it(id).sign&&!it(id).tonly)&&!ids.some(id=>it(id).voice!==false&&!it(id).tonly); };   /* 只有手語、沒有語音的展覽（中文介面的常設展） */
 const exMixed=k=>{ const ids=EXHIBITIONS[k].items; return ids.some(id=>it(id).voice)&&ids.some(id=>it(id).sign); };   /* 同一檔展覽同時有語音與手語 */
 const BOOK_IC='M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z';   /* 文字導覽用的書本圖示 */   /* 整檔展覽在目前介面語言下都只有文字 */
 EXHIBITIONS.demoA={n:'【Demo A】常設展｜只有手語', card:'ex-permanent.jpg', hero:'ex-perm-hero.jpg', type:'常設展', fl:'2F', items:['da1','da2'], intro:EXHIBITIONS.perm.intro,
@@ -1055,7 +1056,7 @@ const FAB_SCR=['home','exlist','theme','sign','ex','route','stop'];   /* 2026-11
 function scanFab(){ if(!FAB_SCR.includes(S.screen)||S.sheet==='menu') return '';
   if(S.screen==='map'&&(S.way||S.herePick||S.mapOnly||S.nav)) return '';   /* 帶路、標位置時畫面只做一件事 */
   if(FAB.scr!==S.screen){ FAB.scr=S.screen; FAB.mini=false; }   /* 換頁時恢復有文字的樣子 */
-  return `<button class="scanfab${FAB.mini?' fabsm':''}" id="scanFab" onclick="scanGo()" aria-label="掃描展品旁的 QR Code 或輸入展品編號，快速找到展品導覽"><span class="fi">${SCAN_IC}</span><span class="fl">找展品導覽</span></button>`; }
+  return `<button class="scanfab${FAB.mini?' fabsm':''}" id="scanFab"${S._fabB!=null?` style="bottom:${S._fabB}px${S.screen==='map'?';right:20px':''}"`:''} onclick="scanGo()" aria-label="掃描展品旁的 QR Code 或輸入展品編號，快速找到展品導覽"><span class="fi">${SCAN_IC}</span><span class="fl">找展品導覽</span></button>`; }
 /* 捲離頂端 FAB 就收成只剩圖示，捲回最頂部才顯示文字＋圖示（2026-11-11 留言） */
 const FAB={mini:false, scr:null, last:new WeakMap()};
 document.addEventListener('scroll',e=>{ const t=e.target; if(!(t instanceof Element)||!t.closest('#app')) return;
@@ -1071,6 +1072,7 @@ function placeFab(){ const f=document.getElementById('scanFab'), app=document.ge
   if(z&&!z.dataset.placed){ z.style.transition='none'; app.style.setProperty('--zb',S._zb||zbv); z.offsetHeight; z.style.transition=''; z.dataset.placed='1'; }
   /* 2026-11-17：值沒變就不寫——--zb 掛在 #app（最外層），每寫一次整頁樣式都要重算，進站時會多排一次版造成卡頓 */   /* 新畫出來的縮放鍵先放在上一次的位置（剛進地圖就直接定位），之後才滑動 */
   if(app.style.getPropertyValue('--zb')!==zbv) app.style.setProperty('--zb',zbv); S._zb=zbv;   /* 2026-11-11：縮放鍵放在底部面板與 FAB 上方，靠右對齊 */
+  S._fabB=b;   /* 2026-11-17 留言：記下位置，重繪（如迷你播放器按暫停／下一則）時 FAB 直接出生在原位，不再從預設位置滑過來 */
   if(!f) return; if(f.style.bottom!==b+'px') f.style.bottom=b+'px'; const fr=S.screen==='map'?'20px':''; if(f.style.right!==fr) f.style.right=fr;   /* 地圖上 FAB 跟縮放鍵同一條右邊線 */ const ms=document.querySelector('#app > .scr .mapsw'); if(ms) ms.style.bottom=(b+4)+'px';   /* 地圖切換鈕跟 FAB 一起往上讓 */
 }
 /* 頂層頁標頭（2026-11-11）：跟首頁同一個位置與高度——logo、標題靠左緊接在 logo 後、右邊選單鈕 24px */
@@ -1182,10 +1184,10 @@ function scrHome(){
     <div id="secEv">${eventsSection()}</div>   <!-- 第 1 輪測試修正：英文版首頁也有本日活動 -->
     <div class="secthead" id="secEx"><div class="r"><b>${L('現正展出')}</b><em>exhibitions</em></div><p>${L('常設展與特展')}</p></div>   <!-- 第 1 輪測試修正：說明只留「常設展與特展」，拿掉掃描聆聽的描述 -->
     <div class="cardrow">${['perm','zj','asia','demoA','demoB','demoC','demoD','demoE'].map(k=>exCard(k,false,null,{noSign:true})).join('')}</div>   <!-- 2026-11-17 留言：現正展出的卡片過濾手語，手語由下方無障礙專區呈現 -->
-    ${a11ySection()}
     <div class="divider"></div>
     <div class="secthead" id="secRt"><div class="r"><b>${L('主題路線')}</b><em>themed routes</em></div><p>${L('邀請你從不同主題路徑探索臺史博')}</p></div>   <!-- 第 1 輪測試修正：主題路線說明改短 -->
     <div class="cardrow">${exCard('must',true)}${exCard('listen',true)}${exCard('touch',true)}</div>
+    ${a11ySection()}   <!-- 2026-11-17 留言：無障礙專區放在主題路線之下 -->
     <div class="divider"></div>
     <div id="secMap" style="display:flex;flex-direction:column;align-items:center;gap:18px;padding-bottom:34px">
       <div style="padding-top:34px;display:flex;flex-direction:column;align-items:center;gap:6px">
@@ -1204,7 +1206,7 @@ function scrHome(){
 }
 /* 首頁往下捲：主視覺縮小淡出，頂端浮出精簡列（logo＋區塊跳轉），一眼知道下面有什麼 */
 function homeBar(){   /* 第 1 輪測試修正：本日活動各語系都有，精簡列也都列出 */
-  const secs=[['secEv',S.lang==='en'?'Today':'本日活動'],['secEx',L('現正展出')],...(signOnlyEx().length?[['secA11y','無障礙專區']]:[]),['secRt',L('主題路線')],['secMap',L('展區地圖')]];
+  const secs=[['secEv',S.lang==='en'?'Today':'本日活動'],['secEx',L('現正展出')],['secRt',L('主題路線')],...(signOnlyEx().length?[['secA11y','無障礙專區']]:[]),['secMap',L('展區地圖')]];
   return `<div class="hbar" id="hbar" aria-hidden="true">
     <div style="display:flex;align-items:center;gap:12px;padding:24px 20px 16px">${logo}   <!-- 2026-11-11 留言：精簡列標題列跟其他頁 navbar 同高（72px）、同位置 -->
       <b style="flex:1;font-weight:700;font-size:18px;line-height:1.3;color:var(--ink)">臺史博手機導覽</b>
@@ -1506,7 +1508,7 @@ function navNoAnim(fn){ const nav=document.getElementById('exNav'); if(!nav){ fn
 const guiding=(type,key)=>!!(S.player&&S.player.ctx&&S.player.ctx.type===type&&S.player.ctx.key===key);
 const guideLabel=(type,key)=>guiding(type,key)?`<span class="eq go" aria-hidden="true"><i></i><i></i><i></i></span>正在導覽中`:'開始導覽';
 /* 開始導覽前先問「打算花多少時間」（參考 A 版一頁式設定）：拖時間，展品數跟著增減，再開始聽 */
-function startExGuide(k,sg){ S.exPlan=Object.assign({},S.exPlan,{[k]:null}); const ctx={type:'ex',key:k}; if(sg) ctx.sg=true; const l=ctxList(ctx); startGuide(l[0],ctx); }   /* B 版不問停留時間（2026-10-29 使用者決定，跟 A 版做出區隔）：直接照展覽順序從第一件開始；planSheet 保留未用 */
+function startExGuide(k,sg){ S.exPlan=Object.assign({},S.exPlan,{[k]:null}); const ctx={type:'ex',key:k}; if(sg||pureSign(k)) ctx.sg=true;   /* 2026-11-17 留言：只有手語的展覽，開始導覽就是手語導覽——只放有手語影片的導覽，沒有影片的不放 */ const l=ctxList(ctx); startGuide(l[0],ctx); }   /* B 版不問停留時間（2026-10-29 使用者決定，跟 A 版做出區隔）：直接照展覽順序從第一件開始；planSheet 保留未用 */
 function exBase(k){ return EXHIBITIONS[k].items; }   /* 手語是導覽語言之一：只有手語版的展品也排進導覽，直接播手語影片 */
 const STEP_WALK=60;                                       /* 每站之間的步行時間（秒），示意值 */
 const planMin=ids=>Math.max(1,Math.round(ids.reduce((a,id)=>a+(it(id).d||120)+STEP_WALK,0)/60));
@@ -1601,7 +1603,7 @@ function scrEx(){
   else if(cnt) rows=[row(MI(exBrowse(k)?PHOTO_IC:BOOK_IC,18,'#2E5C6E'),cnt)];
   if(loc) rows.push(row(MI(EXC_IC.pin,18,'#2E5C6E'),loc,`<button class="tealbtn soft exmaplink" onclick="openExMap('${k}','${e.fl==='4F'?'4F':'2F'}')">地圖${MI('M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z',18,'#2E5C6E')}</button>`));   /* 2026-11-12 留言：拿掉前綴地圖 icon，改尾端箭頭，看得出可以點 */
   const BTN='width:100%;height:48px;padding:0 12px;gap:8px;border-radius:24px;font-size:16px;white-space:nowrap';
-  const mainBtn=`<button class="tealbtn${e.theme===2?' t2':''}" style="${BTN}" onclick="${gV(k)?"go('player')":`startExGuide('${k}')`}">${gV(k)?'':MI(exBrowse(k)?PHOTO_IC:lrText(k)?BOOK_IC:'M8 5v14l11-7z',20,'#fff')}${lrText(k)?(exBrowse(k)?(guiding('ex',k)?'瀏覽中':'瀏覽展品'):(guiding('ex',k)?'閱讀中':'閱讀導覽')):gS(k)?'開始導覽':guideLabel('ex',k)}</button>`;
+  const mainBtn=`<button class="tealbtn${e.theme===2?' t2':''}" style="${BTN}" onclick="${gV(k)?"go('player')":`startExGuide('${k}')`}">${gV(k)?'':MI(exBrowse(k)?PHOTO_IC:lrText(k)?BOOK_IC:'M8 5v14l11-7z',20,'#fff')}${lrText(k)?(exBrowse(k)?(guiding('ex',k)?'瀏覽中':'瀏覽展品'):(guiding('ex',k)?'閱讀中':'閱讀導覽')):gS(k)&&!pureSign(k)?'開始導覽':guideLabel('ex',k)}</button>`;
   const signBtn=`<button class="tealbtn soft" style="${BTN};box-shadow:none;border-color:transparent" onclick="${gS(k)?"go('player')":`startExGuide('${k}',true)`}">${SIGN_IC}${gS(k)?'手語導覽中':'手語導覽'}</button>`;
   const cta=`<div style="display:grid;grid-template-columns:${mix?'1fr 1fr':'1fr'};gap:10px">${mainBtn}${mix?signBtn:''}</div>`;
   return `<div class="scr"><div class="scroll">
@@ -1893,7 +1895,7 @@ function playPane(){
     : (it(p.id).tx||TRANSCRIPT).map(t=>`<p style="font-size:${fz}px;line-height:1.7;color:var(--text);margin-bottom:14px">${t}</p>`).join('');
   return `<div class="pscroll" style="padding-bottom:${p.sign?170:300}px">
     <div style="display:flex;flex-direction:column;gap:12px;padding:4px 4px 0">
-      ${verBtn}${ear}${body}</div>${zoneMates()}</div>`;   /* 2026-11-13（T4）：耳機提示移到語言按鈕下方，不擋選語言 */   /* 第 1 輪測試修正：順序＝分頁 → 提示 banner（耳機／評分，同時只出現一個）→ 語言列 → 內容 */
+      ${x.voice!==false?verBtn:''}${ear}${body}</div>${zoneMates()}</div>`;   /* 2026-11-13（T4）：耳機提示移到語言按鈕下方，不擋選語言 */   /* 第 1 輪測試修正：順序＝分頁 → 提示 banner（耳機／評分，同時只出現一個）→ 語言列 → 內容 */
 }
 function rateBanner(){ const p=S.player, x=p&&it(p.id); if(!p) return '';   /* 2026-11-16 留言：「這則有幫助嗎？」放在下方播放面板上方，不放在字幕上方 */
   return (S.pTab||'play')==='play' && p.pos>=x.d && !x.tonly && !(S.rated&&S.rated[p.id]) && !(S.rateX&&S.rateX[p.id]) ? `<div class="eartip rateb" role="status">${MI('M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z',18,'#2E5C6E')}<span>這則有幫助嗎？</span>
