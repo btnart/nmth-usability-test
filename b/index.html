@@ -1071,9 +1071,9 @@ const navIcons = dark => `
 /* 這檔展覽有哪些導覽語言：依展品實際有的語音軌（trk）與手語影片 */
 /* 卡片照片左上：語音語言＋手語標籤（2026-11-11 留言：每張展覽卡都要看得到語音語言）；每個語言名稱分開放，切換外語時各自翻譯 */
 function exVoice(k){ const out=[]; EXHIBITIONS[k].items.forEach(id=>{ const x=it(id); if(x.voice!==false) trk(x).forEach(t=>{ t=t.replace('臺灣',''); if(!out.includes(t)) out.push(t); }); }); return out; }   /* 各展語音語言；萬相天后示意中英日韓（2026-11-11 留言） */
-function langTags(k){ const ids=EXHIBITIONS[k].items, v=ids.some(id=>it(id).voice!==false), sg=ids.some(id=>it(id).sign);
+function langTags(k,noSign){ const ids=EXHIBITIONS[k].items, v=ids.some(id=>it(id).voice!==false), sg=!noSign&&ids.some(id=>it(id).sign);
   /* 語音語言和手語合成同一個標籤（2026-11-11 留言）；手語段保留金底，第 1 輪測試要求手語一眼看得到 */
-  const tg=langTag(k); return tg?`<div class="langtags">${tg}</div>`:''; }
+  const tg=langTag(k,'',noSign); return tg?`<div class="langtags">${tg}</div>`:''; }
 /* 語言標籤（2026-11-11 留言改版）：所有語言同一層、不分組，一律用縮寫、固定順序，卡片與展覽頁同一種寫法；完整語言名放在 title／aria-label
    縮寫依介面語言：中文 華台客英日韓、日文 中台客英日韓、韓文 중대하영일한、英文 ZH TW HAK EN JA KO */
 const LG_SH={ zh:{'中文':'華','台語':'台','客語':'客','英文':'英','日文':'日','韓文':'韓'},
@@ -1084,7 +1084,7 @@ const LG_FULL={ zh:{'中文':'華語','台語':'台語','客語':'客語','英�
   en:{'中文':'Mandarin','台語':'Taiwanese','客語':'Hakka','英文':'English','日文':'Japanese','韓文':'Korean'},
   ja:{'中文':'中国語','台語':'台湾語','客語':'客家語','英文':'英語','日文':'日本語','韓文':'韓国語'},
   ko:{'中文':'중국어','台語':'대만어','客語':'하카어','英文':'영어','日文':'일본어','韓文':'한국어'} };
-function langTag(k,cls){ const ids=EXHIBITIONS[k].items, v=ids.some(id=>it(id).voice!==false), sg=ids.some(id=>it(id).sign);
+function langTag(k,cls,noSign){ const ids=EXHIBITIONS[k].items, v=ids.some(id=>it(id).voice!==false), sg=!noSign&&ids.some(id=>it(id).sign);   /* noSign：不列手語（首頁現正展出，手語改由無障礙專區呈現） */
   const a=exVoice(k), L=S.lang in LG_SH?S.lang:'zh', full=a.map(t=>LG_FULL[L][t]||t).join('、');
   const lv=a.length===1?`<span translate="no">${({zh:'語音',en:'Audio',ja:'音声',ko:'음성'})[L]}</span>`:a.map(t=>`<span class="ln" translate="no">${LG_SH[L][t]||t}</span>`).join('');   /* 2026-11-12：卡片只顯示這個介面語言的語音，單一語言時不寫語言、只寫「語音導覽」；多種（如中文介面的華台客）才列語言 */
   if(!v&&!sg) return '';   /* 沒有語音也沒有手語（文字導覽或只有多媒體）不放標籤（2026-11-12） */
@@ -1102,10 +1102,12 @@ const SIGN_IC=`<svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill=
 const exMeta=(k,ms)=>EXHIBITIONS[k]&&lrText(k)?ms.map(m=>m.replace(/^(\d+) 個導覽點・約 \d+ 分鐘$/,'$1 件展品')):ms;   /* 只有文字介紹時沒有導覽點與聆聽時間 */
 function exCard(key, isRoute, listMeta, over){
   const e = Object.assign({}, isRoute ? ROUTES[key] : EXHIBITIONS[key], over||{});
-  const meta = listMeta || (isRoute ? e.meta : exMeta(key, e.meta));
+  let meta = listMeta || (isRoute ? e.meta : exMeta(key, e.meta));
+  if(e.noSign&&!isRoute&&EXHIBITIONS[key]){ const ids=EXHIBITIONS[key].items||[];   /* 2026-11-17 留言：現正展出的卡片不呈現手語——只有手語、沒有語音的展覽，導覽點數原本算的是手語影片，改寫件數 */
+    if(!ids.some(id=>it(id).voice!==false&&!it(id).tonly)) meta=meta.map((m,i)=>i===0&&/導覽點/.test(m)?ids.length+' 件展品':m); }
   const go_ = e.onclick || (isRoute ? `openRoute('${key}')` : `openEx('${key}')`);
   return `<div class="card" onclick="${go_}" style="cursor:pointer">
-    <div class="cardimg${e.mapImg?' mapimg':''}"><img src="${A(e.card)}" alt="">${!isRoute&&EXHIBITIONS[key]?langTags(key):''}</div>   <!-- 第 1 輪測試修正（T4）：手語標籤改疊在照片左上角，標題上方不再放 -->
+    <div class="cardimg${e.mapImg?' mapimg':''}"><img src="${A(e.card)}" alt="">${!isRoute&&EXHIBITIONS[key]?langTags(key,e.noSign):''}</div>   <!-- 第 1 輪測試修正（T4）：手語標籤改疊在照片左上角，標題上方不再放 -->
     <div class="cardt">
       <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
         ${e.date&&!isRoute?`<div style="display:flex;flex-direction:column"><span class="cardtitle lc2">${L(e.n)}</span><span style="font-size:${listMeta?13:12}px;color:var(--text2)">${e.date}</span><span class="tealbtn icon" aria-hidden="true">${img('ic-arrow-right.svg',16,16)}</span></div>`
@@ -1165,7 +1167,7 @@ function scrHome(){
     <div class="divider"></div>
     <div id="secEv">${eventsSection()}</div>   <!-- 第 1 輪測試修正：英文版首頁也有本日活動 -->
     <div class="secthead" id="secEx"><div class="r"><b>${L('現正展出')}</b><em>exhibitions</em></div><p>${L('常設展與特展')}</p></div>   <!-- 第 1 輪測試修正：說明只留「常設展與特展」，拿掉掃描聆聽的描述 -->
-    <div class="cardrow">${exCard('perm')}${exCard('zj')}${exCard('asia')}${exCard('demoA')}${exCard('demoB')}${exCard('demoC')}${exCard('demoD')}${exCard('demoE')}</div>
+    <div class="cardrow">${['perm','zj','asia','demoA','demoB','demoC','demoD','demoE'].map(k=>exCard(k,false,null,{noSign:true})).join('')}</div>   <!-- 2026-11-17 留言：現正展出的卡片過濾手語，手語由下方無障礙專區呈現 -->
     ${a11ySection()}
     <div class="divider"></div>
     <div class="secthead" id="secRt"><div class="r"><b>${L('主題路線')}</b><em>themed routes</em></div><p>${L('邀請你從不同主題路徑探索臺史博')}</p></div>   <!-- 第 1 輪測試修正：主題路線說明改短 -->
@@ -1188,7 +1190,7 @@ function scrHome(){
 }
 /* 首頁往下捲：主視覺縮小淡出，頂端浮出精簡列（logo＋區塊跳轉），一眼知道下面有什麼 */
 function homeBar(){   /* 第 1 輪測試修正：本日活動各語系都有，精簡列也都列出 */
-  const secs=[['secEv',S.lang==='en'?'Today':'本日活動'],['secEx',L('現正展出')],...(signOnlyEx().length?[['secA11y','無障礙']]:[]),['secRt',L('主題路線')],['secMap',L('展區地圖')]];
+  const secs=[['secEv',S.lang==='en'?'Today':'本日活動'],['secEx',L('現正展出')],...(signOnlyEx().length?[['secA11y','無障礙專區']]:[]),['secRt',L('主題路線')],['secMap',L('展區地圖')]];
   return `<div class="hbar" id="hbar" aria-hidden="true">
     <div style="display:flex;align-items:center;gap:12px;padding:24px 20px 16px">${logo}   <!-- 2026-11-11 留言：精簡列標題列跟其他頁 navbar 同高（72px）、同位置 -->
       <b style="flex:1;font-weight:700;font-size:18px;line-height:1.3;color:var(--ink)">臺史博手機導覽</b>
