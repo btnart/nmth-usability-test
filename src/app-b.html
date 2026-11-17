@@ -36,7 +36,7 @@ img{display:block}
 @media (max-width:900px){ body{display:block;background:#fff} #device{width:100vw;box-shadow:none} }
 #app{position:absolute;inset:0;overflow:hidden}
 .scr{position:absolute;inset:0;overflow:hidden;background:#fff}
-.scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}   /* 2026-11-17：拿掉 -webkit-overflow-scrolling:touch。iOS 13 起所有元素預設就有慣性捲動，這個屬性已廢棄，而且會讓 Safari 走舊的獨立捲動層——捲動途中若容器內佈局改變（首頁主視覺切 overflow、展覽主圖改 margin）捲動層不會更新，就會卡住不動。改加 overscroll-behavior:contain，捲到邊界時不把手勢傳給外層 */
 .scroll::-webkit-scrollbar{width:0}
 .hs{display:flex;overflow-x:auto;scrollbar-width:none}
 .hs::-webkit-scrollbar{height:0}
