@@ -1168,7 +1168,8 @@ function scrHome(){
     </div>
     <div style="background:var(--cream);padding:26px 0 20px;display:flex;flex-direction:column;align-items:center;gap:6px">
       ${logo}<p style="font-weight:500;font-size:11px;color:var(--text)">${L('國立臺灣歷史博物館')}</p>
-      <p style="font-size:10px;color:#909090">national museum of taiwan history</p></div>
+      <p style="font-size:10px;color:#909090">national museum of taiwan history</p>
+      <button onclick="go('sitemap')" style="margin-top:-2px;min-height:44px;padding:0 14px;font-size:11px;letter-spacing:.3px;color:var(--text2);text-decoration:underline;text-underline-offset:3px">${L('網站導覽')}</button></div>   <!-- 2026-11-17 留言：頁尾放一個小的網站導覽入口。字小、但觸控區維持 44px；這也是 AA 2.4.5「多種方式到達」的第三個入口（另兩個是選單與首頁各區塊） -->
     ${S.player?'<div style="height:104px;background:var(--cream)"></div>':''}
   </div>${homeBar()}${miniDock()}</div>`;
 }
