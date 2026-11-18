@@ -935,8 +935,8 @@ const gDur=t=>Math.max(60,Math.round((t||'').length/4));
 const PERM_NO={}; PERM_NO.gall='100';
 PERM_UNITS.forEach((u,ui)=>{ PERM_NO['gu'+ui]=(ui+1)+'50';
   PERM_GUIDE.filter(x=>x.u===ui).forEach((x,j)=>{ PERM_NO[x.id]=''+(ui+1)+(51+j); }); });
-PERM_GUIDE.forEach(g=>{ const sv=g.sv?'sign/'+g.sv+'.mp4':'', src=sv?EXHIBITIONS.perm.items.map(k=>ITEMS[k]).find(y=>y&&y.sv===sv):null, im=ITEMS[g.img], u=PERM_UNITS[g.u];
-  ITEMS[g.id]=Object.assign({ n:g.n, no:PERM_NO[g.id], unit:u, zone:u.replace(/^.、/,''), fl:'2F', voice:false, lv:2, txt:g.txt, img:im?im.img:g.img },
+PERM_GUIDE.forEach(g=>{ const sv=g.sv?'sign/'+g.sv+'.mp4':'', src=sv?EXHIBITIONS.perm.items.map(k=>ITEMS[k]).find(y=>y&&y.sv===sv):null, im=ITEMS[g.img]||ITEMS[(PERM_SEL[g.id]||[])[0]], u=PERM_UNITS[g.u];   /* 2026-11-18：文稿指定的展品圖已刪掉時（g23 的 p505、g31 的 p607），改用這個子單元的代表展品圖 */
+  ITEMS[g.id]=Object.assign({ n:g.n, no:PERM_NO[g.id], unit:u, zone:u.replace(/^.、/,''), fl:'2F', voice:false, lv:2, txt:g.txt, img:im?im.img:EXHIBITIONS.perm.hero },
     sv?{ sign:true, sv, sp:'sign/'+g.sv+'.jpg', d:src?src.d:120 }:{ tonly:true, d:gDur(g.txt) }); });
 EXHIBITIONS.perm.guide=(()=>{ const intro=EXHIBITIONS.perm.intro||'', hero=EXHIBITIONS.perm.hero;
   ITEMS.gall={ n:'展覽總說', no:PERM_NO.gall, unit:'', zone:'', fl:'2F', voice:false, tonly:true, lv:0, txt:intro, img:hero, d:gDur(intro) };
@@ -1599,7 +1599,10 @@ function ctxName(c){ return c.type==='pre'?'參觀前先聽':c.type==='route'?RO
 /* 參觀前先聽 3 分鐘＝場館概覽：各樓層有什麼、怎麼逛（通用內容，不隨特展更換）；官網連結進站用 ?go=pre */
 ITEMS.pre0={n:'場館概覽：臺史博怎麼逛', d:173, sv:'sign/1.mp4', sp:'sign/1.jpg', tracks:TRACKS_EX, sign:true, no:'', img:'landing-b.jpg', fl:'1F', zone:'入口大廳', txt:'歡迎來到國立臺灣歷史博物館。先花三分鐘，認識一下這裡怎麼逛。你會從 8 號門進入展示教育大樓的 1F 大廳。服務臺在大廳右側，可以在這裡詢問、免費借輪椅，或報名需要現場登記的活動。1F 有兒童廳，適合帶小朋友動手玩、慢慢看；時光車站有火車劇場，圓形劇場則輪播影片，各自有固定場次，可以先看「本日活動」的時間。搭手扶梯、樓梯或電梯到 2F，就是常設展「斯土斯民：臺灣的故事」。常設展分成七個單元，從史前時代一路講到當代，展出上千件文物。展區是開放式的，不用照順序走，可以挑有興趣的單元先看。二樓挑高直通四樓，所以館內沒有三樓。搭電梯到 4F，是特展室和 VR 再現製造所。特展每隔一段時間就會更換，出電梯後跟著指標就能找到展廳；VR 體驗要現場報名，名額有限。館外是臺灣歷史公園，每天 05:00 到 22:00 免費開放，參觀前後可以到湖畔走走。展示教育大樓開放時間是 09:00 到 17:00，16:30 最後入場，每週一休館。館內只有一間咖啡廳，也沒有提款機，現金請先準備好。離館時請走 1F 大廳左側的 6 號門，8 號門只能進、不能出。祝你參觀愉快。', tx:['歡迎來到國立臺灣歷史博物館。先花三分鐘，認識一下這裡怎麼逛。', '你會從 8 號門進入展示教育大樓的 1F 大廳。服務臺在大廳右側，可以在這裡詢問、免費借輪椅，或報名需要現場登記的活動。', '1F 有兒童廳，適合帶小朋友動手玩、慢慢看；時光車站有火車劇場，圓形劇場則輪播影片，各自有固定場次，可以先看「本日活動」的時間。', '搭手扶梯、樓梯或電梯到 2F，就是常設展「斯土斯民：臺灣的故事」。常設展分成七個單元，從史前時代一路講到當代，展出上千件文物。展區是開放式的，不用照順序走，可以挑有興趣的單元先看。', '二樓挑高直通四樓，所以館內沒有三樓。搭電梯到 4F，是特展室和 VR 再現製造所。特展每隔一段時間就會更換，出電梯後跟著指標就能找到展廳；VR 體驗要現場報名，名額有限。', '館外是臺灣歷史公園，每天 05:00 到 22:00 免費開放，參觀前後可以到湖畔走走。', '展示教育大樓開放時間是 09:00 到 17:00，16:30 最後入場，每週一休館。館內只有一間咖啡廳，也沒有提款機，現金請先準備好。', '離館時請走 1F 大廳左側的 6 號門，8 號門只能進、不能出。祝你參觀愉快。']};
 const PRE=['pre0'];
-const exOf=id=>Object.keys(EXHIBITIONS).find(k=>EXHIBITIONS[k].items.includes(id))||'perm';
+/* 2026-11-18：某檔展覽在地圖上要標哪些點，只看這一個函式。＝導覽清單；第三層展品顯示時（PERM_OBJ_ON）才加上展品。
+   原本各處直接用 EXHIBITIONS[k].items（展品），常設展把展品藏起來後，從展覽頁「地圖」進去就一個點都沒有。 */
+const exPins=k=>{ const e=EXHIBITIONS[k]; if(!e) return []; const g=IT_READY?guideIds(k):[]; return (k==='perm'&&!PERM_OBJ_ON)?g:[...new Set(g.concat(e.items||[]))]; };
+const exOf=id=>Object.keys(EXHIBITIONS).find(k=>exPins(k).includes(id))||'perm';
 function startPre(){ startGuide(PRE[0],{type:'pre',key:'pre'}); }
 function startGuide(id,ctx){ const p=S.player;
   if(p && (p.ctx.type!==ctx.type||p.ctx.key!==ctx.key||!!p.ctx.sg!==!!ctx.sg) && p.pos<it(p.id).d){ S.pending={id,ctx}; S.sheet='switch'; render(); return; }   /* 2026-11-18：同一檔展覽在手語導覽與文字導覽之間切換也要先問——兩邊的則數與內容不同，切過去會從第 1 則重來 */
@@ -2330,7 +2333,7 @@ function fxTabs(f){ const ks=floorExs(f); if(!ks.length) return '';   /* 只有�
   const n=pinCount(f), tog=listTog(n);   /* 展開／收合清單放在分頁列右邊，省一整排高度 */
   return `<div class="fxtabs"><div role="tablist" aria-label="${f} 的展覽" style="display:flex;gap:4px;min-width:0;overflow-x:auto;scrollbar-width:none">${ks.map(k=>b(k,EXHIBITIONS[k].n.split('：')[0])).join('')}</div>${tog}</div>`; }
 function listTog(n){ return n?`<button class="zstog2" onclick="S.zsFull=!S.zsFull;render()" aria-expanded="${!!S.zsFull}" aria-label="${S.zsFull?'收合展品清單':'展開展品清單，'+n+' 件'}">${S.zsFull?'收合':'清單 '+n}<span style="display:inline-flex${S.zsFull?'':';transform:rotate(180deg)'}">${MI(MD.chev,18,'#2E5C6E')}</span></button>`:''; }
-function pinCount(f){ return Object.keys(PINS[f]||{}).filter(id=>!it(id).rstop&&(f!=='4F'||EXHIBITIONS[floorEx()].items.includes(id))).length; }
+function pinCount(f){ return Object.keys(PINS[f]||{}).filter(id=>!it(id).rstop&&(f!=='4F'||exPins(floorEx()).includes(id))).length; }
 function fxHead(k,inEx){   /* inEx＝從展覽頁進來的展覽地圖：已經在這檔展覽裡，不放「展覽介紹」連結，右邊改放清單開關 */ const e=EXHIBITIONS[k], n=e.items.length, mins=(e.meta[0].match(/約 (\d+) 分鐘/)||[])[1], on=guiding('ex',k), room=ROOMS4[k]?ROOMS4[k].name:'常設展廳';
   return `<div style="padding:0 24px;display:flex;flex-direction:column;gap:10px">
     <${inEx?'div':'button'} class="fxhd" ${inEx?'':`onclick="exFromMap('${k}')" aria-label="${e.n}，看展覽介紹"`}><span style="flex:0 0 44px;height:44px;border-radius:8px;overflow:hidden;background:var(--cream)"><img src="${A(e.card||e.hero)}" alt="" style="width:100%;height:100%;object-fit:cover"></span>
@@ -2342,7 +2345,7 @@ function fxHead(k,inEx){   /* inEx＝從展覽頁進來的展覽地圖：已經�
       <button class="waybtn" style="min-height:44px" onclick="startNav('entry')" aria-label="帶我去${e.n.split('：')[0]}入口">${MI(MD.nav,16,'#2E5C6E')}帶我去</button></div></div>`; }
 /* 選展覽／切到 4F「全部」後，把該展室（或整層）放到地圖可見範圍（標頭下緣到面板上緣）的正中間 */
 function fxFocus(){ const w=document.querySelector('#app > .scr .mapwrap'); if(!w) return; if(S.exOnly) return exFocus(w); if(S.floor!=='4F') return; const v=mapView(), W=w.clientWidth, H=mapVisH(w), top=fvOn()&&S.mapAll?120:104;
-  const ar=(S.fx&&ROOMS4[S.fx]?[S.fx]:Object.keys(ROOMS4)).flatMap(k=>ROOMS4[k].area.split(' ').map(q=>q.split(',').map(Number)).concat(EXHIBITIONS[k].items.filter(id=>PINS['4F'][id]).flatMap(id=>{ const [x,y]=PINS['4F'][id]; return [[x-70,y-70],[x+70,y+70]]; })));   /* 範圍含走廊延伸展區的點位 */   /* 全部＝兩間特展室合起來的範圍 */
+  const ar=(S.fx&&ROOMS4[S.fx]?[S.fx]:Object.keys(ROOMS4)).flatMap(k=>ROOMS4[k].area.split(' ').map(q=>q.split(',').map(Number)).concat(exPins(k).filter(id=>PINS['4F'][id]).flatMap(id=>{ const [x,y]=PINS['4F'][id]; return [[x-70,y-70],[x+70,y+70]]; })));   /* 範圍含走廊延伸展區的點位 */   /* 全部＝兩間特展室合起來的範圍 */
   let x0,y0,x1,y1; { const p=ar; x0=Math.min(...p.map(q=>q[0])); x1=Math.max(...p.map(q=>q[0])); y0=Math.min(...p.map(q=>q[1])); y1=Math.max(...p.map(q=>q[1])); }
   const ah=Math.max(120,H-top), sc=Math.min((S.fx?W-152:W-40)/(x1-x0), ah*.8/(y1-y0)), to={s:sc, x:W/2-(x0+x1)/2*sc, y:top+ah/2-(y0+y1)/2*sc};
   if(S._fxAnim&&!REDUCED){ S._fxAnim=false; return animView(to); } S._fxAnim=false; Object.assign(v,to); placePins(); }
@@ -2352,7 +2355,7 @@ function animView(to){ const v=mapView(), from={...v}, t0=performance.now(), D=P
   requestAnimationFrame(step); setTimeout(()=>{ if(done) return; done=true; Object.assign(v,to); placePins(); },D+150); }
 /* 展覽地圖：把這檔展覽的範圍（4F＝特展室、2F＝所有導覽點外框）放到可見範圍正中間 */
 function exFocus(w){ const f=S.floor, k=S.exOnly, v=mapView(), W=w.clientWidth, H=mapVisH(w), top=104;
-  const pad=70; let p=EXHIBITIONS[k].items.filter(id=>PINS[f]&&PINS[f][id]).map(id=>PINS[f][id]).flatMap(([x,y])=>[[x-pad,y-pad],[x+pad,y+pad]]);   /* 範圍＝展室外框＋所有導覽點（含走廊延伸展區） */
+  const pad=70; let p=exPins(k).filter(id=>PINS[f]&&PINS[f][id]).map(id=>PINS[f][id]).flatMap(([x,y])=>[[x-pad,y-pad],[x+pad,y+pad]]);   /* 範圍＝展室外框＋所有導覽點（含走廊延伸展區） */
   if(f==='4F'&&ROOMS4[k]) p=p.concat(ROOMS4[k].area.split(' ').map(q=>q.split(',').map(Number))); if(!p.length) return;
   const x0=Math.min(...p.map(q=>q[0])), x1=Math.max(...p.map(q=>q[0])), y0=Math.min(...p.map(q=>q[1])), y1=Math.max(...p.map(q=>q[1]));
   const ah=Math.max(120,H-top), sc=Math.min(2.2,(W-40)/(x1-x0), ah*.85/(y1-y0)); Object.assign(v,{s:sc, x:W/2-(x0+x1)/2*sc, y:top+ah/2-(y0+y1)/2*sc}); placePins(); }
@@ -2823,7 +2826,7 @@ function pinCard(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||f
 function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F')[0]; S.room4=S.fx; S.mv=S.mv||{}; S.mv['4F']=fitV(ROOMS4[S.fx].fit); S._fxFocus=true; }   /* 4F 沒有「全部」：進來預設選第一檔特展 */
   const f=S.floor, M=MAPS[f]?mapOf(f):null, exKey=floorEx(), e=EXHIBITIONS[exKey], v=M?mapView():null, nx=mapNextId();
   const fst=M&&!nx&&!S.way&&!S.nav&&!S.navPending&&!S.arrived&&!S.tour&&!S.mapOnly&&!S.mapSel&&!S.herePick&&!S.signPick&&!S.mapAll&&!S.mapFloors&&!(S.firstSeen||{})[exKey]?firstOf(exKey):null;   /* 第一次進這個展覽的地圖：第一件發亮＋提示，點任何一件展品後就不再出現 */
-  const pinIds=M&&!(S.way&&S.way.step==='route')?(S.mapOnly&&!S.way?[S.mapOnly]:((S.walk||(S.mapRoute&&ROUTES[S.mapRoute]))?rtList(S.walk?S.walk.k:S.mapRoute).filter(id=>PINS[f][id]):Object.keys(PINS[f]).filter(id=>!it(id).rstop&&!(f==='2F'&&!PERM_OBJ_ON&&EXHIBITIONS.perm.items.includes(id)&&!guideIds('perm').includes(id)))).filter(id=>(f!=='4F'||fv4All()||EXHIBITIONS[exKey].items.includes(id))&&(!S.exOnly||EXHIBITIONS[S.exOnly].items.includes(id))&&(!S.signPick||it(id).sign)).filter(id=>!(S.way&&[S.way.a,S.way.b].some(p=>p&&p.id===id&&p.fl===f)))):[];   /* 4F 只標目前這間特展室的展品；2026-11-11 留言：選成 A／B 的展品藏掉原本的點位，跟設施一樣 */
+  const pinIds=M&&!(S.way&&S.way.step==='route')?(S.mapOnly&&!S.way?[S.mapOnly]:((S.walk||(S.mapRoute&&ROUTES[S.mapRoute]))?rtList(S.walk?S.walk.k:S.mapRoute).filter(id=>PINS[f][id]):Object.keys(PINS[f]).filter(id=>!it(id).rstop&&(f!=='2F'||exPins('perm').includes(id)))).filter(id=>(f!=='4F'||fv4All()||exPins(exKey).includes(id))&&(!S.exOnly||exPins(S.exOnly).includes(id))&&(!S.signPick||it(id).sign)).filter(id=>!(S.way&&[S.way.a,S.way.b].some(p=>p&&p.id===id&&p.fl===f)))):[];   /* 4F 只標目前這間特展室的展品；2026-11-11 留言：選成 A／B 的展品藏掉原本的點位，跟設施一樣 */
   const anchor=(x,y,cls,inner,extra='')=>{ const [sx,sy]=toScr(x,y); return `<div class="${cls}" data-mx="${x}" data-my="${y}" style="left:${sx}px;top:${sy}px" ${extra}>${inner}</div>`; };
   const mapLayer = M ? `<div id="mlayer" class="mlayer" style="width:${M.w}px;height:${M.h}px;transform:translate(${v.x}px,${v.y}px) scale(${v.s})">
       <img src="${A(M.src)}" alt="${f} ${M.name}平面圖" width="${M.w}" height="${M.h}" draggable="false">
@@ -2840,7 +2843,7 @@ function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F'
       ${!(S.navFl&&f!==S.navFl)&&(S.nav||S.navPending)==='entry'&&navTarget('entry')?anchor(navTarget('entry').x,navTarget('entry').y,'mchip goal','⚑ 目的地：展區入口'):''}
       ${pinIds.map(id=>{ const [x,y]=PINS[f][id], wk=(S.walk||S.mapRoute&&ROUTES[S.mapRoute])?rtList(S.walk?S.walk.k:S.mapRoute).indexOf(id):-1, on=(S.walk&&wk===S.walk.i)||S.mapSel===id||S.nav===id||S.navPending===id, tnow=S.player&&!S.nav&&S.player.id===id, tnx=S.tour&&S.player&&!S.nav&&tourNextId()===id;
         return `<button class="mpin${wk>=0&&it(id).tonly&&!on?' tonly':''}${on||tnow?' on':''}${tnx?' nxt':''}${nx===id||(S.arrived&&firstOf(S.arrived)===id)?' next':''}${fst===id?' first':''}${it(id).maint?' maint':''}${tnow&&!isTxt(id,S.player.ctx)?' playing':''}" data-mx="${x}" data-my="${y}" style="left:${toScr(x,y)[0]}px;top:${toScr(x,y)[1]}px"
-          onclick="event.stopPropagation();pinTap('${id}')" aria-label="${wk>=0?'第 '+(wk+1)+' 站・'+it(id).n+'（'+gKind(it(id),S.player&&S.player.ctx)+'導覽）':'展品 '+it(id).no}${nx===id?'（下一站）':fst===id?'（第一件展品）':''}" aria-pressed="${on}">${fst===id?(it(id).tonly?'<i class="tip">第一則導覽<small>點一下開始讀</small></i>':'<i class="tip">第一件展品<small>點一下開始聽</small></i>'):nx===id?'<i>下一站</i>':S.arrived&&firstOf(S.arrived)===id?'<i>第一件</i>':tnow?`<i>${isTxt(id,S.player.ctx)?'閱讀中':S.player.playing?'播放中':'已暫停'}</i>`:tnx?'<i>下一件</i>':''}${tnow&&!isTxt(id,S.player.ctx)?`<span class="peq${S.player.playing?' go':''}" aria-hidden="true"><b></b><b></b><b></b></span>`:''}${wk>=0?wk+1:it(id).no}</button>`; }).join('')}
+          onclick="event.stopPropagation();pinTap('${id}')" aria-label="${wk>=0?'第 '+(wk+1)+' 站・'+it(id).n+'（'+gKind(it(id),S.player&&S.player.ctx)+'導覽）':(it(id).lv!=null?'導覽點 ':'展品 ')+it(id).no}${nx===id?'（下一站）':fst===id?'（第一件展品）':''}" aria-pressed="${on}">${fst===id?(it(id).tonly?'<i class="tip">第一則導覽<small>點一下開始讀</small></i>':'<i class="tip">第一件展品<small>點一下開始聽</small></i>'):nx===id?'<i>下一站</i>':S.arrived&&firstOf(S.arrived)===id?'<i>第一件</i>':tnow?`<i>${isTxt(id,S.player.ctx)?'閱讀中':S.player.playing?'播放中':'已暫停'}</i>`:tnx?'<i>下一件</i>':''}${tnow&&!isTxt(id,S.player.ctx)?`<span class="peq${S.player.playing?' go':''}" aria-hidden="true"><b></b><b></b><b></b></span>`:''}${wk>=0?wk+1:it(id).no}</button>`; }).join('')}
       ${S.herePick?(LANDMARKS[f]||[]).map(([n,x,y],i)=>anchor(x,y,'mlm',`<span class="lmn">${String.fromCharCode(65+i)}</span>${n}`,`role="button" tabindex="0" aria-label="我在${n}" onclick="event.stopPropagation();setHere(${x},${y})"`)).join(''):''}
       ${S.way?wayLayer(f,anchor)+facLayer(f):facLayer(f)}</div>`   /* 2026-11-18：帶我去的地圖一定要看得到設施，所以路線層之外再疊設施層 */
     : `<div style="position:absolute;inset:0;display:grid;place-items:center;color:var(--text2);font-size:13px">1F 平面圖待館方提供</div>`;
@@ -3822,70 +3825,134 @@ html.ds2 #ds2btn i{ background:#C9A961 }
 <script>
 /* ===== 柱列轉場（landing → 首頁）=====
    2026-11-18：拱被否決後，柱列的意象改由「動作」承載。
-   照館徽的節奏把落地頁背景切成 7 條（4 柱 + 3 隙，隙:柱 = 1:1，見設計系統 R1／R2）：
-     第 1 段　3 道「隙」落下消失 → 照片裡浮出館徽的柱列
-     第 2 段　4 根「柱」向中央合攏 → 收成一個整體，再交給首頁
-   整段約 950ms（隙落 60–400ms ／ 柱列定格 400–600ms ／ 合攏 600–940ms），只在進站時發生一次。prefers-reduced-motion 開啟時直接走現況。 */
+   照館徽的節奏把落地頁背景切成 7 條（4 柱 + 3 隙，隙:柱 = 1:1，見設計系統 R1／R2）。
+   2026-11-19 依動效規格重做，三件事：
+     1) 拿掉 backgroundPositionX 動畫，改「外層窗口 +dx ／ 內層影像 −dx」雙層反向 transform。
+        影像在螢幕座標上完全不動，合攏後自然接成連續一張，而且兩個動畫都純 transform、都在合成層。
+        原本的做法在 iOS Safari 會把最關鍵的一拍壓在主執行緒重繪上。
+     2) 隙改成「先死進底色再斷 alpha」，不是直接淡到透明——半透明的照片疊在深藍黑上看起來像 bug。
+        順序改 3 →（1 與 5 同時），對稱的量體要對稱地浮現。
+     3) 柱加稜線（1px 亮邊 + 10px 內縮暗邊）＝邊緣接到光、內側自己有陰影，在定格「之前」長完。
+   定格期間畫面絕對靜止，落地頁文字壓縮成 310ms 結束，剛好讓位。
+   prefers-reduced-motion 開啟時整段跳過。 */
 (function(){
   var R = document.documentElement;
   var N = 7, PILLARS = [0,2,4,6], GAPS = [1,3,5];
-  var EZ = 'cubic-bezier(.2,.8,.2,1)';
+  var EZ_OUT = 'cubic-bezier(.4,0,1,1)';        /* 離場：加速，在最高速時消失 */
+  var EZ_MERGE = 'cubic-bezier(.65,0,.3,1)';    /* 合攏：自己收攏的量體，要 ease-in-out 不是 ease-out */
+  var EZ_FORM = 'cubic-bezier(.2,.7,.3,1)';
+  var FORM_END = 310, MERGE_DUR = 330;
+
+  /* 稜線：1px 亮邊（邊緣接到光）＋ 內縮暗邊（內側自己有陰影）＝ 建築的標準讀法。
+     暗邊的尺寸要跟著柱寬算——固定 10px/18px 在 56px 寬的柱子上會從兩側蓋滿整條，
+     整張照片會被壓暗，看起來像濾鏡不像立體。 */
+  function edgeShadow(sw){
+    var o = Math.max(4, Math.round(sw * 0.10)), b = Math.round(sw * 0.30);
+    return 'inset 1px 0 0 rgba(255,255,255,.18), inset -1px 0 0 rgba(255,255,255,.18),'
+         + 'inset ' + o + 'px 0 ' + b + 'px ' + (-o) + 'px rgba(0,0,0,.42),'
+         + 'inset ' + (-o) + 'px 0 ' + b + 'px ' + (-o) + 'px rgba(0,0,0,.42)';
+  }
+  var DROP = '0 0 28px 6px rgba(0,0,0,.42)';
+
+  function hold(){
+    var m = (location.search + location.hash).match(/hold=([0-9]{1,3})/);
+    var v = m ? +m[1] : 200;                    /* 預設 200ms（使用者指定）；動效規格建議 370 */
+    return Math.max(0, Math.min(800, v));
+  }
 
   function run(landing, done){
     var img = landing.querySelector('.lbg');
     if(!img || !img.naturalWidth) return done();
 
     var r = landing.getBoundingClientRect(), W = r.width, H = r.height;
-    /* 複製 object-fit:cover 的結果，讓 7 條接起來仍是同一張連續的照片 */
+    /* 複製 object-fit:cover 的結果 */
     var k = Math.max(W / img.naturalWidth, H / img.naturalHeight);
     var bw = img.naturalWidth * k, bh = img.naturalHeight * k;
     var ox = (W - bw) / 2, oy = (H - bh) / 2;
     var sw = W / N;
 
+    /* 圖層掛在 body，不掛在 landing——交棒時 landing 會被重繪掉，
+       但合攏的最後 80ms 要疊在首頁淡入上，圖層得活過那一刻 */
     var layer = document.createElement('div');
     layer.className = 'ds2cols';
-    layer.style.cssText = 'position:absolute;inset:0;overflow:hidden;background:#0f212b;z-index:1';
+    layer.style.cssText = 'position:fixed;inset:0;overflow:hidden;background:#0f212b;z-index:9998;'
+      + 'pointer-events:none;will-change:transform';
 
-    var strips = [];
+    var cols = [], imgs = [];
     for(var i = 0; i < N; i++){
-      var d = document.createElement('div');
-      d.style.cssText = 'position:absolute;top:0;bottom:0;left:' + (i * sw) + 'px;width:' + (sw + 0.6) + 'px;'
+      var L = Math.round(i * sw);
+      var col = document.createElement('div');
+      col.style.cssText = 'position:absolute;top:0;bottom:0;left:' + L + 'px;'
+        + 'width:' + (Math.round(sw) + 1) + 'px;overflow:hidden;background:#0f212b;will-change:transform';
+      var im = document.createElement('div');
+      im.style.cssText = 'position:absolute;top:0;bottom:0;left:' + (-L) + 'px;width:' + W + 'px;'
         + 'background-image:url(' + img.currentSrc + ');'
         + 'background-size:' + bw + 'px ' + bh + 'px;'
-        + 'background-position:' + (ox - i * sw) + 'px ' + oy + 'px;'
-        + 'will-change:transform,opacity';
-      layer.appendChild(d);
-      strips.push(d);
+        + 'background-position:' + ox + 'px ' + oy + 'px;will-change:transform,opacity,filter';
+      col.appendChild(im);
+      layer.appendChild(col);
+      cols.push(col); imgs.push(im);
     }
-    img.style.visibility = 'hidden';
-    landing.insertBefore(layer, img.nextSibling);
+    /* 落地頁原本壓在照片上的漸層是為了讓白字讀得到。文字一走它就沒有工作了，
+       留著只會把柱列整片壓暗（實測差很多）。所以讓它跟文字同時退場。 */
+    var grad = document.createElement('div');
+    grad.style.cssText = 'position:absolute;inset:0;will-change:opacity;'
+      + 'background:linear-gradient(to bottom,rgba(15,33,43,.5),rgba(15,33,43,.86))';
+    layer.appendChild(grad);
+    document.body.appendChild(layer);
+    grad.animate([{opacity:1},{opacity:0}],
+      {duration:260, delay:40, easing:EZ_OUT, fill:'forwards'});
 
-    /* 第 1 段：隙落下。由中間往兩側，讓柱列「長出來」而不是整排一起消失 */
-    var order = [3, 1, 5];
-    order.forEach(function(gi, n){
-      strips[gi].animate(
-        [{transform:'translateY(0)', opacity:1}, {transform:'translateY(18px)', opacity:0}],
-        {duration:240, delay:60 + n * 50, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards'});
+    /* 第 1 段：隙死進底色。中間那道先走，兩側同時跟上 */
+    var gapKF = [
+      {filter:'brightness(1) saturate(1)',    opacity:1, transform:'translateY(0)'},
+      {filter:'brightness(.42) saturate(.6)', opacity:1, offset:.62, transform:'translateY(2px)'},
+      {filter:'brightness(.28) saturate(.5)', opacity:0, transform:'translateY(4px)'}
+    ];
+    imgs[3].animate(gapKF, {duration:200, delay:40,  easing:EZ_OUT, fill:'forwards'});
+    imgs[1].animate(gapKF, {duration:200, delay:110, easing:EZ_OUT, fill:'forwards'});
+    imgs[5].animate(gapKF, {duration:200, delay:110, easing:EZ_OUT, fill:'forwards'});
+
+    /* 同時：柱長出稜線。定格之前就要長完，定格裡不能有任何東西在動 */
+    var EDGE = edgeShadow(sw);
+    PILLARS.forEach(function(pi){
+      cols[pi].animate([{boxShadow:'none'}, {boxShadow:EDGE}],
+        {duration:220, delay:60, easing:EZ_FORM, fill:'forwards'});
     });
 
-    /* 第 2 段：柱合攏。4 根收成連續的一塊，位置對稱 */
+    var H0 = hold(), mStart = FORM_END + H0, mEnd = mStart + MERGE_DUR;
+
+    /* 第 2 段：合攏。外層窗口走 +dx、內層影像走 −dx，影像在螢幕上其實沒動過 */
     var closedLeft = (W - PILLARS.length * sw) / 2;
     PILLARS.forEach(function(pi, n){
       var dx = (closedLeft + n * sw) - pi * sw;
-      /* 位移的同時把背景位置一起推回去：合攏後 4 根柱接成的是一張完整連續的照片，
-         不是四片拼貼。少了這一段，收起來會看到接縫錯開。 */
-      var bx0 = ox - pi * sw;
-      var bx1 = ox - closedLeft - n * sw;
-      strips[pi].animate(
-        [{transform:'translateX(0)',               backgroundPositionX: bx0 + 'px'},
-         {transform:'translateX(' + dx + 'px)',    backgroundPositionX: bx1 + 'px'}],
-        {duration:340, delay:600, easing:EZ, fill:'forwards'});
+      var o = {duration:MERGE_DUR, delay:mStart, easing:EZ_MERGE, fill:'forwards'};
+      cols[pi].animate([{transform:'translateX(0)'}, {transform:'translateX(' + dx + 'px)'}], o);
+      imgs[pi].animate([{transform:'translateX(0)'}, {transform:'translateX(' + (-dx) + 'px)'}], o);
     });
+    /* 整層最小劑量的推鏡，給合攏一個鏡頭支撐；整層縮放不影響接縫 */
+    layer.animate([{transform:'scale(1.012)'}, {transform:'scale(1)'}],
+      {duration:MERGE_DUR, delay:mStart, easing:EZ_MERGE, fill:'forwards'});
 
-    setTimeout(function(){ done(); }, 950);
+    /* 移動中是量體在深色底上滑動；合上之前陰影要收乾淨，否則最終照片會帶著不存在的接縫陰影 */
+    setTimeout(function(){
+      PILLARS.forEach(function(pi){ cols[pi].style.boxShadow = EDGE + ',' + DROP; });
+    }, mStart);
+    setTimeout(function(){
+      PILLARS.forEach(function(pi){
+        cols[pi].animate([{boxShadow:EDGE + ',' + DROP}, {boxShadow:EDGE}],
+          {duration:80, easing:'ease-in', fill:'forwards'});
+      });
+    }, mEnd - 80);
+
+    /* 交棒刻意疊在合攏最後 80ms：不要有「停下來才切」的那一幀 */
+    setTimeout(done, mEnd - 80);
+    setTimeout(function(){
+      layer.animate([{opacity:1},{opacity:0}], {duration:100, easing:'linear', fill:'forwards'})
+        .onfinish = function(){ layer.remove(); };
+    }, mEnd);
   }
 
-  /* 包住原本的 leaveLanding：提案版走柱列轉場，現況版原封不動 */
   var orig = window.leaveLanding;
   if(typeof orig !== 'function') return;
   window.leaveLanding = function(){
@@ -3904,8 +3971,7 @@ html.ds2 #ds2btn i{ background:#C9A961 }
   again.onclick = function(){ location.reload(); };
   document.body.appendChild(again);
   function showAgain(){
-    var onLanding = !!document.querySelector('#app > .scr.landing');
-    again.style.display = onLanding ? 'none' : 'flex';
+    again.style.display = document.querySelector('#app > .scr.landing') ? 'none' : 'flex';
   }
   showAgain();
   new MutationObserver(showAgain).observe(document.body, {childList:true, subtree:true});
@@ -3914,6 +3980,20 @@ html.ds2 #ds2btn i{ background:#C9A961 }
 <style>
 /* 提案版自己接管背景，原本的放大打亮不要同時跑 */
 html.ds2 .landing.ds2leave .lbg{ animation:none !important }
+/* 2026-11-19：原本的 lout 是 .4s + 6 個元素各差 .04s，最後一個結束在 600ms，
+   整個「定格」期間文字都還在往上飛——定格等於不存在。壓縮成 310ms 結束，
+   剛好跟最後一道隙落完同一幀：文字清場的瞬間柱列成形，然後靜止。
+   位移也從 −24px 收到 −16px（距離短、時長短，感知速度不變），
+   曲線跟「隙」統一成加速離場，整段才像同一件事。 */
+@keyframes ds2out{ to{ opacity:0; transform:translateY(-16px) } }
+html.ds2 .landing.ds2leave>div:last-child>*{
+  animation:ds2out .22s cubic-bezier(.4,0,1,1) both !important }
+html.ds2 .landing.ds2leave>div:last-child>*:nth-child(1){ animation-delay:0s !important }
+html.ds2 .landing.ds2leave>div:last-child>*:nth-child(2){ animation-delay:.018s !important }
+html.ds2 .landing.ds2leave>div:last-child>*:nth-child(3){ animation-delay:.036s !important }
+html.ds2 .landing.ds2leave>div:last-child>*:nth-child(4){ animation-delay:.054s !important }
+html.ds2 .landing.ds2leave>div:last-child>*:nth-child(5){ animation-delay:.072s !important }
+html.ds2 .landing.ds2leave>div:last-child>*:nth-child(6){ animation-delay:.09s !important }
 #ds2again{
   position:fixed; left:122px; bottom:calc(12px + env(safe-area-inset-bottom,0px)); z-index:99999;
   display:none; align-items:center; min-height:36px; padding:0 13px; border:0; border-radius:18px;
