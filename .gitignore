@@ -1,0 +1,8 @@
+# 本機預覽設定（Claude Code 啟動靜態 server 用）
+.claude/
+
+# macOS
+.DS_Store
+
+# here.now 本機狀態與金鑰
+.herenow/
