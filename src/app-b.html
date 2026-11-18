@@ -1831,7 +1831,7 @@ function placeInd(anim){ const cap=document.getElementById('capsule'), ind=docum
   if(!anim||REDUCED){ ind.style.transition='none'; put(); ind.offsetWidth; ind.style.transition=''; return; }
   const t0=performance.now(); const loop=now=>{ put(); if(now-t0<420) requestAnimationFrame(loop); }; requestAnimationFrame(loop); setTimeout(put,450); }
 function collapsePlayer(){ back(); }
-function pImgs(x){ const pool=['rec-1.jpg','work-3.jpg','zone-card-4.jpg','rec-2.jpg','work-2.jpg']; const o=[x.img]; for(const f of pool){ if(o.length>=4) break; if(f!==x.img) o.push(f); } return o; }
+function pImgs(x){ return [...new Set([x.img].concat(x.imgs||[]).filter(Boolean))]; }   /* 2026-11-18：拿掉湊數用的示意圖（原本每則都補到 4 張，跟這則導覽無關）；只放這則自己的圖，資料有 imgs 才多張 */
 const SENT = TRANSCRIPT.join('').split(/(?<=。)/).filter(Boolean);
 function curSent(){ const p=S.player; return Math.min(SENT.length-1, Math.floor(p.pos/it(p.id).d*SENT.length)); }
 /* 手語導覽影片：先統一用臺史博 YouTube 上的一支手語影片示意（2026-11-03），正式版每件展品換成各自的影片 */
@@ -2134,9 +2134,9 @@ function viewer(){ const p=S.player, ims=pImgs(it(p.id)), ci=(S.ci||0)%ims.lengt
   return `<div class="viewer ${S.vwIn?'fadein':''}" role="dialog" aria-label="圖片全螢幕檢視" onkeydown="if(event.key==='Escape'){S.sheet=null;render()}">
     <img id="vwImg" src="${A(ims[ci])}" alt="${it(p.id).n}" style="width:100%;height:100%;object-fit:contain">
     <button id="vwClose" class="vwbtn" style="right:12px;top:12px" onclick="S.sheet=null;render()" aria-label="關閉全螢幕">${MI(MD.close,28,'#fff')}</button>
-    <button class="vwbtn" style="left:12px;top:50%;transform:translateY(-50%) rotate(180deg)" onclick="goSlide(S.ci-1)" aria-label="上一張">${MI('M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z',28,'#fff')}</button>
+    ${ims.length>1?`<button class="vwbtn" style="left:12px;top:50%;transform:translateY(-50%) rotate(180deg)" onclick="goSlide(S.ci-1)" aria-label="上一張">${MI('M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z',28,'#fff')}</button>
     <button class="vwbtn" style="right:12px;top:50%;transform:translateY(-50%)" onclick="goSlide(S.ci+1)" aria-label="下一張">${MI('M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z',28,'#fff')}</button>
-    <span id="vwCnt" style="position:absolute;left:50%;bottom:28px;transform:translateX(-50%);color:#fff;font-size:13px;background:rgba(0,0,0,.4);padding:4px 12px;border-radius:12px">${ci+1} / ${ims.length}</span></div>`; }
+    <span id="vwCnt" style="position:absolute;left:50%;bottom:28px;transform:translateX(-50%);color:#fff;font-size:13px;background:rgba(0,0,0,.4);padding:4px 12px;border-radius:12px">${ci+1} / ${ims.length}</span>`:''}</div>`; }
 function playerMount(){
   placeInd(false);
   /* 戴耳機提醒：5 秒後自動收合，只提醒一次（2026-11-09 留言） */
@@ -3697,7 +3697,7 @@ setInterval(()=>{ const p=S.player; if(!p||!p.playing) return;
     if((S.screen==='player'||(S.screen==='map'&&S.tour&&!S.nav&&!S.herePick&&!S.way))&&!S.sheet) render(); else tickDOM(); return; }   /* 地圖上的現場導覽面板也要從「正在聽」換成「剛聽完」 */
   tickDOM(); }, 1000);
 /* 輪播自動換圖：只在播放分頁、沒開逐字稿與手語時 */
-setInterval(()=>{ const p=S.player; if(S.screen!=='player'||!p||S.sheet||(S.pTab||'play')!=='detail'||REDUCED) return; goSlide((S.ci||0)+1); }, 4000);
+setInterval(()=>{ const p=S.player; if(S.screen!=='player'||!p||S.sheet||(S.pTab||'play')!=='detail'||REDUCED||pImgs(it(p.id)).length<2) return; goSlide((S.ci||0)+1); }, 4000);
 S.detect=detectLang();
 S.lang=S.detect;
 try{ S.signPref = localStorage.getItem('nmth.signPref')==='1'; S.gType=localStorage.getItem('nmth.gType')||null; }catch(e){ S.signPref=false; }
