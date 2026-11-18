@@ -20,48 +20,19 @@ if '--head' in sys.argv:
 OUT  = os.path.join(ROOT, 'b', 'ds2.html')
 
 OVERLAY = u'''
-<!-- ===== DS2 對照層｜B 類第一關：拱＋字即建築 ===== -->
+<!-- ===== DS2 對照層｜字即建築 ===== -->
+<!-- 2026-11-18：原本還有「拱」，使用者否決整條語言，已移除。見設計系統 §2.2。 -->
 <style id="ds2css">
-/* 三段狀態，由 <html> 的 class 控制：
-   （無 class）現況　｜　.ds2a 提案 A：拱在下緣　｜　.ds2b 提案 B：拱在頂緣
-   拿掉 class 就完全是現況，這一層不覆寫任何現況樣式。                        */
+/* 兩段狀態：（無 class）現況　｜　.ds2 提案。拿掉 class 就完全是現況。 */
 
-/* ---------- 語言二：拱 ----------
-   矢高 = 跨距 × 0.23（館徽實測：拱頂 279×64）
-   用 border-radius 的橢圓語法：水平半徑 50%（＝跨距一半），垂直半徑由 JS 依實際寬度算成 px。
-   兩個角各佔一半寬，接起來就是一條完整橢圓弧，矢高精準等於 0.23 × 寬。
-   （JS 設 inline style 的地方要 !important：展覽頁 hero 捲動收合時會寫 borderRadius）  */
-
-/* A：拱在下緣——影像底邊拱形，下方內容由拱底升起（設計系統 §2.2 原寫法） */
-html.ds2a body #hero,
-html.ds2a body .exhero.ins{
-  border-radius:20px 20px 50% 50% / 20px 20px var(--arch-r,80px) var(--arch-r,80px) !important;
-}
-
-/* B：拱在頂緣——影像頂邊成屋頂，文字在拱下。內容要讓出矢高，否則會被切到 */
-html.ds2b body #hero,
-html.ds2b body .exhero.ins{
-  border-radius:50% 50% 20px 20px / var(--arch-r,80px) var(--arch-r,80px) 20px 20px !important;
-}
-html.ds2b body #hero .plaque{ margin-top:calc(var(--arch-r,80px) * .62) !important; }
-html.ds2b body .hline{ top:calc(24px + var(--arch-r,80px) * .62) !important; }
-
-/* 底部面板頂緣：兩案都一樣，取代 border-radius:24px 24px 0 0 */
-html.ds2a body .sheet,
-html.ds2b body .sheet{
-  border-radius:50% 50% 0 0 / var(--arch-r,80px) var(--arch-r,80px) 0 0 !important;
-}
-
-/* ---------- 語言三：字即建築 ----------
-   堆疊式英文大標。只改行高與字距，不換字體（§2.3 選項 A，零成本）。 */
-html.ds2a body #hero .plaque h1,
-html.ds2b body #hero .plaque h1{
+/* ---------- 語言：字即建築（設計系統 §2.3）----------
+   堆疊式英文大標。只改行高與字距，不換字體（選項 A，零成本）。 */
+html.ds2 body #hero .plaque h1{
   line-height:.98 !important;
   letter-spacing:-.015em !important;
 }
-/* 左側金柱高度改為綁定文字塊，不再寫死 236px */
-html.ds2a body .hline,
-html.ds2b body .hline{ height:var(--hline-h,236px) !important; }
+/* 左側金柱高度改為綁定文字塊，不再寫死 236px（四語系下文字塊高度不同） */
+html.ds2 body .hline{ height:var(--hline-h,236px) !important; }
 </style>
 
 <style id="ds2ui">
@@ -74,8 +45,7 @@ html.ds2b body .hline{ height:var(--hline-h,236px) !important; }
   box-shadow:0 4px 14px rgba(0,0,0,.3); cursor:pointer; user-select:none;
 }
 #ds2btn i{ width:8px; height:8px; border-radius:4px; background:#8A8F92; display:block }
-html.ds2a #ds2btn i{ background:#C9A961 }
-html.ds2b #ds2btn i{ background:#6FA8BC }
+html.ds2 #ds2btn i{ background:#C9A961 }
 #ds2btn b{ font-weight:500; white-space:nowrap }
 #ds2btn small{ font-weight:400; font-size:11px; opacity:.62; font-variant-numeric:tabular-nums; white-space:nowrap }
 </style>
@@ -88,9 +58,6 @@ html.ds2b #ds2btn i{ background:#6FA8BC }
 (function(){
   var R = document.documentElement, btn = document.getElementById('ds2btn');
   var lab = btn.querySelector('b'), num = btn.querySelector('small');
-  var STATES = ['', 'ds2a', 'ds2b'];
-  var NAMES  = { '': '現況', 'ds2a': '提案 A・拱在下緣', 'ds2b': '提案 B・拱在頂緣' };
-  var cur = 0;
 
   /* 只在數值真的變了才寫。寫入本身會再觸發下面的 MutationObserver，
      不擋就是無限迴圈，整頁會卡死（2026-11-18 實測踩到）。 */
@@ -98,22 +65,16 @@ html.ds2b #ds2btn i{ background:#6FA8BC }
     if(el.style.getPropertyValue(name) !== val) el.style.setProperty(name, val);
   }
 
-  function archSync(){
-    var w = 0;
-    ['#hero', '.exhero.ins', '.sheet'].forEach(function(sel){
-      Array.prototype.forEach.call(document.querySelectorAll(sel), function(el){
-        var bw = el.getBoundingClientRect().width;
-        if(!bw) return;
-        setVar(el, '--arch-r', (bw * 0.23).toFixed(1) + 'px');
-        if(sel === '#hero') w = bw;
-      });
-    });
-    /* 金柱高度 = 說明牌文字塊實際高度 */
+  function sync(){
+    var h = 0;
     Array.prototype.forEach.call(document.querySelectorAll('#hero .plaque'), function(p){
-      var h = p.getBoundingClientRect().height;
-      if(h) setVar(p.parentElement, '--hline-h', Math.round(h - 24) + 'px');
+      var ph = p.getBoundingClientRect().height;
+      if(!ph) return;
+      h = Math.round(ph - 24);
+      setVar(p.parentElement, '--hline-h', h + 'px');
     });
-    var txt = (cur && w) ? Math.round(w) + '×0.23=' + Math.round(w * 0.23) : '';
+    var on = R.classList.contains('ds2');
+    var txt = (on && h) ? '金柱 ' + h + 'px' : (h ? '金柱 236px（寫死）' : '');
     if(num.textContent !== txt) num.textContent = txt;
   }
 
@@ -122,25 +83,25 @@ html.ds2b #ds2btn i{ background:#6FA8BC }
   function schedule(){
     if(pend) return;
     pend = true;
-    requestAnimationFrame(function(){ pend = false; archSync(); });
+    requestAnimationFrame(function(){ pend = false; sync(); });
   }
 
   function paint(){
-    STATES.forEach(function(c){ if(c) R.classList.remove(c); });
-    if(STATES[cur]) R.classList.add(STATES[cur]);
-    lab.textContent = NAMES[STATES[cur]];
-    btn.setAttribute('aria-label', '目前是「' + NAMES[STATES[cur]] + '」，按一下換下一版');
-    try{ sessionStorage.setItem('ds2', String(cur)); }catch(e){}
-    archSync();
+    var on = R.classList.contains('ds2');
+    lab.textContent = on ? '提案・字即建築' : '現況';
+    btn.setAttribute('aria-label', (on ? '目前是提案版' : '目前是現況版') + '，按一下切換');
+    try{ sessionStorage.setItem('ds2', on ? '1' : '0'); }catch(e){}
+    sync();
   }
 
-  btn.addEventListener('click', function(){ cur = (cur + 1) % STATES.length; paint(); });
+  btn.addEventListener('click', function(){ R.classList.toggle('ds2'); paint(); });
 
-  /* 起始狀態：網址帶 ds=1／ds=2 直接指定；否則沿用這個分頁上次看的 */
-  var q = (location.search + location.hash).match(/ds=([012])/), mem = null;
+  /* 起始狀態：網址帶 ds=0／ds=1 就以網址為準（兩邊都要能強制指定，
+     否則 sessionStorage 的記憶會蓋掉 ?ds=0，切不回現況）；沒帶才沿用這個分頁上次看的 */
+  var q = (location.search + location.hash).match(/ds=([01])/), mem = null;
   try{ mem = sessionStorage.getItem('ds2'); }catch(e){}
-  cur = q ? +q[1] : (mem !== null ? +mem : 0);
-  if(!(cur >= 0 && cur < STATES.length)) cur = 0;
+  var on = q ? q[1] === '1' : mem === '1';
+  R.classList.toggle('ds2', on);
   paint();
 
   addEventListener('resize', schedule);
@@ -148,6 +109,110 @@ html.ds2b #ds2btn i{ background:#6FA8BC }
   new MutationObserver(schedule).observe(document.body, {childList:true, subtree:true});
 })();
 </script>
+
+<script>
+/* ===== 柱列轉場（landing → 首頁）=====
+   2026-11-18：拱被否決後，柱列的意象改由「動作」承載。
+   照館徽的節奏把落地頁背景切成 7 條（4 柱 + 3 隙，隙:柱 = 1:1，見設計系統 R1／R2）：
+     第 1 段　3 道「隙」落下消失 → 照片裡浮出館徽的柱列
+     第 2 段　4 根「柱」向中央合攏 → 收成一個整體，再交給首頁
+   整段約 850ms（隙落 60–400ms ／ 柱列定格 400–500ms ／ 合攏 500–840ms），只在進站時發生一次。prefers-reduced-motion 開啟時直接走現況。 */
+(function(){
+  var R = document.documentElement;
+  var N = 7, PILLARS = [0,2,4,6], GAPS = [1,3,5];
+  var EZ = 'cubic-bezier(.2,.8,.2,1)';
+
+  function run(landing, done){
+    var img = landing.querySelector('.lbg');
+    if(!img || !img.naturalWidth) return done();
+
+    var r = landing.getBoundingClientRect(), W = r.width, H = r.height;
+    /* 複製 object-fit:cover 的結果，讓 7 條接起來仍是同一張連續的照片 */
+    var k = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+    var bw = img.naturalWidth * k, bh = img.naturalHeight * k;
+    var ox = (W - bw) / 2, oy = (H - bh) / 2;
+    var sw = W / N;
+
+    var layer = document.createElement('div');
+    layer.className = 'ds2cols';
+    layer.style.cssText = 'position:absolute;inset:0;overflow:hidden;background:#0f212b;z-index:1';
+
+    var strips = [];
+    for(var i = 0; i < N; i++){
+      var d = document.createElement('div');
+      d.style.cssText = 'position:absolute;top:0;bottom:0;left:' + (i * sw) + 'px;width:' + (sw + 0.6) + 'px;'
+        + 'background-image:url(' + img.currentSrc + ');'
+        + 'background-size:' + bw + 'px ' + bh + 'px;'
+        + 'background-position:' + (ox - i * sw) + 'px ' + oy + 'px;'
+        + 'will-change:transform,opacity';
+      layer.appendChild(d);
+      strips.push(d);
+    }
+    img.style.visibility = 'hidden';
+    landing.insertBefore(layer, img.nextSibling);
+
+    /* 第 1 段：隙落下。由中間往兩側，讓柱列「長出來」而不是整排一起消失 */
+    var order = [3, 1, 5];
+    order.forEach(function(gi, n){
+      strips[gi].animate(
+        [{transform:'translateY(0)', opacity:1}, {transform:'translateY(18px)', opacity:0}],
+        {duration:240, delay:60 + n * 50, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards'});
+    });
+
+    /* 第 2 段：柱合攏。4 根收成連續的一塊，位置對稱 */
+    var closedLeft = (W - PILLARS.length * sw) / 2;
+    PILLARS.forEach(function(pi, n){
+      var dx = (closedLeft + n * sw) - pi * sw;
+      /* 位移的同時把背景位置一起推回去：合攏後 4 根柱接成的是一張完整連續的照片，
+         不是四片拼貼。少了這一段，收起來會看到接縫錯開。 */
+      var bx0 = ox - pi * sw;
+      var bx1 = ox - closedLeft - n * sw;
+      strips[pi].animate(
+        [{transform:'translateX(0)',               backgroundPositionX: bx0 + 'px'},
+         {transform:'translateX(' + dx + 'px)',    backgroundPositionX: bx1 + 'px'}],
+        {duration:340, delay:500, easing:EZ, fill:'forwards'});
+    });
+
+    setTimeout(function(){ done(); }, 850);
+  }
+
+  /* 包住原本的 leaveLanding：提案版走柱列轉場，現況版原封不動 */
+  var orig = window.leaveLanding;
+  if(typeof orig !== 'function') return;
+  window.leaveLanding = function(){
+    var landing = document.querySelector('#app > .scr.landing');
+    var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!R.classList.contains('ds2') || !landing || reduced) return orig.apply(this, arguments);
+    landing.classList.add('leaving', 'ds2leave');
+    run(landing, function(){ setLang(S.lang); });
+  };
+
+  /* 轉場只在進站發生一次，看完要能重看 */
+  var again = document.createElement('button');
+  again.id = 'ds2again';
+  again.type = 'button';
+  again.textContent = '重看轉場';
+  again.onclick = function(){ location.reload(); };
+  document.body.appendChild(again);
+  function showAgain(){
+    var onLanding = !!document.querySelector('#app > .scr.landing');
+    again.style.display = onLanding ? 'none' : 'flex';
+  }
+  showAgain();
+  new MutationObserver(showAgain).observe(document.body, {childList:true, subtree:true});
+})();
+</script>
+<style>
+/* 提案版自己接管背景，原本的放大打亮不要同時跑 */
+html.ds2 .landing.ds2leave .lbg{ animation:none !important }
+#ds2again{
+  position:fixed; left:122px; bottom:calc(12px + env(safe-area-inset-bottom,0px)); z-index:99999;
+  display:none; align-items:center; min-height:36px; padding:0 13px; border:0; border-radius:18px;
+  background:rgba(20,28,32,.84); color:#fff; font:500 13px/1 system-ui,-apple-system,"Noto Sans TC",sans-serif;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  box-shadow:0 4px 14px rgba(0,0,0,.3); cursor:pointer;
+}
+</style>
 <!-- ===== /DS2 對照層 ===== -->
 '''
 

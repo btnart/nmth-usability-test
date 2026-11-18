@@ -195,6 +195,7 @@ button.mapbar{padding:0 16px}
 .wpl{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:4px;height:28px;padding:0 9px 0 3px;border-radius:14px;background:#fff;border:1.5px solid var(--teal7);
   font-size:11px;font-weight:500;color:var(--ink);white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:pointer;pointer-events:auto!important;z-index:2}
 .wpl i{width:20px;height:20px;border-radius:10px;background:var(--tealL);display:grid;place-items:center}
+.wpl.ico{width:30px;height:30px;padding:0;gap:0;border-radius:15px;justify-content:center}   /* 2026-11-18：帶我去的設施點位只留圖示，不加文字 */
 .wsel{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;z-index:5;pointer-events:none!important}
 .wsel span{background:var(--ink);color:#fff;font-size:12px;font-weight:500;padding:4px 10px;border-radius:12px;white-space:nowrap;margin-bottom:4px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 .wsel b{width:30px;height:30px;border-radius:15px;display:grid;place-items:center;font:700 14px Roboto,sans-serif;color:#fff;border:3px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.3)}
@@ -233,6 +234,7 @@ button.mapbar{padding:0 16px}
 .mchip.goal{transform:translate(-50%,calc(-100% - 10px));background:var(--gold);color:var(--ink)} .pcx{position:absolute;right:12px;top:10px;width:44px;height:44px;display:grid;place-items:center}
 /* 2026-11-18：底部面板的關閉鈕改放到面板上緣外、浮在黑色遮罩上——原本壓在面板右上角，會擋到內容的捲動 */
 .sheet>.pcx{top:-56px;right:16px;border-radius:22px;background:rgba(255,255,255,.94);box-shadow:0 2px 10px rgba(0,0,0,.28);z-index:31}
+.mscx{position:absolute;right:16px;top:calc(10% - 56px);width:44px;height:44px;display:grid;place-items:center;border-radius:22px;background:rgba(255,255,255,.94);box-shadow:0 2px 10px rgba(0,0,0,.28);z-index:31}   /* 導覽頁開的地圖面板：面板是 .scr（overflow:hidden），關閉鈕畫在面板外面才浮得到遮罩上 */
 .tealbtn .eq{margin-right:2px} .tealbtn .eq i{background:#fff} .tealbtn .eq i:nth-child(n+2){background:none;border-color:#fff}
 .tealbtn.soft{background:var(--tealL);color:var(--teal7)}
 /* 本日活動 */
@@ -272,7 +274,8 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .tabstick.flat.stuck{box-shadow:0 4px 8px -6px rgba(0,0,0,.2)}
 .exrows{display:flex;flex-direction:column} .exrow{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 0;font-size:15px;line-height:1.4;color:var(--text)} .exrow+.exrow{border-top:1px solid var(--line)} .exrow>.ico,.exrow>svg{flex:0 0 18px}
 .tealbtn.exmaplink{flex:0 0 auto;gap:0;height:40px;padding:0 8px 0 16px;font-size:14px;box-shadow:none;border-color:transparent}   /* 2026-11-12 留言：地圖改第二層級按鈕（淺青底，同「手語導覽」），保留尾端箭頭 */
-.excta{position:absolute;left:0;right:0;bottom:0;z-index:7;padding:12px 20px 20px;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 -6px 18px rgba(0,0,0,.08);transform:translateY(110%);transition:transform var(--pan-dur) var(--pan-ez);pointer-events:none} .scanfab.fabhide{opacity:0!important;pointer-events:none;transition:opacity .2s}
+.excta{position:absolute;left:0;right:0;bottom:0;z-index:7;padding:12px 20px 20px;background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);box-shadow:none;transform:translateY(110%);transition:transform var(--pan-dur) var(--pan-ez);pointer-events:none}
+.excta>.tealbtn{box-shadow:0 8px 22px -6px rgba(15,25,30,.45),0 2px 6px rgba(15,25,30,.18)}   /* 2026-11-18：捲動後浮出的「開始導覽」原本壓一條幾乎不透明的白底，看起來像多一層面板——改成毛玻璃（同迷你播放器），底色拿掉，改由按鈕自己的陰影浮起來 */ .scanfab.fabhide{opacity:0!important;pointer-events:none;transition:opacity .2s}
 .exhero.ins{position:relative;margin:64px 24px 0;border-radius:20px;overflow:hidden}   /* 2026-11-16 手機實機確認：Safari 不吃負值 inset、inset(...round...) 不生效、margin 簡寫裡的 var() 會整條失效。這裡只留字面值，收合全部由 JS 設 inline style（見 exNavMount） */
 .exhero.ins>img{position:absolute;top:0;bottom:0;left:-24px;width:calc(100% + 48px);height:100%;object-fit:cover;max-width:none}
 .exnav.solid .r svg{fill:#3C3C3C}   /* 白底 nav 上回首頁圖示原本是白色看不到 */
@@ -397,6 +400,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .sfcap{min-height:56px;color:#fff;font-weight:500;font-size:18px;line-height:1.55;text-align:center}
 @keyframes gFadeIn{from{opacity:0}}
 .vwbtn{position:absolute;width:48px;height:48px;border-radius:24px;background:rgba(255,255,255,.18);display:grid;place-items:center}
+.signfs #sfClose{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 12px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.35) inset}   /* 2026-11-18：手語影片底色是白的，全螢幕右上角的縮放鈕原本半透明白會被影片吃掉——改深色底＋陰影，跟放大鈕同一款 */
 .pctl{flex:0 0 44px;width:44px;height:44px;display:grid;place-items:center;color:#3C3C3C}   /* 第 1 輪測試修正：播放控制兩端與 15 秒鍵統一 44×44 */
 .pspd{font:600 16px/1 Roboto,sans-serif;letter-spacing:.2px}
 .eartip.rateb .ratebtn{flex:0 0 auto;width:auto;height:auto;min-height:32px;white-space:nowrap;padding:4px 12px} .rateb span{min-width:0}   /* 第 1 輪測試修正：評分按鈕不被耳機提示的 36px 寬度規則擠成直排 */
@@ -673,7 +677,7 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .floortabs button.on{color:#fff;font-weight:500}
 .ftind{position:absolute;left:11px;top:11px;height:40px;width:calc((100% - 22px)/3);border-radius:100px;background:var(--teal7);transform:translateX(calc(var(--i)*100%));
   transition:transform .38s cubic-bezier(.2,.8,.2,1)}
-.zonesheet{position:absolute;left:0;right:0;bottom:0;height:auto;max-height:calc(100% - 150px);overflow-y:auto;background:#fff;border-radius:24px;filter:drop-shadow(0 -4px 8px rgba(0,0,0,.1));
+.zonesheet{position:absolute;left:0;right:0;bottom:0;height:auto;max-height:calc(100% - 150px);overflow-y:auto;background:#fff;border-radius:24px 24px 0 0;filter:drop-shadow(0 -4px 8px rgba(0,0,0,.1));
   padding:20px 0 16px;display:flex;flex-direction:column;gap:14px;z-index:8}
 .zonesheet .hs{flex:0 0 auto}
 .zcard{flex:0 0 156px;background:#fff;border-radius:24px;box-shadow:0 8px 24px -4px rgba(26,23,15,.14);overflow:hidden;cursor:pointer}
@@ -806,9 +810,9 @@ const EXHIBITIONS = {
   perm:{n:'斯土斯民：臺灣的故事', card:'ex-permanent.jpg', hero:'ex-perm-hero.jpg', get meta(){ const l=IT_READY?guideIds('perm'):this.items;   /* 2026-11-17：文字導覽也是一則，不能濾掉——濾掉就會變成卡片 23、播放器 30 */ return [l.length+' 個導覽點・約 '+Math.round(l.reduce((n,id)=>n+(ITEMS[id]||{d:0}).d,0)/60)+' 分鐘','2F 常設展廳']; }, type:'常設展', fl:'2F',
     items:["p102","p201","p202","p302","p303","p304","p305","p401","p402","p403","p404","p405","p406","p408","p501","p503","p507","p508","p512","p516","p523","p601","p605","p606","p608","p609","p701"],
     intro:'陪伴我們的臺灣島嶼，一起穿越數百年的記憶流轉吧！在這裡，你會從神秘的起源傳說開始，跟著這塊土地，一次次歷經時代的更迭與鉅變，看見大歷史之下人群的樣貌、聲音與故事。展覽以「時代」作為單元，分為「臺灣，交會之島」、「最初的抵岸」、「倚海而生的島與人」、「山海之間的共存與競逐」、「新秩序下的苦悶與夢想」、「走向民主這條路」、「大家的博物館」7 大單元；從史前到當代，相異的時空情境中，是否喚起你似曾相似的共鳴？'},
-  zj:{n:'萬相天后：臺灣媽祖信仰文化特展', card:'mazu.jpg', hero:'mazu.jpg', date:'2026.10.13 – 2027.05.16', meta:['4F 第一特展室'], type:'特展', fl:'4F', items:['mz1','mz2','mz3','mz4','mz5','mz6'], theme:2, threeD:'mazu.jpg',   /* 2026-11-18：媽祖特展導覽＝五個單元＋結語，共 6 則文字導覽 */
+  zj:{n:'萬相天后：臺灣媽祖信仰文化特展', card:'mazu.jpg', hero:'mazu.jpg', date:'2026.10.13 – 2027.05.16', get meta(){ const l=IT_READY?guideIds('zj'):this.items; return [l.length+' 個導覽點・約 '+Math.round(l.reduce((n,id)=>n+(ITEMS[id]||{d:0}).d,0)/60)+' 分鐘','4F 第一特展室']; }, type:'特展', fl:'4F', items:['mz1','mz2','mz3','mz4','mz5','mz6'], theme:2, threeD:'mazu.jpg',   /* 2026-11-18：媽祖特展導覽＝五個單元＋結語，共 6 則文字導覽 */
     intro:'媽祖是臺灣最具代表性的民間信仰之一。本次展覽透過館藏、國內外機構典藏，以及臺灣各地媽祖廟所傳承的重要文物，探討媽祖神蹟如何被詮釋，並展現出媽祖的多元面貌。'},   /* key 沿用 zj／asia（地圖、離線狀態都掛這兩個 key），內容照 A 版改成官網現有特展（2026-11-02） */
-  asia:{n:'邊界之外‧島嶼之中：當代臺灣非公民的故事特展', card:'bd-7.jpg', hero:'bd-7.jpg', date:'2026.09.15 – 2027.04.11', meta:['4F 第三特展室'], type:'特展', fl:'4F', items:['bd0','bd1','bd2','bd3','bd4','bd5'], threeD:'bd-7.jpg',   /* 2026-11-18：非公民特展導覽＝五個單元＋結語，共 6 則文字導覽 */
+  asia:{n:'邊界之外‧島嶼之中：當代臺灣非公民的故事特展', card:'bd-7.jpg', hero:'bd-7.jpg', date:'2026.09.15 – 2027.04.11', get meta(){ const l=IT_READY?guideIds('asia'):this.items; return [l.length+' 個導覽點・約 '+Math.round(l.reduce((n,id)=>n+(ITEMS[id]||{d:0}).d,0)/60)+' 分鐘','4F 第三特展室']; }, type:'特展', fl:'4F', items:['bd0','bd1','bd2','bd3','bd4','bd5'], threeD:'bd-7.jpg',   /* 2026-11-18：非公民特展導覽＝五個單元＋結語，共 6 則文字導覽 */
     intro:'「非公民」是指有人沒有任何國家承認其國籍；也有人雖擁有國籍，卻因政治、戰亂與制度等因素，無法獲得原國家的保護。本特展透過主展場與走廊延伸展區，串聯這段歷史，並述說來到臺灣的不同群體的故事。'},
 };
 const LIST_META = {};   /* 展覽列表頁的特展卡 meta 跟首頁不同（照設計稿） */
@@ -909,7 +913,8 @@ const TRACKS = ['中文','臺灣台語','客語'];
 /* 標案語言範圍（2026-11-11 使用者指定）：常設展（含主題路線有導覽的站）只有手語影片；特展提供中英日韓語音；參觀前先聽＝中英日韓＋手語 */
 const TRACKS_EX=['中文','英文','日文','韓文'];
 const trk=x=>x.tracks||TRACKS;
-EXHIBITIONS.perm.items.forEach(id=>{ if(!ITEMS[id].i18n) Object.assign(ITEMS[id],{voice:false,sign:true}); });   /* 2026-11-13：常設展改用館方語音導覽文稿（中、英語音＋有對應影片的才有手語），不再一律只有手語 */
+EXHIBITIONS.perm.items.forEach(id=>{ if(!ITEMS[id].i18n) Object.assign(ITEMS[id],{tonly:true,voice:undefined,sign:false}); });   /* 2026-11-13：常設展改用館方語音導覽文稿（中、英語音＋有對應影片的才有手語），不再一律只有手語 */
+   /* 2026-11-18：手語只存在於導覽清單裡有影片的 21 則；常設展的展品本身沒有語音也沒有手語，一律是文字導覽，卡片才不會冒出「手語影片」 */
 /* 2026-11-18：常設展導覽清單改成三層，照整理後的館方文稿（docs/常設展_導覽文稿_依展覽架構.md）：
      第 0 層　展覽總說＝展覽介紹，排在清單最前面
      第 1 層　七大單元的單元總說（PERM_UNIT_TXT）
@@ -1151,7 +1156,7 @@ function exLangs(k){ const ids=EXHIBITIONS[k].items, v=ids.some(id=>it(id).voice
   return (v?exVoice(k):[]).concat(sg?['手語']:[]).join('・'); }
 /* 第 1 輪測試修正（T4）：手語標籤用的手勢圖示（線條風格，跟其他圖示一致） */
 const SIGN_IC=`<svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12"/><path d="M11 11V5a1.5 1.5 0 0 1 3 0v6"/><path d="M14 11V6.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-.5a6 6 0 0 1-4.6-2.2L3.3 15.7a1.5 1.5 0 0 1 2.3-1.9L8 16"/></svg>`;
-const exMeta=(k,ms)=>EXHIBITIONS[k]&&!EXHIBITIONS[k].guide&&lrText(k)?ms.map(m=>m.replace(/^(\d+) 個導覽點・約 \d+ 分鐘$/,'$1 件展品')):ms;   /* 只有文字介紹時沒有導覽點與聆聽時間；有導覽清單的展覽照導覽則數講 */
+const exMeta=(k,ms)=>EXHIBITIONS[k]&&!EXHIBITIONS[k].guide&&lrText(k)?ms.map(m=>m.replace(/^(\d+) 個導覽點・約 \d+ 分鐘$/,'$1 則文字導覽')):ms;   /* 只有文字介紹時沒有導覽點與聆聽時間；有導覽清單的展覽照導覽則數講 */
 function exCard(key, isRoute, listMeta, over){
   const e = Object.assign({}, isRoute ? ROUTES[key] : EXHIBITIONS[key], over||{});
   let meta = listMeta || (isRoute ? e.meta : exMeta(key, e.meta));
@@ -1596,17 +1601,19 @@ const PRE=['pre0'];
 const exOf=id=>Object.keys(EXHIBITIONS).find(k=>EXHIBITIONS[k].items.includes(id))||'perm';
 function startPre(){ startGuide(PRE[0],{type:'pre',key:'pre'}); }
 function startGuide(id,ctx){ const p=S.player;
-  if(p && (p.ctx.type!==ctx.type||p.ctx.key!==ctx.key) && p.pos<it(p.id).d){ S.pending={id,ctx}; S.sheet='switch'; render(); return; }
+  if(p && (p.ctx.type!==ctx.type||p.ctx.key!==ctx.key||!!p.ctx.sg!==!!ctx.sg) && p.pos<it(p.id).d){ S.pending={id,ctx}; S.sheet='switch'; render(); return; }   /* 2026-11-18：同一檔展覽在手語導覽與文字導覽之間切換也要先問——兩邊的則數與內容不同，切過去會從第 1 則重來 */
   play(id,ctx); }
 function switchSheet(){ const p=S.player, n=S.pending;
+  const sameEx=!n.walk&&p.ctx.type===n.ctx.type&&p.ctx.key===n.ctx.key;   /* 只差在手語／文字 */
+  const toSign=!!n.ctx.sg, kindN=toSign?'手語導覽':'文字導覽', kindP=p.ctx.sg?'手語導覽':'文字導覽';
   return `<div class="dim" onclick="S.sheet=null;render()"></div>
-  <div class="sheet" role="alertdialog" aria-labelledby="swH" style="border-radius:24px;padding:14px 24px 28px;display:flex;flex-direction:column;gap:14px">
+  <div class="sheet" role="alertdialog" aria-labelledby="swH" style="border-radius:24px 24px 0 0;padding:14px 24px 28px;display:flex;flex-direction:column;gap:14px">
     <div class="grab"></div>
-    <h2 id="swH" style="font-weight:700;font-size:18px;line-height:1.4;color:var(--ink)">${(q=>n.walk?'中斷目前的導覽，開始走'+q+'？':'改聽'+q+'？')(/「/.test(ctxName(n.ctx))?ctxName(n.ctx):'「'+ctxName(n.ctx)+'」')}</h2>
-    <p style="font-size:13px;line-height:1.6;color:var(--text2)">目前正在聽「${it(p.id).n}」（${ctxName(p.ctx)}）。${n.walk?'開始走路線後，目前的播放會停止，':'切換後會從第 1 則開始，'}原本聽到哪裡會記在導覽歷程。</p>
+    <h2 id="swH" style="font-weight:700;font-size:18px;line-height:1.4;color:var(--ink)">${sameEx?'切換成「'+kindN+'」？':(q=>n.walk?'中斷目前的導覽，開始走'+q+'？':'改聽'+q+'？')(/「/.test(ctxName(n.ctx))?ctxName(n.ctx):'「'+ctxName(n.ctx)+'」')}</h2>
+    <p style="font-size:13px;line-height:1.6;color:var(--text2)">${sameEx?`目前在「${kindP}」看「${it(p.id).n}」，共 ${ctxList(p.ctx).length} 則；「${kindN}」是另一份清單，共 ${ctxList(n.ctx).length} 則。切換後會從第 1 則開始，原本看到哪裡會記在導覽歷程。`:`目前正在聽「${it(p.id).n}」（${ctxName(p.ctx)}）。${n.walk?'開始走路線後，目前的播放會停止，':'切換後會從第 1 則開始，'}原本聽到哪裡會記在導覽歷程。`}</p>
     <div style="display:flex;gap:10px">
       <button onclick="S.sheet=null;render()" style="flex:1;min-height:48px;background:var(--cream);border-radius:24px;font-size:14px;color:var(--text)">繼續原本的</button>
-      <button class="tealbtn" style="flex:1;min-height:48px;border-radius:24px" onclick="const n=S.pending;S.pending=null;S.sheet=null;n.walk?startWalk(n.walk,true):play(n.id,n.ctx)">${n.walk?'中斷並開始走路線':'切換導覽'}</button></div>
+      <button class="tealbtn" style="flex:1;min-height:48px;border-radius:24px" onclick="const n=S.pending;S.pending=null;S.sheet=null;n.walk?startWalk(n.walk,true):play(n.id,n.ctx)">${n.walk?'中斷並開始走路線':sameEx?'切換成'+kindN:'切換導覽'}</button></div>
   </div>`;
 }
 function scrEx(){
@@ -1629,7 +1636,7 @@ function scrEx(){
   const L=S.lang in LG_FULL?S.lang:'zh', ids=guideIds(k), v=ids.some(id=>it(id).voice!==false), sgAll=ids.some(id=>it(id).sign), mix=exMixed(k);
   const NS=!!S.exNS&&!v&&sgAll, sg=NS?false:sgAll;   /* 2026-11-17：純手語展覽從現正展出進來時只當展品介紹，手語走無障礙專區那條線 */
   const ms=(x=>NS&&!EXHIBITIONS[k].guide?x.map((m,i)=>i===0&&/導覽點/.test(m)?(EXHIBITIONS[k].items||[]).length+' 件展品':m):x)(exMeta(k, e.pageMeta||e.meta)), loc=ms.find(m=>/^\dF/.test(m)), info=ms.filter(m=>m!==loc);
-  const parts=info.flatMap(m=>m.split('・')), cnt=parts.find(m=>/導覽點|件展品|stop|ガイド|가이드/.test(m))||parts[0], tm=parts.find(m=>m!==cnt);
+  const parts=info.flatMap(m=>m.split('・')), cnt=parts.find(m=>/導覽點|件展品|則文字導覽|stop|ガイド|가이드/.test(m))||parts[0], tm=parts.find(m=>m!==cnt);
   const SG={zh:'手語',en:'Sign language',ja:'手話',ko:'수어'}[L], sep=L==='zh'||L==='ja'?'・':', ', SGI=SIGN_IC.replace('class="ico"','class="ico" style="color:#2E5C6E;width:18px;height:18px"');
   const VL=exVoice(k), vName=VL.length===1?`<span translate="no">${({zh:'語音',en:'Audio',ja:'音声',ko:'음성'})[L]}</span>`:VL.map(t=>`<span style="white-space:nowrap">${LG_FULL[L][t]||t}</span>`).join(sep);
   const row=(ic,tx,act)=>`<div class="exrow">${ic}<span style="flex:1;min-width:0">${tx}</span>${act||''}</div>`;
@@ -1643,6 +1650,7 @@ function scrEx(){
     if(tI.length&&!EXHIBITIONS[k].guide) rows.push(row(MI(BOOK_IC,18,'#2E5C6E'),`文字導覽 ${tI.length} 則・約 ${mn(tI)} 分鐘`)); }   /* 2026-11-18：手語導覽只播手語影片，清單已經濾掉文字那幾則，就不要再列出來 */
   else if(NS&&EXHIBITIONS[k].guide){ const mn=Math.round(ids.reduce((a,id)=>a+it(id).d,0)/60);   /* 2026-11-18：這條線整份清單都用文字呈現，直接講「文字導覽 N 則」，不要用展品件數 */
     rows=[row(MI(BOOK_IC,18,'#2E5C6E'),`文字導覽 ${ids.length} 則・約 ${mn} 分鐘`)]; }
+  else if(ids.length&&ids.every(id=>it(id).tonly)) rows=[row(MI(BOOK_IC,18,'#2E5C6E'),`文字導覽 ${ids.length} 則・約 ${Math.round(ids.reduce((a,id)=>a+it(id).d,0)/60)} 分鐘`)];   /* 2026-11-18：特展改成純文字導覽後，展覽頁也要寫出則數（原本 meta 沒帶數量，整列就不見了） */
   else if(cnt) rows=[row(MI(exBrowse(k)?PHOTO_IC:BOOK_IC,18,'#2E5C6E'),cnt)];
   if(loc) rows.push(row(MI(EXC_IC.pin,18,'#2E5C6E'),loc,`<button class="tealbtn soft exmaplink" onclick="openExMap('${k}','${e.fl==='4F'?'4F':'2F'}')">地圖${MI('M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z',18,'#2E5C6E')}</button>`));   /* 2026-11-12 留言：拿掉前綴地圖 icon，改尾端箭頭，看得出可以點 */
   const BTN='width:100%;height:48px;padding:0 12px;gap:8px;border-radius:24px;font-size:16px;white-space:nowrap';
@@ -1659,9 +1667,7 @@ function scrEx(){
     </div>
     <div style="padding:16px 24px;display:flex;flex-direction:column;gap:8px">
       ${e.nointro?'':`<div style="padding-top:16px;margin-bottom:-8px">${AITAG()}</div>`}<p style="padding:16px 0 24px;font-size:${S.fs==='l'?19:16}px;line-height:1.75;letter-spacing:.4px;text-align:justify;color:var(--text)">${e.nointro?`<span translate="no" style="color:var(--text2)">${NOINTRO[S.lang]||NOINTRO.zh}</span>`:(e.intro||e.n+' 的展覽介紹。')}</p>   <!-- 2026-11-11 留言：展覽介紹字太小，14→16px（大字級 19px），行高 1.75 -->
-      <div style="height:190px;border-radius:8px;overflow:hidden;position:relative;margin:4px 0">
-        <img src="${A(e.threeD||'ex-perm-3d.jpg')}" alt="" style="width:100%;height:100%;object-fit:cover">
-        <span class="vbig" aria-hidden="true" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:32px;background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 0 0 1px rgba(255,255,255,.35) inset;display:grid;place-items:center">${MI(ICW.play,34,'#fff')}</span></div></div>
+      </div>
     ${noGuide?'':`<div id="exSecWk" style="padding:16px 0">
       <div style="padding:0 24px"><div style="display:flex;align-items:center;justify-content:space-between;min-height:48px">
         <b style="font-weight:500;font-size:20px;line-height:1.2;letter-spacing:.5px;color:var(--text)">導覽列表</b></div>
@@ -2086,7 +2092,7 @@ function scrPlayer(){
         <div class="r" style="display:flex;gap:2px;flex:0 0 auto"><button onclick="toggleFs()" aria-label="調整文字大小" aria-pressed="${S.fs==='l'}" style="width:44px;height:44px;display:grid;place-items:center;color:${S.fs==='l'?'var(--teal7)':'#3C3C3C'}"><span style="font-weight:700;display:inline-flex;align-items:baseline;justify-content:center;width:34px;height:34px;align-items:center;border-radius:17px;${S.fs==='l'?'background:var(--tealL)':''}"><span style="font-size:11px">A</span><span style="font-size:17px">A</span></span></button><!-- 第 1 輪測試修正：已調大＝主色字＋淡青小圓底（2026-11-12 試過亮青字＋光暈，使用者決定改回這個） -->
           <button onclick="openNote('${p.id}')" aria-label="${noteOf(p.id)?'編輯筆記':'寫筆記'}" aria-pressed="${!!noteOf(p.id)}" style="width:44px;height:44px;display:grid;place-items:center;color:${noteOf(p.id)?'var(--teal7)':'#3C3C3C'}">${MI('M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z',20,'currentColor')}</button>
           <button onclick="toggleFav('${p.id}')" aria-label="收藏" aria-pressed="${S.fav.has(p.id)}" style="width:44px;height:44px;display:grid;place-items:center">${img(S.fav.has(p.id)?'ic-heart-filled.svg':'ic-heart.svg',20,20)}</button></div></div>
-      ${T.length>1||!T.includes('play')?`<div style="padding:0 16px 10px">${capsule()}</div>`:''}<!-- 只有導覽內容一個分頁（參觀前先聽）就不放分頁列 -->
+      ${T.length>1?`<div style="padding:0 16px 10px">${capsule()}</div>`:''}<!-- 只剩一個分頁就不放分頁列：不管剩下的是「導覽」（參觀前先聽、手語導覽）還是「介紹」（文字導覽），都沒有可切換的對象（2026-11-18 使用者決定） -->
       <div style="flex:1;min-height:0;overflow:hidden;position:relative">
         <div class="ptrack" id="ptrack" style="width:${T.length*100}%;transform:translateX(-${ti*100/T.length}%)">
           ${T.map(k=>({detail:detailPane,play:playPane})[k]()).map((h,i)=>`<section class="ppane" style="width:${100/T.length}%;flex-basis:${100/T.length}%" aria-hidden="${i!==ti}" ${i!==ti?'inert':''}>${h}</section>`).join('')}</div></div>
@@ -2210,7 +2216,7 @@ function setVersion(kind,i){ const p=S.player, was=p.sign?'sign':'v'+p.track; S.
 function trackSheet(){ const p=S.player, x=it(p.id);
   const row=(on,label,fn)=>`<button role="radio" aria-checked="${on}" onclick="${fn}" class="verrow ${on?'on':''}"><span>${label}</span>${on?MI(MD.check,22,'#2E5C6E'):''}</button>`;
   return `<div class="dim" onclick="S.sheet=null;render()"></div>
-  <div class="sheet" role="dialog" aria-labelledby="vrH" style="border-radius:24px;padding:14px 24px 26px;display:flex;flex-direction:column;gap:6px">${closeX('S.sheet=null;render()')}
+  <div class="sheet" role="dialog" aria-labelledby="vrH" style="border-radius:24px 24px 0 0;padding:14px 24px 26px;display:flex;flex-direction:column;gap:6px">${closeX('S.sheet=null;render()')}
     <div class="grab"></div>
     <h2 id="vrH" style="font-weight:700;font-size:16px;color:var(--ink);margin:10px 0 4px">導覽版本</h2>
     ${/* 2026-11-18：手語不跟語音／文字一起出現——手語導覽那條線只給手語，其他線只給語音 */''}
@@ -2258,7 +2264,7 @@ const MAPS={
   '2F':{src:'map-2f-v2.png', bg:'#FEFEFE', w:1536, h:1024, fit:{s:.278, x:-26.7, y:183}, name:'常設展廳', area:'', label:[661,80]},
   '4F':{src:'map-4f-v2.png', bg:'#FEFEFE', w:1536, h:1024, fit:{s:.5482, x:-392, y:28.9}, name:'第一特展室',
     area:'887,507 1457,507 1457,738 887,738', label:[1172,507], elev:[620,397]} };
-const PINS={site:{}, '1F':{}, '2F':{'p102':[1290,705],'p201':[1225,615],'p202':[1335,610],'p302':[1200,470],'p303':[1120,560],'p304':[1050,615],'p305':[925,515],'p401':[1330,215],'p402':[1390,330],'p403':[1250,300],'p404':[1000,320],'p405':[1080,240],'p406':[915,215],'p408':[850,300],'p501':[700,300],'p503':[705,500],'p507':[400,560],'p508':[600,330],'p512':[300,380],'p516':[170,250],'p523':[160,620],'p601':[400,820],'p605':[620,860],'p606':[720,840],'p608':[1000,845],'p609':[1100,830],'p701':[1210,850]}, '4F':{mz1:[982,569], mz2:[1157,569], mz3:[1350,584], mz4:[1273,675], mz5:[1041,675], mz6:[1041,745], bd0:[480,452], bd1:[127,367], bd2:[189,447], bd3:[236,357], bd4:[251,428], bd5:[251,492]}};   /* 2026-11-18：兩檔特展導覽復原，五個單元照 A 版點位；結語放在最後一個單元下方，確切位置待館方確認 */   /* 照 A 版點位換算 */
+const PINS={site:{}, '1F':{}, '2F':{'p102':[1290,705],'p201':[1225,615],'p202':[1335,610],'p302':[1200,470],'p303':[1120,560],'p304':[1050,615],'p305':[925,515],'p401':[1330,215],'p402':[1390,330],'p403':[1250,300],'p404':[1000,320],'p405':[1080,240],'p406':[915,215],'p408':[850,300],'p501':[700,300],'p503':[705,500],'p507':[400,560],'p508':[600,330],'p512':[300,380],'p516':[170,250],'p523':[160,620],'p601':[400,820],'p605':[620,860],'p606':[720,840],'p608':[1000,845],'p609':[1100,830],'p701':[1210,850]}, '4F':{mz1:[982,569], mz2:[1157,569], mz3:[1350,584], mz4:[1273,675], mz5:[1041,675], mz6:[910,700], bd0:[480,452], bd1:[127,367], bd2:[189,447], bd3:[236,357], bd4:[251,428], bd5:[251,492]}};   /* 2026-11-18：兩檔特展導覽復原，五個單元照 A 版點位；結語的點位以展室實際範圍為準（第一特展室 x888–1454／y508–734、第三特展室 x82–280／y310–670），確切位置待館方確認 */   /* 照 A 版點位換算 */
 /* 2026-11-18：導覽（總說／單元／子單元）也在地圖上有點位——借它底下第一件展品的座標；底下沒有展品就借同單元的第一件 */
 (()=>{ const P=PINS['2F'], first=o=>(o||[]).find(id=>P[id]);
   const uFirst=ui=>first((PERM_USEL[ui]||[]).concat(...PERM_GUIDE.filter(x=>x.u===ui).map(x=>PERM_SEL[x.id]||[])));
@@ -2274,10 +2280,11 @@ const FAC_TYPES={ wc:['廁所','M5.5 22v-7.5H4V9c0-1.1.9-2 2-2h3c1.1 0 2 .9 2 2v
 const FACS={'2F':[['elev',724,726],['elev',850,232],['stair',428,828],['stair',940,800],['stair',1120,741],['wc',644,843]], '4F':[['elev',667,364],['stair',385,453],['stair',979,453],['wc',529,453],['wc',1235,453]]};
 /* 第 1 輪測試修正：1F 出入口加文字標籤；服務臺標出定時導覽集合處（官網）。兒童廳、時光車站、圓形劇場 B 版沒有座標，先不標 */
 const FL1_LAB={door:'入口・8 號門', exit:'出口・6 號門', info:'服務臺・定時導覽集合', spot:''};   /* 2026-11-13（T6）：出入口標籤加門號；spot 用地點名稱 */   /* 第 1 輪測試修正：官網 VR 在 4F 現場報名，服務臺只剩定時導覽集合 */
-function facLayer(f){ if(S.herePick) return '';   /* 標位置時先收起設施，A／B 選項才不會跟設施混在一起 */
-  const wy=!!S.way;   /* 2026-11-18：廁所／電梯／樓梯平常不標在地圖上，點了上方的「找設施」才出現，而且一次只出現一種；帶路模式照舊全部顯示 */
+function facLayer(f){ if(S.herePick||S.way) return '';   /* 標位置時先收起設施，A／B 選項才不會跟設施混在一起 */
+  /* 2026-11-18：廁所／電梯／樓梯平常不標在地圖上，點了上方的「找設施」才出現，而且一次只出現一種
+     2026-11-18（二）：帶我去整段都不由這裡畫設施——選起點／目的地時由 wayLayer 畫（原本兩層各畫一次，地圖上每個設施都重複出現），看路線時只留 A／B 與路線 */
   return (PLACES[f]||[]).map(([t,n,x,y],i)=>{ if(f==='4F'&&/特展室入口$/.test(n)) return '';   /* 第 1 輪測試修正（T8）：4F 特展室入口改用可點的特展入口標記，不再重複放門圖示 */
-  if(FAC_TYPES[t]&&!wy&&S.facFind!==t) return '';
+  if(FAC_TYPES[t]&&S.facFind!==t) return '';
   const [sx,sy]=toScr(x,y), k=`p:${f}:${i}`, on=S.mapSel===k;   /* 每個設施都可以點，點了出現帶我去；第 1 輪測試修正：不再有隱藏設施的開關 */
   return `<button class="mfac${on?' on':''}${t==='wc'?' wc':''}${S.facFind===t?' hl':''}" data-mx="${x}" data-my="${y}" style="left:${sx}px;top:${sy}px" aria-label="${n}" aria-pressed="${on}" onclick="event.stopPropagation();S.mapSel=S.mapSel==='${k}'?null:'${k}';render()">${MI(PL_IC[t],16,on?'#fff':'#2E5C6E')}${f==='site'?`<span class="mflab">${n.replace(/（.*）/,'')}</span>`:f==='1F'&&FL1_LAB[t]!=null?`<span class="mflab f1${t==='info'?' ev':''}">${FL1_LAB[t]||n}</span>`:''}</button>`; }).join('')
   + (f==='site'?`<button class="mbld" data-mx="520" data-my="800" style="left:${toScr(520,800)[0]}px;top:${toScr(520,800)[1]}px" aria-label="展示教育大樓，進入樓層地圖" onclick="event.stopPropagation();S.floor='1F';S.mapSel=null;render()">展示教育大樓<span>1F・2F・4F</span></button>`:''); }   /* 全區地圖上的大樓：點了進 1F，再用樓層選單換層 */
@@ -2288,7 +2295,7 @@ function placeCard(k){ const [,f,i]=k.split(':'), [t,n,,,tx]=PLACES[f][+i];
       <span style="flex:0 0 56px;height:56px;border-radius:16px;background:var(--tealL);display:grid;place-items:center">${MI(PL_IC[t],28,'#2E5C6E')}</span>
       <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:var(--text2)">${f==='site'?'戶外・館區':f+'・'+MAPS[f].name}</span><b style="font-weight:700;font-size:18px;color:var(--ink)">${n}</b></div></div>
     <p style="padding:12px 24px 0;font-size:13px;line-height:1.6;color:var(--text2)">${tx||'按帶我去，標出你在哪裡就幫你畫路線'}</p>${f==='site'&&SITE_TO_ENT[+i]
-      ?`<div class="wbtns" style="padding:0 24px"><button class="tealbtn soft pickok" onclick="startNav('${k}')">帶我去這裡</button><button class="tealbtn pickok" onclick="siteToEnt(${+i})">怎麼走到入口</button></div>`
+      ?`<div class="wbtns" style="padding:0 24px"><button class="tealbtn soft pickok" onclick="startNav('${k}')">帶我去這裡</button><button class="tealbtn pickok" onclick="siteFromExitNav(${+i})">從出口怎麼走？</button></div>`
       :`<div style="padding:0 24px;margin-top:auto"><button class="tealbtn pickok" onclick="startNav('${k}')">帶我去這裡</button></div>`}</div>`; }
 /* 第 1 輪測試修正：廁所／電梯／樓梯原本是「顯示／隱藏」開關，受測者以為是「帶我去廁所」，按了反而把圖示藏起來。
    改成「找最近的」：設施圖示一律顯示；按鈕＝列出這層的廁所（由近到遠）＋每筆一顆帶我去 */
@@ -2412,8 +2419,21 @@ const SITE_TO_ENT={
   5:{p:[[722,692],[727,693],[783,685],[849,739],[849,741],[867,751],[875,759],[875,763],[867,767],[763,811],[763,815],[821,847],[829,855],[831,861],[831,875],[825,893],[809,921],[791,939],[747,965],[719,1021],[695,1047],[691,1047],[677,1081],[673,1083],[641,1091],[589,1101],[509,1115],[467,1121],[447,1123],[429,1123],[429,1121],[407,1113],[369,1069],[363,1047],[447,987],[451,979],[453,947],[453,943],[445,921],[470,910],[515,900]], say:'沿慶和路旁步道往南，繞過東側湖區，再沿長和路旁步道往西，從南側步道往北走到正門入口（8 號門）。'},
   6:{p:[[300,1087],[301,1087],[447,987],[451,979],[453,947],[453,943],[445,921],[470,910],[515,900]], say:'下車後沿步道往東北，經過停車區旁，直走到展示教育大樓正門入口（8 號門）。'},
   7:{p:[[343,1114],[343,1115],[363,1047],[447,987],[451,979],[453,947],[453,943],[445,921],[470,910],[515,900]], say:'還車後沿步道往北，再轉往東北走到展示教育大樓正門入口（8 號門）。'} };
+/* 2026-11-18：離館交通改成「從出口怎麼走」——起點是展示教育大樓出口（6 號門），終點是交通點位。
+   路線沿用進館那幾條折線：砍掉靠近正門那一段，改接 6 號門往南匯入園區步道的短支線。 */
+const SITE_EXIT=3, EXIT_LEG=[[408,842],[428,878],[445,921]];
+const EXIT_SAY={4:'從 1F 大廳西側的 6 號門出來，沿園區步道往西南走到遊客停車場。',5:'從 6 號門出來後沿環館道路往東北走到洽公停車場。',6:'從 6 號門出來後沿園區步道往南走到長和路一段的公車站。',7:'從 6 號門出來後沿園區步道往南走到 YouBike 站。'};
+const siteFromExit=i=>{ const t=SITE_TO_ENT[i]; if(!t) return null;
+  const j=t.p.findIndex(([x,y])=>x===445&&y===921), head=j>0?t.p.slice(0,j):t.p;
+  return {p:EXIT_LEG.concat([...head].reverse()), say:EXIT_SAY[i]||''}; };
 const siteRoute=(a,b)=>{ const k=p=>p&&p.key&&p.key.startsWith('p:site:')?+p.key.split(':')[2]:-1, ia=k(a), ib=k(b);
-  if(ib===SITE_ENT&&SITE_TO_ENT[ia]) return SITE_TO_ENT[ia]; if(ia===SITE_ENT&&SITE_TO_ENT[ib]) return {p:[...SITE_TO_ENT[ib].p].reverse(), say:''}; return null; };
+  if(ib===SITE_ENT&&SITE_TO_ENT[ia]) return SITE_TO_ENT[ia]; if(ia===SITE_ENT&&SITE_TO_ENT[ib]) return {p:[...SITE_TO_ENT[ib].p].reverse(), say:''};
+  if(ia===SITE_EXIT&&siteFromExit(ib)) return siteFromExit(ib);
+  if(ib===SITE_EXIT&&siteFromExit(ia)) return {p:[...siteFromExit(ia).p].reverse(), say:''};
+  return null; };
+function siteFromExitNav(i){ const s=PLACES.site[SITE_EXIT], e=PLACES.site[i];
+  S.way={step:'route', a:{fl:'site',x:s[2],y:s[3],name:'出口（6 號門）',key:'p:site:'+SITE_EXIT}, b:{fl:'site',x:e[2],y:e[3],name:e[1].replace(/（.*）/,''),key:'p:site:'+i}, from:'site', mapOnly:S.mapOnly};
+  S.mapSel=null; S.floor='site'; wayFit(); render(); wayZoomRoute(); }
 function siteToEnt(i){ const s=PLACES.site[i], e=PLACES.site[SITE_ENT];
   S.way={step:'route', a:{fl:'site',x:s[2],y:s[3],name:s[1].replace(/（.*）/,''),key:'p:site:'+i}, b:{fl:'site',x:e[2],y:e[3],name:'正門入口（8 號門）',key:'p:site:'+SITE_ENT}, from:'site', mapOnly:S.mapOnly};
   S.mapSel=null; S.floor='site'; wayFit(); render(); wayZoomRoute(); }
@@ -2603,19 +2623,36 @@ function walkPath(f,p,q){ const W=walkGrid(f); if(!W) return null; const {c,w,h,
   const keep=[cells[0]]; let k=0; while(k<cells.length-1){ let m=cells.length-1; while(m>k+1&&!los(cells[k],cells[m])) m--; keep.push(cells[m]); k=m; }
   const pts=keep.map(([i,j])=>[i*c+c/2,j*c+c/2]); return W.cache[key]=[p,...pts,q]; }
 /* 這一層要畫的路線：同層 A→B；跨層 A→電梯、電梯→B。有可走區域資料的樓層會繞開牆和展品，其他樓層先用直角折線（示意） */
-function wayPath(f){ const w=S.way; if(!w||!w.a||!w.b) return []; const a=w.a, b=w.b, E=ELEV[f];
+/* 2026-11-18：戶外與館內之間原本沒有轉接點（ELEV 沒有 site 這一層），一算就丟例外、整條路線畫不出來。
+   改成先排出樓層順序，戶外接 1F 走大門（進館走 8 號門、離館走 6 號門），樓層之間才走電梯。 */
+const SITE_DOOR={'site':{out:[408,842], in:[515,900]}, '1F':{out:[110,727], in:[928,885]}};
+const wayFls=()=>{ const w=S.way; if(!w||!w.a||!w.b) return []; const a=w.a.fl, b=w.b.fl; if(a===b) return [a];
+  const up=x=>x==='2F'||x==='4F';
+  if(a==='site'&&up(b)) return ['site','1F',b];
+  if(up(a)&&b==='site') return [a,'1F','site'];
+  return [a,b]; };
+const wayLink=(f,other)=>{ const out=S.way&&S.way.b.fl==='site';   /* 往戶外＝離館走出口，往館內＝進館走入口 */
+  if(f==='site') return SITE_DOOR.site[out?'out':'in'];
+  if(other==='site') return SITE_DOOR['1F'][out?'out':'in'];
+  return ELEV[f]; };
+function wayPath(f){ const w=S.way; if(!w||!w.a||!w.b) return []; const a=w.a, b=w.b;
   const L=(p,q)=>walkPath(f,p,q)||[[p[0],p[1]],[p[0],q[1]],[q[0],q[1]]];
-  if(a.fl===b.fl&&f==='site'&&a.fl==='site'){ const r=siteRoute(a,b); if(r) return r.p; }
-  if(a.fl===b.fl) return a.fl===f?L([a.x,a.y],[b.x,b.y]):[];
-  if(f===a.fl) return L([a.x,a.y],E); if(f===b.fl) return L(E,[b.x,b.y]); return []; }
+  const seq=wayFls(), i=seq.indexOf(f); if(i<0) return [];
+  if(seq.length===1){ if(f==='site'){ const r=siteRoute(a,b); if(r) return r.p; } return L([a.x,a.y],[b.x,b.y]); }
+  const st=i===0?[a.x,a.y]:wayLink(f,seq[i-1]), en=i===seq.length-1?[b.x,b.y]:wayLink(f,seq[i+1]);
+  return st&&en?L(st,en):[]; }
 const pathM=(P,fl)=>{ let d=0; for(let i=1;i<P.length;i++) d+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]); return Math.max(5,Math.round(d*(fl==='site'?.4:.05)/5)*5); };   /* 全區圖 1px 約 40 公分、樓層平面圖約 5 公分（示意） */
 function wayLayer(f, anchor){ const w=S.way; if(!w) return ''; const sel=[w.a,w.b].filter(p=>p&&p.fl===f);
   const near=(x,y)=>sel.some(p=>Math.abs(p.x-x)<8&&Math.abs(p.y-y)<8);
   const pick=w.step!=='route';
-  const places=pick?(PLACES[f]||[]).map(([t,n,x,y],i)=>near(x,y)?'':anchor(x,y,'wpl',`<i>${MI(PL_IC[t],14,'#2E5C6E')}</i>${n}`,`role="button" tabindex="0" aria-label="${n}" onclick="event.stopPropagation();waySel('p:${f}:${i}')"`)).join(''):'';
+  const places=pick?(PLACES[f]||[]).map(([t,n,x,y],i)=>near(x,y)?'':anchor(x,y,'wpl ico',`<i>${MI(PL_IC[t],14,'#2E5C6E')}</i>`,`role="button" tabindex="0" aria-label="${n}" onclick="event.stopPropagation();waySel('p:${f}:${i}')"`)).join(''):'';
   const P=w.step==='route'?wayPath(f):[], E=ELEV[f];
   const line=P.length?`<svg id="mnav" class="mnav" aria-hidden="true"><polyline points="${P.map(([x,y])=>toScr(x,y).join(',')).join(' ')}" fill="none" stroke="#2E5C6E" stroke-width="4" stroke-dasharray="2 8" stroke-linecap="round" stroke-linejoin="round"/></svg>`:'';
-  const el=P.length&&w.a.fl!==w.b.fl?anchor(E[0],E[1],'mchip wayel',f===w.a.fl?`<b>電梯</b>搭到 ${w.b.fl}<em>›</em>`:`<b>電梯</b>從 ${w.a.fl} 上來<em>‹</em>`,`role="button" tabindex="0" aria-label="${f===w.a.fl?`切到 ${w.b.fl} 看下一段`:`切回 ${w.a.fl} 看上一段`}" onclick="event.stopPropagation();wayGo('${f===w.a.fl?w.b.fl:w.a.fl}');render()"`):'';   /* 點電梯就換到另一層那一段 */
+  const seq=wayFls(), si=seq.indexOf(f), FN={site:'戶外','1F':'1F','2F':'2F','4F':'4F'};
+  const hop=(j,dir)=>{ const g=seq[j]; if(!g) return ''; const pt=wayLink(f,g); if(!pt) return '';
+    const label=(f==='site'||g==='site')?'大門':'電梯';
+    return anchor(pt[0],pt[1],'mchip wayel',`<b>${label}</b>${dir>0?'往 '+FN[g]:'回 '+FN[g]}<em>${dir>0?'›':'‹'}</em>`,`role="button" tabindex="0" aria-label="切到 ${FN[g]} 看${dir>0?'下':'上'}一段" onclick="event.stopPropagation();wayGo('${g}');render()"`); };
+  const el=P.length&&seq.length>1&&si>=0?(si<seq.length-1?hop(si+1,1):'')+(si>0?hop(si-1,-1):''):'';   /* 點轉接點就換到相鄰那一段 */
   const mk=(p,c,l)=>p&&p.fl===f?anchor(p.x,p.y,'wsel '+c+(c==='a'&&w.step==='a'?' movable':''),`<span>${p.id&&p.key==='x:'+p.id?it(p.id).no:p.name}</span><b>${l}</b>`,c==='a'?'id="wayA"':''):'';
   return places+line+el+mk(w.a,'a','A')+mk(w.b,'b','B'); }
 function waySheet(){ const w=S.way, st=w.step, ph={a:'在地圖上標出你在哪裡',b:'選要去的地方'};
@@ -2628,16 +2665,19 @@ function waySheet(){ const w=S.way, st=w.step, ph={a:'在地圖上標出你在�
     return `<div class="zonesheet navsheet" role="dialog" aria-label="帶我去：選${st==='a'?'起點':'目的地'}">${card}
       <p class="whint">${tap}<span>${st==='a'?'點地圖放紅色圖釘，可以拖曳調整；也可以直接點設施或展品':'點地圖上「發亮」的展品或設施，就會設成目的地；用左側樓層選別層'}</span></p>
       <div class="wbtns"><button class="tealbtn soft pickok" onclick="wayBack()">${st==='a'?'取消':'上一步'}</button><button class="tealbtn pickok" ${ok?'':'disabled'} onclick="wayNext()">${st==='a'&&!(w.bPre&&w.b)?'下一步：選目的地':st==='b'&&!w.a?'下一步：選起點':'看路線'}</button></div></div>`; }
-  const a=w.a, b=w.b, cross=a.fl!==b.fl, m1=pathM(wayPath(a.fl),a.fl), m2=cross?pathM(wayPath(b.fl),b.fl):0, onA=S.floor===a.fl, tot=m1+m2, min=Math.max(1,Math.ceil(tot/60))+(cross?1:0);
-  const steps=cross?[[`在 ${a.fl} 走約 ${m1} 公尺到電梯`,onA?'cur':'done'],[`搭電梯到 ${b.fl}`,onA?'cur':'done'],[`出電梯走約 ${m2} 公尺到目的地`,onA?'next':'cur']]:[];
+  const a=w.a, b=w.b, FS=wayFls(), cross=FS.length>1, tot=FS.reduce((n2,f)=>n2+pathM(wayPath(f),f),0), onA=S.floor!==FS[FS.length-1], min=Math.max(1,Math.ceil(tot/60))+(FS.length-1);   /* 2026-11-18：可能有三段（樓層→1F→戶外），距離與時間照全部段數加總 */
+  const FN2={site:'戶外','1F':'1F','2F':'2F','4F':'4F'}, ci=Math.max(0,FS.indexOf(S.floor));
+  const steps=cross?FS.map((f,i)=>{ const m=pathM(wayPath(f),f), nx=FS[i+1];
+    const via=nx?((f==='site'||nx==='site')?`走大門到${FN2[nx]}`:`搭電梯到 ${FN2[nx]}`):'到目的地';
+    return [`在${FN2[f]}走約 ${m} 公尺，${via}`, i<ci?'done':i===ci?'cur':'next']; }):[];   /* 2026-11-18：可能三段，照樓層序列逐段寫 */
   const sr=a.fl==='site'&&b.fl==='site'?siteRoute(a,b):null, toEnt=sr&&b.key==='p:site:'+SITE_ENT;
   const done=w.mapOnly?'到了，繼續聆聽':toEnt?'到了，看 1F 大廳':'我到了';
   return `<div class="zonesheet navsheet" role="dialog" aria-label="帶我去：路線建議">
-    <div class="wsum"><b>約 ${min} 分鐘</b><span>${sr?'步行約 ':''}${tot} 公尺${cross?`・要搭電梯（${a.fl} → ${b.fl}）`:'・沿虛線走'}</span></div>
+    <div class="wsum"><b>約 ${min} 分鐘</b><span>${sr?'步行約 ':''}${tot} 公尺${cross?`・${FS.includes('site')?'要走大門':'要搭電梯'}（${FS.map(f=>FN2[f]).join(' → ')}）`:'・沿虛線走'}</span></div>
     <p class="wto">前往<b>${b.name}</b></p>   <!-- 2026-11-16：路線這一步不放 A／B 兩列（面板太高會蓋地圖），要改起點或目的地按「上一步」 -->
     ${sr&&sr.say?`<p class="whint" style="font-size:13px;color:var(--text)">${MI(MD.nav,14,'#2E5C6E')}<span>${sr.say}距離依地圖比例估算。</span></p>`:''}
     ${steps.length?`<ol class="wsteps" style="padding:0 24px;list-style:none">${steps.map(([t,st],i)=>`<li class="${st}" ${st==='cur'?'aria-current="step"':''}><em>${st==='done'?MI(MD.check,14,'#2E5C6E'):i+1}</em><span>${t}</span>${st==='done'?'<span class="sr">（已完成）</span>':''}</li>`).join('')}</ol>`:''}
-    <div class="wbtns"><button class="tealbtn soft pickok" onclick="wayBack()">上一步</button><button class="tealbtn pickok" onclick="${cross&&onA?`wayGo('${b.fl}');render()`:toEnt&&!w.mapOnly?`wayDone();S.floor='1F';render()`:'wayDone()'}">${cross&&onA?`我到 ${b.fl} 了`:done}</button></div></div>`; }
+    <div class="wbtns"><button class="tealbtn soft pickok" onclick="wayBack()">上一步</button><button class="tealbtn pickok" onclick="${cross&&onA?`wayGo('${(FS[Math.min(FS.indexOf(S.floor)+1,FS.length-1)]||b.fl)}');render()`:toEnt&&!w.mapOnly?`wayDone();S.floor='1F';render()`:'wayDone()'}">${cross&&onA?`我到${FN2[FS[Math.min(FS.indexOf(S.floor)+1,FS.length-1)]]||FN2[b.fl]}了`:done}</button></div></div>`; }
 function endNav(){ if(S.navFl){ S.ftPrev=['1F','2F','4F'].indexOf(S.floor); S.floor=S.navFl; S.navFl=null; } S.arrived=null; S.nav=null; S.navPending=null; S.herePick=false; S.here=null; S.mapSel=S.mapOnly||null; render(); }   /* 結束帶路就收起我的位置：人會一直移動，留著反而不準 */
 /* 到了入口不直接開播：先留在地圖告訴觀眾第一件在哪，讓他決定怎麼開始 */
 const FIRST_HINT={ '2F':'照參觀動線往左前方走，在第一個展區', '4F':'進展室後左手邊第一面展牆' };   // 示意，待館方提供
@@ -2757,7 +2797,10 @@ function pinCard(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||f
       <button class="tealbtn pickok" style="width:100%;box-shadow:0 10px 24px -6px rgba(15,25,30,.45),0 2px 6px rgba(15,25,30,.2)" onclick="startNav('${id}')" aria-label="帶我去展品 ${x.no} ${x.n}">帶我去這裡</button></div>`;
   const bare=S.exOnly&&S.exBare;
   /* 2026-11-13 留言：導覽長度、手語改成同一排膠囊；位置已經在地圖上看得到，不再重複列 */
-  const caps=`<span class="pccaps"><span class="pccap">${MI(EXC_IC.clock,14,'#5F5F5F')}${mmss(x.d)}</span>${x.voice===false?`<span class="pccap sg">${SIGN_IC}手語影片</span>`:x.sign?`<span class="pccap sg">${SIGN_IC}有手語版</span>`:''}</span>`;   /* 從展覽頁進的地圖：沒有清單可以回，卡片右上改關閉 ✕；只留「開始導覽」「帶我去」 */
+  /* 2026-11-18：卡片要講「按下去真的會得到什麼」。手語只在手語導覽那條線出現（pickVersion 在非手語線一律不給手語），
+     所以非手語線的展品即使有手語影片，也是走文字——卡片就寫文字導覽，不放手語膠囊、不放播放圖示。時間只在真的有音檔／影片或 tonly 的閱讀估計時才標。 */
+  const sgNow=!!(S.player&&S.player.ctx&&S.player.ctx.sg), asSign=sgNow&&!!x.sign, asAudio=!sgNow&&x.voice!==false&&!x.tonly, asText=!asSign&&!asAudio;
+  const caps=`<span class="pccaps">${asText&&!x.tonly?'':`<span class="pccap">${MI(EXC_IC.clock,14,'#5F5F5F')}${mmss(x.d)}</span>`}${asSign?`<span class="pccap sg">${SIGN_IC}手語影片</span>`:asText?`<span class="pccap">文字導覽</span>`:''}</span>`;   /* 從展覽頁進的地圖：沒有清單可以回，卡片右上改關閉 ✕；只留「開始導覽」「帶我去」 */
   const tall=!bare&&S._zsDefH&&S._zsDefH>300;   /* 2026-11-12 留言：面板沿用清單高度時，照片改成上方大圖撐滿，不留一大片空白 */
   return `<div class="zonesheet pincard${tall?' pctall':''}" role="dialog" aria-label="展品 ${x.no} ${x.n}" style="${S._zsDefH&&!bare?`min-height:${S._zsDefH}px`:''}">
     ${bare?closeX('pinBack()','關閉展品卡片'):S.mapOnly?'':`<div style="padding:0 12px 4px;margin-top:-6px"><button class="pcback" onclick="pinBack()" aria-label="返回展品清單">${MI('M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',22,'#2E5C6E')}展品清單</button></div>`}
@@ -2775,9 +2818,9 @@ function pinCard(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||f
         ${caps}
         ${x.maint?`<span style="font-size:11px;color:#8D0E0E">${x.maint}</span>`:''}</div></div>`}
     <div style="display:flex;gap:8px;align-items:center;padding:16px 24px 0">   <!-- 2026-11-11 留言：跟特展面板同一種按鈕排法——左邊主要「播放導覽」（滿寬、播放圖示），右邊次要「帶我去」 -->
-      ${S.mapOnly?`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="back()">${it(id).tonly?'回到介紹':MI('M8 5v14l11-7z',18,'#fff')+'繼續聆聽'}</button>`   /* 2026-11-16 留言：文字導覽的展品沒有播放，不放播放圖示、不寫聆聽 */
-        :S.player&&S.player.id===id?`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="go('player')">${it(id).tonly?'回到介紹':`<span class="eq${S.player.playing?' go':''}" aria-hidden="true"><i></i><i></i><i></i></span>${S.player.playing?'正在播放':'已暫停・回到播放器'}`}</button>`   /* 2026-11-11 留言：點到正在播的展品，按鈕顯示播放中狀態，按了回播放器 */
-        :`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="play('${id}',{type:'ex',key:'${ex}'})">${MI('M8 5v14l11-7z',18,'#fff')}${bare?'開始導覽':'播放導覽'}</button>`}
+      ${S.mapOnly?`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="back()">${asText?'回到介紹':MI('M8 5v14l11-7z',18,'#fff')+'繼續聆聽'}</button>`   /* 2026-11-16 留言：文字導覽的展品沒有播放，不放播放圖示、不寫聆聽 */
+        :S.player&&S.player.id===id?`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="go('player')">${asText?'回到介紹':`<span class="eq${S.player.playing?' go':''}" aria-hidden="true"><i></i><i></i><i></i></span>${S.player.playing?'正在播放':'已暫停・回到播放器'}`}</button>`   /* 2026-11-11 留言：點到正在播的展品，按鈕顯示播放中狀態，按了回播放器 */
+        :`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="play('${id}',{type:'ex',key:'${ex}'})">${asText?'':MI('M8 5v14l11-7z',18,'#fff')}${asText||bare?'開始導覽':'播放導覽'}</button>`}
       <button class="waybtn" style="min-height:44px" onclick="startNav('${id}')" aria-label="帶我去這件展品">${MI(MD.nav,16,'#2E5C6E')}帶我去</button></div></div>`; }
 function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F')[0]; S.room4=S.fx; S.mv=S.mv||{}; S.mv['4F']=fitV(ROOMS4[S.fx].fit); S._fxFocus=true; }   /* 4F 沒有「全部」：進來預設選第一檔特展 */
   const f=S.floor, M=MAPS[f]?mapOf(f):null, exKey=floorEx(), e=EXHIBITIONS[exKey], v=M?mapView():null, nx=mapNextId();
@@ -2833,7 +2876,7 @@ function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F'
     ${pk?`<div class="pickhead" role="banner"><div><b>標出你的位置</b><small>標好就幫你畫路線</small></div><button onclick="endNav()" aria-label="取消，不帶路">${MI(MD.close,22,'#fff')}</button></div>`:''}
     ${M?`<div class="mzoom"><button onclick="mapZoom(1.3)" aria-label="放大地圖">${MI('M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z',18,'#3C3C3C')}</button><button onclick="mapZoom(1/1.3)" aria-label="縮小地圖">${MI('M19 13H5v-2h14v2z',18,'#3C3C3C')}</button></div>`:''}
     ${M&&f!=='site'?facBar():''}
-    <div class="maphead">${S.mapSheet&&!(S.mapStack&&S.mapStack.length)?`<h2 class="mstitle">${({'1F':'1F 大廳','2F':'2F 常設展廳','4F':'4F 特展室','site':'全區地圖'})[f]||f}</h2>`+closeX('back()','關閉地圖'):S.mapAll&&!S.mapOnly?topBar(navTitle,true):`<div class="nav dark"><div class="l"><button onclick="back()" aria-label="${S.mapSheet&&!(S.mapStack&&S.mapStack.length)?'關閉地圖':'返回上一層'}">${S.mapSheet&&!(S.mapStack&&S.mapStack.length)?MI(MD.close,24,'#fff'):img('ic-back-white2.svg',24,24)}</button></div>
+    <div class="maphead">${S.mapSheet&&!(S.mapStack&&S.mapStack.length)?`<h2 class="mstitle">${({'1F':'1F 大廳','2F':'2F 常設展廳','4F':'4F 特展室','site':'全區地圖'})[f]||f}</h2>`:S.mapAll&&!S.mapOnly?topBar(navTitle,true):`<div class="nav dark"><div class="l"><button onclick="back()" aria-label="${S.mapSheet&&!(S.mapStack&&S.mapStack.length)?'關閉地圖':'返回上一層'}">${S.mapSheet&&!(S.mapStack&&S.mapStack.length)?MI(MD.close,24,'#fff'):img('ic-back-white2.svg',24,24)}</button></div>
       <div class="c">${navTitle}</div><div class="r">${navIcons(true)}</div></div>`}</div>   <!-- 全館地圖＝頂層頁：用跟首頁同位置的標頭 -->
     ${S.mapOnly?'':miniDock()}
     ${S.exOnly&&!wy||rtFloors&&rtFloors.length<2?'':`<div class="floorsel"><div class="flrail" role="group" aria-label="切換樓層，目前 ${f==='site'?'全區':f}">${[['4F','特展室'],['2F','常設展廳'],['1F','大廳・服務台'],...(S.way?[]:[['site','園區・停車・交通']])].filter(([x])=>!rtFloors||rtFloors.includes(x)).map(([x,d])=>x==='3F'?`<span class="no3" role="note" title="${S.lang==='en'?'No 3F — 2F is double-height up to 4F':'沒有 3F：2F 挑高直通 4F'}" aria-label="${S.lang==='en'?'No 3F — 2F is double-height up to 4F':'沒有 3F：2F 挑高直通 4F'}">3F</span>`:`<button class="${x===f?'on':''}" ${x===f?'aria-current="true"':''} aria-label="${x==='site'?'全區':x}・${d}" onclick="flSwitch('${x}')">${x==='site'?'全區':x}</button>`).join('')}</div></div>`}   <!-- 2026-11-11 留言：樓層改成 A 版的做法，直排放在地圖左側；從展覽進來只看單一樓層時不顯示樓層列 -->
@@ -2904,7 +2947,7 @@ function offAct(k){ const o=S.offline;
 function offlineSheet(){
   const rows=[['perm','斯土斯民：臺灣的故事','25 則導覽・約 180 MB'],['zj','萬相天后特展','45 MB'],['asia','邊界之外特展','40 MB']];
   return `<div class="dim" onclick="S.sheet=null;render()"></div>
-  <div class="sheet" role="dialog" aria-labelledby="ofH" style="border-radius:24px;padding:14px 24px 28px;display:flex;flex-direction:column;gap:12px">${closeX('S.sheet=null;render()')}
+  <div class="sheet" role="dialog" aria-labelledby="ofH" style="border-radius:24px 24px 0 0;padding:14px 24px 28px;display:flex;flex-direction:column;gap:12px">${closeX('S.sheet=null;render()')}
     <div class="grab"></div>
     <h2 id="ofH" style="font-weight:500;font-size:16px;line-height:normal;color:var(--ink)">離線預載</h2>
     <p style="font-size:12px;color:var(--text2)">展場部分區域訊號較弱，建議先下載整檔展覽的導覽內容</p>
@@ -2923,7 +2966,7 @@ function acctSheet(){
   const row=(t,sub,red,fn)=>`<button onclick="${fn}" style="display:flex;gap:10px;align-items:center;padding:12px 0;width:100%;text-align:left">
     <span style="flex:1;display:flex;flex-direction:column;gap:2px;white-space:nowrap"><b style="font-weight:500;font-size:14px;color:${red?'#8D0E0E':'var(--ink)'}">${t}</b><span style="font-size:11px;color:var(--text2)">${sub}</span></span>${img('ic-arrow-right-dark2.svg',16,16)}</button>`;
   return `<div class="dim" onclick="S.sheet=null;render()"></div>
-  <div class="sheet" role="dialog" aria-labelledby="acH" style="border-radius:24px;padding:14px 24px 26px;display:flex;flex-direction:column;gap:14px">${closeX('S.sheet=null;render()')}
+  <div class="sheet" role="dialog" aria-labelledby="acH" style="border-radius:24px 24px 0 0;padding:14px 24px 26px;display:flex;flex-direction:column;gap:14px">${closeX('S.sheet=null;render()')}
     <div class="grab"></div>
     <h2 id="acH" style="font-weight:700;font-size:18px;line-height:normal;color:var(--ink)">帳號與隱私</h2>
     <div style="background:var(--cream);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;white-space:nowrap">
@@ -2938,7 +2981,7 @@ function acctSheet(){
 function delAccount(){ S.sheet='delc'; render(); }   /* 頁內確認（不用瀏覽器 confirm 彈窗） */
 function delSheet(){
   return `<div class="dim" onclick="S.sheet='acct';render()"></div>
-  <div class="sheet" role="alertdialog" aria-labelledby="dcH" style="border-radius:24px;padding:14px 24px 28px;display:flex;flex-direction:column;gap:14px">
+  <div class="sheet" role="alertdialog" aria-labelledby="dcH" style="border-radius:24px 24px 0 0;padding:14px 24px 28px;display:flex;flex-direction:column;gap:14px">
     <div class="grab"></div>
     <h2 id="dcH" style="font-weight:700;font-size:18px;line-height:normal;color:#8D0E0E">確定刪除帳號與所有資料？</h2>
     <p style="font-size:13px;line-height:1.6;color:var(--text2)">收藏、導覽歷程與回饋紀錄會一起刪除，無法復原。</p>
@@ -2988,7 +3031,7 @@ function noteSheet(){ const id=S.noteId, x=it(id)||{n:'',no:''}, had=!!noteOf(id
 function noteList(){ const ns=Object.entries(S.notes||{}).filter(([id])=>it(id));
   return `<div style="padding:4px 0 16px;display:flex;flex-direction:column;gap:8px">
     <div class="goldhead" style="padding:0"><i></i><b>我的筆記</b></div>
-    ${ns.length?ns.map(([id,t])=>`<button onclick="S.sheet=null;openNote('${id}')" style="width:100%;text-align:left;background:var(--cream);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+    ${ns.length?ns.map(([id,t])=>`<button onclick="openNote('${id}')" style="width:100%;text-align:left;background:var(--cream);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:flex-start">
         ${img('ic-note.svg',16,16)}<span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
           <b style="font-weight:500;font-size:14px;color:var(--ink)">${it(id).n}</b>
           <span style="font-size:12px;line-height:1.6;color:var(--text2)">${t}</span></span></button>`).join('')
@@ -3183,7 +3226,7 @@ function a11ySheet(){
   const row=(t,sub,fn)=>`<button onclick="${fn||''}" style="display:flex;gap:10px;align-items:center;padding:12px 0;width:100%;text-align:left;border-top:1px solid var(--line)">
     <span style="flex:1;display:flex;flex-direction:column;gap:2px"><b style="font-weight:500;font-size:14px;color:var(--ink)">${t}</b><span style="font-size:11px;line-height:1.5;color:var(--text2)">${sub}</span></span>${fn?img('ic-arrow-right-dark2.svg',16,16):''}</button>`;
   return `<div class="dim" onclick="S.sheet=null;render()"></div>
-  <div class="sheet" role="dialog" aria-labelledby="a11H" style="border-radius:24px;padding:14px 24px 26px;display:flex;flex-direction:column;gap:10px">${closeX('S.sheet=null;render()')}
+  <div class="sheet" role="dialog" aria-labelledby="a11H" style="border-radius:24px 24px 0 0;padding:14px 24px 26px;display:flex;flex-direction:column;gap:10px">${closeX('S.sheet=null;render()')}
     <div class="grab"></div>
     <h2 id="a11H" style="font-weight:700;font-size:18px;line-height:normal;color:var(--ink);margin-bottom:4px">無障礙服務</h2>
     <div style="display:flex;align-items:center;gap:10px;padding:12px 0">
@@ -3554,7 +3597,7 @@ function render(resetScroll, anim){
   /* 重畫時保留橫向卡片列的捲動位置（開關選單、面板都不會把「當前展覽」等卡片列捲回第一張，2026-11-11 留言） */
   const hx=(!resetScroll&&!anim)?[...app.querySelectorAll(':scope > .scr .cardrow, :scope > .scr .hs')].map(e=>e.scrollLeft):null;
   let html=(SCREENS[S.screen]||scrHome)();
-  if(S.screen==='map'&&S.mapSheet&&S.player){ html=scrPlayer().replace('<div class="scr"','<div class="scr" aria-hidden="true" inert')+'<div class="dim'+(S._mapSheetIn&&!REDUCED?' dim-in':'')+'" style="z-index:3" onclick="closeMapSheet()"></div>'+html.replace('<div class="scr','<div class="scr mapsheet'+(S._mapSheetIn&&!REDUCED?' msin':'')); S._mapSheetIn=false; }   /* 地圖面板模式 */
+  if(S.screen==='map'&&S.mapSheet&&S.player){ html=scrPlayer().replace('<div class="scr"','<div class="scr" aria-hidden="true" inert')+'<div class="dim'+(S._mapSheetIn&&!REDUCED?' dim-in':'')+'" style="z-index:3" onclick="closeMapSheet()"></div>'+html.replace('<div class="scr','<div class="scr mapsheet'+(S._mapSheetIn&&!REDUCED?' msin':''))+((S.mapStack&&S.mapStack.length)?'':`<button class="mscx" onclick="back()" aria-label="關閉地圖">${MI(MD.close,22,'#3C3C3C')}</button>`); S._mapSheetIn=false; }   /* 地圖面板模式 */
   if(S.sheet==='menu'||(S.menuUnder&&['display','offline','lang','note','acct','delc'].includes(S.sheet))) html+=menuOverlay();
   if(S.sheet==='plan'&&S.plan) html+=`<div class="scr" style="background:transparent;z-index:45">${planSheet()}</div>`;
   if(S.sheet==='switch') html+=`<div class="scr" style="background:transparent;z-index:45">${switchSheet()}</div>`;
@@ -3688,48 +3731,19 @@ render(true);
 
 
 
-<!-- ===== DS2 對照層｜B 類第一關：拱＋字即建築 ===== -->
+<!-- ===== DS2 對照層｜字即建築 ===== -->
+<!-- 2026-11-18：原本還有「拱」，使用者否決整條語言，已移除。見設計系統 §2.2。 -->
 <style id="ds2css">
-/* 三段狀態，由 <html> 的 class 控制：
-   （無 class）現況　｜　.ds2a 提案 A：拱在下緣　｜　.ds2b 提案 B：拱在頂緣
-   拿掉 class 就完全是現況，這一層不覆寫任何現況樣式。                        */
+/* 兩段狀態：（無 class）現況　｜　.ds2 提案。拿掉 class 就完全是現況。 */
 
-/* ---------- 語言二：拱 ----------
-   矢高 = 跨距 × 0.23（館徽實測：拱頂 279×64）
-   用 border-radius 的橢圓語法：水平半徑 50%（＝跨距一半），垂直半徑由 JS 依實際寬度算成 px。
-   兩個角各佔一半寬，接起來就是一條完整橢圓弧，矢高精準等於 0.23 × 寬。
-   （JS 設 inline style 的地方要 !important：展覽頁 hero 捲動收合時會寫 borderRadius）  */
-
-/* A：拱在下緣——影像底邊拱形，下方內容由拱底升起（設計系統 §2.2 原寫法） */
-html.ds2a body #hero,
-html.ds2a body .exhero.ins{
-  border-radius:20px 20px 50% 50% / 20px 20px var(--arch-r,80px) var(--arch-r,80px) !important;
-}
-
-/* B：拱在頂緣——影像頂邊成屋頂，文字在拱下。內容要讓出矢高，否則會被切到 */
-html.ds2b body #hero,
-html.ds2b body .exhero.ins{
-  border-radius:50% 50% 20px 20px / var(--arch-r,80px) var(--arch-r,80px) 20px 20px !important;
-}
-html.ds2b body #hero .plaque{ margin-top:calc(var(--arch-r,80px) * .62) !important; }
-html.ds2b body .hline{ top:calc(24px + var(--arch-r,80px) * .62) !important; }
-
-/* 底部面板頂緣：兩案都一樣，取代 border-radius:24px 24px 0 0 */
-html.ds2a body .sheet,
-html.ds2b body .sheet{
-  border-radius:50% 50% 0 0 / var(--arch-r,80px) var(--arch-r,80px) 0 0 !important;
-}
-
-/* ---------- 語言三：字即建築 ----------
-   堆疊式英文大標。只改行高與字距，不換字體（§2.3 選項 A，零成本）。 */
-html.ds2a body #hero .plaque h1,
-html.ds2b body #hero .plaque h1{
+/* ---------- 語言：字即建築（設計系統 §2.3）----------
+   堆疊式英文大標。只改行高與字距，不換字體（選項 A，零成本）。 */
+html.ds2 body #hero .plaque h1{
   line-height:.98 !important;
   letter-spacing:-.015em !important;
 }
-/* 左側金柱高度改為綁定文字塊，不再寫死 236px */
-html.ds2a body .hline,
-html.ds2b body .hline{ height:var(--hline-h,236px) !important; }
+/* 左側金柱高度改為綁定文字塊，不再寫死 236px（四語系下文字塊高度不同） */
+html.ds2 body .hline{ height:var(--hline-h,236px) !important; }
 </style>
 
 <style id="ds2ui">
@@ -3742,8 +3756,7 @@ html.ds2b body .hline{ height:var(--hline-h,236px) !important; }
   box-shadow:0 4px 14px rgba(0,0,0,.3); cursor:pointer; user-select:none;
 }
 #ds2btn i{ width:8px; height:8px; border-radius:4px; background:#8A8F92; display:block }
-html.ds2a #ds2btn i{ background:#C9A961 }
-html.ds2b #ds2btn i{ background:#6FA8BC }
+html.ds2 #ds2btn i{ background:#C9A961 }
 #ds2btn b{ font-weight:500; white-space:nowrap }
 #ds2btn small{ font-weight:400; font-size:11px; opacity:.62; font-variant-numeric:tabular-nums; white-space:nowrap }
 </style>
@@ -3756,9 +3769,6 @@ html.ds2b #ds2btn i{ background:#6FA8BC }
 (function(){
   var R = document.documentElement, btn = document.getElementById('ds2btn');
   var lab = btn.querySelector('b'), num = btn.querySelector('small');
-  var STATES = ['', 'ds2a', 'ds2b'];
-  var NAMES  = { '': '現況', 'ds2a': '提案 A・拱在下緣', 'ds2b': '提案 B・拱在頂緣' };
-  var cur = 0;
 
   /* 只在數值真的變了才寫。寫入本身會再觸發下面的 MutationObserver，
      不擋就是無限迴圈，整頁會卡死（2026-11-18 實測踩到）。 */
@@ -3766,22 +3776,16 @@ html.ds2b #ds2btn i{ background:#6FA8BC }
     if(el.style.getPropertyValue(name) !== val) el.style.setProperty(name, val);
   }
 
-  function archSync(){
-    var w = 0;
-    ['#hero', '.exhero.ins', '.sheet'].forEach(function(sel){
-      Array.prototype.forEach.call(document.querySelectorAll(sel), function(el){
-        var bw = el.getBoundingClientRect().width;
-        if(!bw) return;
-        setVar(el, '--arch-r', (bw * 0.23).toFixed(1) + 'px');
-        if(sel === '#hero') w = bw;
-      });
-    });
-    /* 金柱高度 = 說明牌文字塊實際高度 */
+  function sync(){
+    var h = 0;
     Array.prototype.forEach.call(document.querySelectorAll('#hero .plaque'), function(p){
-      var h = p.getBoundingClientRect().height;
-      if(h) setVar(p.parentElement, '--hline-h', Math.round(h - 24) + 'px');
+      var ph = p.getBoundingClientRect().height;
+      if(!ph) return;
+      h = Math.round(ph - 24);
+      setVar(p.parentElement, '--hline-h', h + 'px');
     });
-    var txt = (cur && w) ? Math.round(w) + '×0.23=' + Math.round(w * 0.23) : '';
+    var on = R.classList.contains('ds2');
+    var txt = (on && h) ? '金柱 ' + h + 'px' : (h ? '金柱 236px（寫死）' : '');
     if(num.textContent !== txt) num.textContent = txt;
   }
 
@@ -3790,25 +3794,25 @@ html.ds2b #ds2btn i{ background:#6FA8BC }
   function schedule(){
     if(pend) return;
     pend = true;
-    requestAnimationFrame(function(){ pend = false; archSync(); });
+    requestAnimationFrame(function(){ pend = false; sync(); });
   }
 
   function paint(){
-    STATES.forEach(function(c){ if(c) R.classList.remove(c); });
-    if(STATES[cur]) R.classList.add(STATES[cur]);
-    lab.textContent = NAMES[STATES[cur]];
-    btn.setAttribute('aria-label', '目前是「' + NAMES[STATES[cur]] + '」，按一下換下一版');
-    try{ sessionStorage.setItem('ds2', String(cur)); }catch(e){}
-    archSync();
+    var on = R.classList.contains('ds2');
+    lab.textContent = on ? '提案・字即建築' : '現況';
+    btn.setAttribute('aria-label', (on ? '目前是提案版' : '目前是現況版') + '，按一下切換');
+    try{ sessionStorage.setItem('ds2', on ? '1' : '0'); }catch(e){}
+    sync();
   }
 
-  btn.addEventListener('click', function(){ cur = (cur + 1) % STATES.length; paint(); });
+  btn.addEventListener('click', function(){ R.classList.toggle('ds2'); paint(); });
 
-  /* 起始狀態：網址帶 ds=1／ds=2 直接指定；否則沿用這個分頁上次看的 */
-  var q = (location.search + location.hash).match(/ds=([012])/), mem = null;
+  /* 起始狀態：網址帶 ds=0／ds=1 就以網址為準（兩邊都要能強制指定，
+     否則 sessionStorage 的記憶會蓋掉 ?ds=0，切不回現況）；沒帶才沿用這個分頁上次看的 */
+  var q = (location.search + location.hash).match(/ds=([01])/), mem = null;
   try{ mem = sessionStorage.getItem('ds2'); }catch(e){}
-  cur = q ? +q[1] : (mem !== null ? +mem : 0);
-  if(!(cur >= 0 && cur < STATES.length)) cur = 0;
+  var on = q ? q[1] === '1' : mem === '1';
+  R.classList.toggle('ds2', on);
   paint();
 
   addEventListener('resize', schedule);
@@ -3816,6 +3820,110 @@ html.ds2b #ds2btn i{ background:#6FA8BC }
   new MutationObserver(schedule).observe(document.body, {childList:true, subtree:true});
 })();
 </script>
+
+<script>
+/* ===== 柱列轉場（landing → 首頁）=====
+   2026-11-18：拱被否決後，柱列的意象改由「動作」承載。
+   照館徽的節奏把落地頁背景切成 7 條（4 柱 + 3 隙，隙:柱 = 1:1，見設計系統 R1／R2）：
+     第 1 段　3 道「隙」落下消失 → 照片裡浮出館徽的柱列
+     第 2 段　4 根「柱」向中央合攏 → 收成一個整體，再交給首頁
+   整段約 850ms（隙落 60–400ms ／ 柱列定格 400–500ms ／ 合攏 500–840ms），只在進站時發生一次。prefers-reduced-motion 開啟時直接走現況。 */
+(function(){
+  var R = document.documentElement;
+  var N = 7, PILLARS = [0,2,4,6], GAPS = [1,3,5];
+  var EZ = 'cubic-bezier(.2,.8,.2,1)';
+
+  function run(landing, done){
+    var img = landing.querySelector('.lbg');
+    if(!img || !img.naturalWidth) return done();
+
+    var r = landing.getBoundingClientRect(), W = r.width, H = r.height;
+    /* 複製 object-fit:cover 的結果，讓 7 條接起來仍是同一張連續的照片 */
+    var k = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+    var bw = img.naturalWidth * k, bh = img.naturalHeight * k;
+    var ox = (W - bw) / 2, oy = (H - bh) / 2;
+    var sw = W / N;
+
+    var layer = document.createElement('div');
+    layer.className = 'ds2cols';
+    layer.style.cssText = 'position:absolute;inset:0;overflow:hidden;background:#0f212b;z-index:1';
+
+    var strips = [];
+    for(var i = 0; i < N; i++){
+      var d = document.createElement('div');
+      d.style.cssText = 'position:absolute;top:0;bottom:0;left:' + (i * sw) + 'px;width:' + (sw + 0.6) + 'px;'
+        + 'background-image:url(' + img.currentSrc + ');'
+        + 'background-size:' + bw + 'px ' + bh + 'px;'
+        + 'background-position:' + (ox - i * sw) + 'px ' + oy + 'px;'
+        + 'will-change:transform,opacity';
+      layer.appendChild(d);
+      strips.push(d);
+    }
+    img.style.visibility = 'hidden';
+    landing.insertBefore(layer, img.nextSibling);
+
+    /* 第 1 段：隙落下。由中間往兩側，讓柱列「長出來」而不是整排一起消失 */
+    var order = [3, 1, 5];
+    order.forEach(function(gi, n){
+      strips[gi].animate(
+        [{transform:'translateY(0)', opacity:1}, {transform:'translateY(18px)', opacity:0}],
+        {duration:240, delay:60 + n * 50, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards'});
+    });
+
+    /* 第 2 段：柱合攏。4 根收成連續的一塊，位置對稱 */
+    var closedLeft = (W - PILLARS.length * sw) / 2;
+    PILLARS.forEach(function(pi, n){
+      var dx = (closedLeft + n * sw) - pi * sw;
+      /* 位移的同時把背景位置一起推回去：合攏後 4 根柱接成的是一張完整連續的照片，
+         不是四片拼貼。少了這一段，收起來會看到接縫錯開。 */
+      var bx0 = ox - pi * sw;
+      var bx1 = ox - closedLeft - n * sw;
+      strips[pi].animate(
+        [{transform:'translateX(0)',               backgroundPositionX: bx0 + 'px'},
+         {transform:'translateX(' + dx + 'px)',    backgroundPositionX: bx1 + 'px'}],
+        {duration:340, delay:500, easing:EZ, fill:'forwards'});
+    });
+
+    setTimeout(function(){ done(); }, 850);
+  }
+
+  /* 包住原本的 leaveLanding：提案版走柱列轉場，現況版原封不動 */
+  var orig = window.leaveLanding;
+  if(typeof orig !== 'function') return;
+  window.leaveLanding = function(){
+    var landing = document.querySelector('#app > .scr.landing');
+    var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!R.classList.contains('ds2') || !landing || reduced) return orig.apply(this, arguments);
+    landing.classList.add('leaving', 'ds2leave');
+    run(landing, function(){ setLang(S.lang); });
+  };
+
+  /* 轉場只在進站發生一次，看完要能重看 */
+  var again = document.createElement('button');
+  again.id = 'ds2again';
+  again.type = 'button';
+  again.textContent = '重看轉場';
+  again.onclick = function(){ location.reload(); };
+  document.body.appendChild(again);
+  function showAgain(){
+    var onLanding = !!document.querySelector('#app > .scr.landing');
+    again.style.display = onLanding ? 'none' : 'flex';
+  }
+  showAgain();
+  new MutationObserver(showAgain).observe(document.body, {childList:true, subtree:true});
+})();
+</script>
+<style>
+/* 提案版自己接管背景，原本的放大打亮不要同時跑 */
+html.ds2 .landing.ds2leave .lbg{ animation:none !important }
+#ds2again{
+  position:fixed; left:122px; bottom:calc(12px + env(safe-area-inset-bottom,0px)); z-index:99999;
+  display:none; align-items:center; min-height:36px; padding:0 13px; border:0; border-radius:18px;
+  background:rgba(20,28,32,.84); color:#fff; font:500 13px/1 system-ui,-apple-system,"Noto Sans TC",sans-serif;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  box-shadow:0 4px 14px rgba(0,0,0,.3); cursor:pointer;
+}
+</style>
 <!-- ===== /DS2 對照層 ===== -->
 
 </body></html>
