@@ -27,8 +27,8 @@ OVERLAY = u'''
 
 /* ---------- 語言：字即建築（設計系統 §2.3）----------
    堆疊式英文大標。只改行高與字距，不換字體（選項 A，零成本）。 */
+/* 2026-11-19：行距改回原本（使用者指定）。只收字距，不壓行高。 */
 html.ds2 body #hero .plaque h1{
-  line-height:.98 !important;
   letter-spacing:-.015em !important;
 }
 /* 左側金柱高度改為綁定文字塊，不再寫死 236px（四語系下文字塊高度不同） */
@@ -116,7 +116,7 @@ html.ds2 #ds2btn i{ background:#C9A961 }
    照館徽的節奏把落地頁背景切成 7 條（4 柱 + 3 隙，隙:柱 = 1:1，見設計系統 R1／R2）：
      第 1 段　3 道「隙」落下消失 → 照片裡浮出館徽的柱列
      第 2 段　4 根「柱」向中央合攏 → 收成一個整體，再交給首頁
-   整段約 850ms（隙落 60–400ms ／ 柱列定格 400–500ms ／ 合攏 500–840ms），只在進站時發生一次。prefers-reduced-motion 開啟時直接走現況。 */
+   整段約 950ms（隙落 60–400ms ／ 柱列定格 400–600ms ／ 合攏 600–940ms），只在進站時發生一次。prefers-reduced-motion 開啟時直接走現況。 */
 (function(){
   var R = document.documentElement;
   var N = 7, PILLARS = [0,2,4,6], GAPS = [1,3,5];
@@ -170,10 +170,10 @@ html.ds2 #ds2btn i{ background:#C9A961 }
       strips[pi].animate(
         [{transform:'translateX(0)',               backgroundPositionX: bx0 + 'px'},
          {transform:'translateX(' + dx + 'px)',    backgroundPositionX: bx1 + 'px'}],
-        {duration:340, delay:500, easing:EZ, fill:'forwards'});
+        {duration:340, delay:600, easing:EZ, fill:'forwards'});
     });
 
-    setTimeout(function(){ done(); }, 850);
+    setTimeout(function(){ done(); }, 950);
   }
 
   /* 包住原本的 leaveLanding：提案版走柱列轉場，現況版原封不動 */
