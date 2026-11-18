@@ -2069,7 +2069,7 @@ function playerCard(){
       <div style="flex:1;min-width:0"><b style="display:block;font-weight:500;font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.n}</b>
         <span style="font-size:12px;color:var(--text2)">${sub}</span></div>
       ${hasPin(p.id)?`<button onclick="openMapSheet('${x.fl==='4F'?'4F':'2F'}','${ctx.type==='ex'?ctx.key:exOf(p.id)}','${p.id}')" aria-label="在地圖上看位置" style="width:40px;height:40px;display:grid;place-items:center">${MI(MD.map,22,'#2E5C6E')}</button>`:''}
-      <button onclick="S.sheet='plist';render()" aria-label="導覽列表" style="width:40px;height:40px;display:grid;place-items:center">${img('cap-ic3a.svg',22,22,'style="transform:scaleY(-1) rotate(180deg)"')}</button></div>
+      <button onclick="openPlist()" aria-label="導覽列表" style="width:40px;height:40px;display:grid;place-items:center">${img('cap-ic3a.svg',22,22,'style="transform:scaleY(-1) rotate(180deg)"')}</button></div>
     ${voice?`<div data-pvar>
       <div class="prog" id="prog" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="${d}" aria-valuenow="${Math.round(p.pos)}" aria-valuetext="${mmss(p.pos)} / ${mmss(d)}" style="margin-top:12px">
         <div class="track"></div><div class="fill" id="pFill" style="width:calc(${pct}% - 3px)"></div><div class="knob" id="pKnob" style="left:${pct}%"></div></div>
@@ -2084,6 +2084,12 @@ function playerCard(){
     ${(()=>{ const rb=rateBanner(), ec=!isTxt(p.id,ctx)&&p.pos>=d&&(S.pTab||'play')==='play'?endCard():''; return rb||ec?`<div class="pnext">${rb}${ec}</div>`:''; })()}   <!-- 2026-11-16：聽完後的「下一則」浮在播放控制面板上方，不再撐高面板、壓縮逐字稿 -->
   </div>`;
 }
+/* 2026-11-18：從導覽內頁打開導覽列表，直接捲到正在導覽的那一則（放在可視範圍中間），不用自己往下找 */
+function openPlist(){ S.sheet='plist'; render();
+  const go_=()=>{ const sc=document.querySelector('#app .sheet .pscroll'), cur=sc&&sc.querySelector('.grow.now'); if(!sc||!cur) return;
+    const top=cur.getBoundingClientRect().top-sc.getBoundingClientRect().top+sc.scrollTop;
+    sc.scrollTop=Math.max(0, top-(sc.clientHeight-cur.offsetHeight)/2); };
+  go_(); setTimeout(go_,0); }
 function plistSheet(){ return `<div class="dim" onclick="S.sheet=null;render()"></div>
   <div class="sheet" role="dialog" aria-label="導覽列表" style="top:10%;max-height:none;display:flex;flex-direction:column;padding:12px 8px 0">${closeX('S.sheet=null;render()')}
     <div class="grab" style="margin-bottom:8px"></div><div style="flex:1;min-height:0">${listPane()}</div></div>`; }

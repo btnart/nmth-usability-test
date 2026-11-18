@@ -112,105 +112,138 @@ html.ds2 #ds2btn i{ background:#C9A961 }
 
 <script>
 /* ===== 柱列轉場（landing → 首頁）=====
-   2026-11-18：拱被否決後，柱列的意象改由「動作」承載。
-   照館徽的節奏把落地頁背景切成 7 條（4 柱 + 3 隙，隙:柱 = 1:1，見設計系統 R1／R2）。
-   2026-11-19 依動效規格重做，三件事：
-     1) 拿掉 backgroundPositionX 動畫，改「外層窗口 +dx ／ 內層影像 −dx」雙層反向 transform。
-        影像在螢幕座標上完全不動，合攏後自然接成連續一張，而且兩個動畫都純 transform、都在合成層。
-        原本的做法在 iOS Safari 會把最關鍵的一拍壓在主執行緒重繪上。
-     2) 隙改成「先死進底色再斷 alpha」，不是直接淡到透明——半透明的照片疊在深藍黑上看起來像 bug。
-        順序改 3 →（1 與 5 同時），對稱的量體要對稱地浮現。
-     3) 柱加稜線（1px 亮邊 + 10px 內縮暗邊）＝邊緣接到光、內側自己有陰影，在定格「之前」長完。
-   定格期間畫面絕對靜止，落地頁文字壓縮成 310ms 結束，剛好讓位。
-   prefers-reduced-motion 開啟時整段跳過。 */
+   2026-11-19：動態從 logo 本身開始。
+   logo 裡本來就是 4 柱 + 3 隙（實測 logo-sprite.png 第一格 97x100：
+   柱各寬 11、隙各寬 10、隙/柱 = 0.909、柱列帶 x9–82 y25–71、色 rgb(171,142,70)），
+   所以不是「把照片切成柱狀」，是「把 logo 的柱列撐開成整個畫面」：
+
+     0–400ms   落地頁的 logo 原地放大，柱列帶撐滿全螢幕；
+               金色柱子裡換成照片，隙的位置沉成深色，柱子長出稜線
+     400–600   定格（絕對靜止，長度可用 ?hold= 調）
+     600–930   4 根柱向中央合攏（外層窗口 +dx／內層影像 −dx，影像在螢幕上其實沒動）
+     850       交棒給首頁，刻意疊在合攏最後 80ms
+     930–1030  整層淡出移除
+
+   prefers-reduced-motion 開啟時整段跳過，走原本的淡入。 */
 (function(){
   var R = document.documentElement;
   var N = 7, PILLARS = [0,2,4,6], GAPS = [1,3,5];
-  var EZ_OUT = 'cubic-bezier(.4,0,1,1)';        /* 離場：加速，在最高速時消失 */
-  var EZ_MERGE = 'cubic-bezier(.65,0,.3,1)';    /* 合攏：自己收攏的量體，要 ease-in-out 不是 ease-out */
+  var EZ_OUT = 'cubic-bezier(.4,0,1,1)';
+  var EZ_MERGE = 'cubic-bezier(.65,0,.3,1)';
   var EZ_FORM = 'cubic-bezier(.2,.7,.3,1)';
-  var FORM_END = 310, MERGE_DUR = 330;
+  var FORM_END = 400, MERGE_DUR = 330;
+  var LOGO = 'assets-b/logo-sprite.png';
+  var GOLD = '#AB8E46';
+  /* 柱列帶在 logo 格子裡的位置，用 logo-sprite.png 實測（格寬 504/5.2466 = 96.06） */
+  var BAND = { x:9/96.06, w:74/96.06, y:25/100, h:47/100 };
 
-  /* 稜線：1px 亮邊（邊緣接到光）＋ 內縮暗邊（內側自己有陰影）＝ 建築的標準讀法。
-     暗邊的尺寸要跟著柱寬算——固定 10px/18px 在 56px 寬的柱子上會從兩側蓋滿整條，
-     整張照片會被壓暗，看起來像濾鏡不像立體。 */
+  var DROP = '0 0 28px 6px rgba(0,0,0,.42)';
   function edgeShadow(sw){
+    /* 1px 亮邊（邊緣接到光）＋ 內縮暗邊（內側自己有陰影）。
+       暗邊尺寸要跟著柱寬算，固定值在窄柱上會從兩側蓋滿整條，把照片壓成濾鏡感。 */
     var o = Math.max(4, Math.round(sw * 0.10)), b = Math.round(sw * 0.30);
     return 'inset 1px 0 0 rgba(255,255,255,.18), inset -1px 0 0 rgba(255,255,255,.18),'
          + 'inset ' + o + 'px 0 ' + b + 'px ' + (-o) + 'px rgba(0,0,0,.42),'
          + 'inset ' + (-o) + 'px 0 ' + b + 'px ' + (-o) + 'px rgba(0,0,0,.42)';
   }
-  var DROP = '0 0 28px 6px rgba(0,0,0,.42)';
 
   function hold(){
     var m = (location.search + location.hash).match(/hold=([0-9]{1,3})/);
-    var v = m ? +m[1] : 200;                    /* 預設 200ms（使用者指定）；動效規格建議 370 */
-    return Math.max(0, Math.min(800, v));
+    return Math.max(0, Math.min(800, m ? +m[1] : 200));
+  }
+
+  /* 落地頁本來沒有 logo。只在提案版補上去，現況完全不動。 */
+  function mountLogo(){
+    var landing = document.querySelector('#app > .scr.landing');
+    if(!landing) return null;
+    var col = landing.lastElementChild;
+    if(!col) return null;
+    var el = col.querySelector('.ds2logo');
+    if(!R.classList.contains('ds2')){ if(el) el.remove(); return null; }
+    if(!el){
+      el = document.createElement('span');
+      el.className = 'ds2logo';
+      el.style.cssText = 'width:56px;height:58.3px;overflow:hidden;position:relative;display:block;flex:0 0 auto';
+      el.innerHTML = '<img src="' + LOGO + '" alt="" style="position:absolute;left:0;top:0;'
+                   + 'height:100%;width:524.66%;max-width:none">';
+      col.insertBefore(el, col.firstChild);
+    }
+    return el;
   }
 
   function run(landing, done){
     var img = landing.querySelector('.lbg');
     if(!img || !img.naturalWidth) return done();
+    var logoEl = mountLogo();
 
     var r = landing.getBoundingClientRect(), W = r.width, H = r.height;
-    /* 複製 object-fit:cover 的結果 */
     var k = Math.max(W / img.naturalWidth, H / img.naturalHeight);
     var bw = img.naturalWidth * k, bh = img.naturalHeight * k;
     var ox = (W - bw) / 2, oy = (H - bh) / 2;
-    var sw = W / N;
+    var sw = W / N, EDGE = edgeShadow(sw);
 
-    /* 圖層掛在 body，不掛在 landing——交棒時 landing 會被重繪掉，
-       但合攏的最後 80ms 要疊在首頁淡入上，圖層得活過那一刻 */
+    /* 圖層掛在 body：交棒時 landing 會被重繪掉，但合攏的最後 80ms 要疊在首頁淡入上 */
     var layer = document.createElement('div');
     layer.className = 'ds2cols';
-    layer.style.cssText = 'position:fixed;inset:0;overflow:hidden;background:#0f212b;z-index:9998;'
-      + 'pointer-events:none;will-change:transform';
+    layer.style.cssText = 'position:fixed;inset:0;overflow:hidden;z-index:9998;pointer-events:none';
+
+    /* 底：撐開的過程中要讓落地頁照片透出來（才像 logo 在長大），
+       撐滿之後才沉成深色，當作「隙」的底。 */
+    var back = document.createElement('div');
+    back.style.cssText = 'position:absolute;inset:0;background:#0f212b;opacity:0;will-change:opacity';
+    layer.appendChild(back);
+
+    /* 柱列網格：整組一起做「從 logo 撐開」的縮放 */
+    var grid = document.createElement('div');
+    grid.style.cssText = 'position:absolute;inset:0;transform-origin:0 0;will-change:transform';
+    layer.appendChild(grid);
 
     var cols = [], imgs = [];
     for(var i = 0; i < N; i++){
-      var L = Math.round(i * sw);
+      var L = Math.round(i * sw), isP = PILLARS.indexOf(i) >= 0;
       var col = document.createElement('div');
       col.style.cssText = 'position:absolute;top:0;bottom:0;left:' + L + 'px;'
-        + 'width:' + (Math.round(sw) + 1) + 'px;overflow:hidden;background:#0f212b;will-change:transform';
-      var im = document.createElement('div');
-      im.style.cssText = 'position:absolute;top:0;bottom:0;left:' + (-L) + 'px;width:' + W + 'px;'
-        + 'background-image:url(' + img.currentSrc + ');'
-        + 'background-size:' + bw + 'px ' + bh + 'px;'
-        + 'background-position:' + ox + 'px ' + oy + 'px;will-change:transform,opacity,filter';
-      col.appendChild(im);
-      layer.appendChild(col);
-      cols.push(col); imgs.push(im);
+        + 'width:' + (Math.round(sw) + 1) + 'px;overflow:hidden;will-change:transform;'
+        + (isP ? 'background:' + GOLD : 'background:transparent');
+      if(isP){
+        var im = document.createElement('div');
+        im.style.cssText = 'position:absolute;top:0;bottom:0;left:' + (-L) + 'px;width:' + W + 'px;opacity:0;'
+          + 'background-image:url(' + img.currentSrc + ');'
+          + 'background-size:' + bw + 'px ' + bh + 'px;'
+          + 'background-position:' + ox + 'px ' + oy + 'px;will-change:transform,opacity';
+        col.appendChild(im);
+        imgs[i] = im;
+      }
+      grid.appendChild(col);
+      cols.push(col);
     }
-    /* 落地頁原本壓在照片上的漸層是為了讓白字讀得到。文字一走它就沒有工作了，
-       留著只會把柱列整片壓暗（實測差很多）。所以讓它跟文字同時退場。 */
-    var grad = document.createElement('div');
-    grad.style.cssText = 'position:absolute;inset:0;will-change:opacity;'
-      + 'background:linear-gradient(to bottom,rgba(15,33,43,.5),rgba(15,33,43,.86))';
-    layer.appendChild(grad);
     document.body.appendChild(layer);
-    grad.animate([{opacity:1},{opacity:0}],
-      {duration:260, delay:40, easing:EZ_OUT, fill:'forwards'});
 
-    /* 第 1 段：隙死進底色。中間那道先走，兩側同時跟上 */
-    var gapKF = [
-      {filter:'brightness(1) saturate(1)',    opacity:1, transform:'translateY(0)'},
-      {filter:'brightness(.42) saturate(.6)', opacity:1, offset:.62, transform:'translateY(2px)'},
-      {filter:'brightness(.28) saturate(.5)', opacity:0, transform:'translateY(4px)'}
-    ];
-    imgs[3].animate(gapKF, {duration:200, delay:40,  easing:EZ_OUT, fill:'forwards'});
-    imgs[1].animate(gapKF, {duration:200, delay:110, easing:EZ_OUT, fill:'forwards'});
-    imgs[5].animate(gapKF, {duration:200, delay:110, easing:EZ_OUT, fill:'forwards'});
+    /* 第 1 拍：從 logo 的柱列帶撐開到全螢幕 */
+    if(logoEl){
+      var lr = logoEl.getBoundingClientRect();
+      var sx = (BAND.w * lr.width) / W, sy = (BAND.h * lr.height) / H;
+      var tx = lr.left + BAND.x * lr.width, ty = lr.top + BAND.y * lr.height;
+      grid.animate([
+        {transform:'translate(' + tx + 'px,' + ty + 'px) scale(' + sx + ',' + sy + ')'},
+        {transform:'translate(0px,0px) scale(1,1)'}
+      ], {duration:340, delay:60, easing:EZ_FORM, fill:'both'});
+      logoEl.style.visibility = 'hidden';   /* 由撐開的柱列接手 */
+    }
 
-    /* 同時：柱長出稜線。定格之前就要長完，定格裡不能有任何東西在動 */
-    var EDGE = edgeShadow(sw);
+    back.animate([{opacity:0},{opacity:1}],
+      {duration:140, delay:260, easing:EZ_FORM, fill:'forwards'});
     PILLARS.forEach(function(pi){
+      /* 金色換成照片：等縮放快結束才換，否則照片會被拉變形 */
+      imgs[pi].animate([{opacity:0},{opacity:1}],
+        {duration:100, delay:300, easing:'linear', fill:'forwards'});
       cols[pi].animate([{boxShadow:'none'}, {boxShadow:EDGE}],
-        {duration:220, delay:60, easing:EZ_FORM, fill:'forwards'});
+        {duration:220, delay:180, easing:EZ_FORM, fill:'forwards'});
     });
 
     var H0 = hold(), mStart = FORM_END + H0, mEnd = mStart + MERGE_DUR;
 
-    /* 第 2 段：合攏。外層窗口走 +dx、內層影像走 −dx，影像在螢幕上其實沒動過 */
+    /* 第 2 拍：合攏。外層窗口 +dx、內層影像 −dx，影像在螢幕座標上完全沒動 */
     var closedLeft = (W - PILLARS.length * sw) / 2;
     PILLARS.forEach(function(pi, n){
       var dx = (closedLeft + n * sw) - pi * sw;
@@ -218,11 +251,7 @@ html.ds2 #ds2btn i{ background:#C9A961 }
       cols[pi].animate([{transform:'translateX(0)'}, {transform:'translateX(' + dx + 'px)'}], o);
       imgs[pi].animate([{transform:'translateX(0)'}, {transform:'translateX(' + (-dx) + 'px)'}], o);
     });
-    /* 整層最小劑量的推鏡，給合攏一個鏡頭支撐；整層縮放不影響接縫 */
-    layer.animate([{transform:'scale(1.012)'}, {transform:'scale(1)'}],
-      {duration:MERGE_DUR, delay:mStart, easing:EZ_MERGE, fill:'forwards'});
 
-    /* 移動中是量體在深色底上滑動；合上之前陰影要收乾淨，否則最終照片會帶著不存在的接縫陰影 */
     setTimeout(function(){
       PILLARS.forEach(function(pi){ cols[pi].style.boxShadow = EDGE + ',' + DROP; });
     }, mStart);
@@ -233,7 +262,6 @@ html.ds2 #ds2btn i{ background:#C9A961 }
       });
     }, mEnd - 80);
 
-    /* 交棒刻意疊在合攏最後 80ms：不要有「停下來才切」的那一幀 */
     setTimeout(done, mEnd - 80);
     setTimeout(function(){
       layer.animate([{opacity:1},{opacity:0}], {duration:100, easing:'linear', fill:'forwards'})
@@ -251,44 +279,51 @@ html.ds2 #ds2btn i{ background:#C9A961 }
     run(landing, function(){ setLang(S.lang); });
   };
 
-  /* 轉場只在進站發生一次，看完要能重看 */
   var again = document.createElement('button');
   again.id = 'ds2again';
   again.type = 'button';
   again.textContent = '重看轉場';
   again.onclick = function(){ location.reload(); };
   document.body.appendChild(again);
-  function showAgain(){
+
+  function sync(){
+    mountLogo();
     again.style.display = document.querySelector('#app > .scr.landing') ? 'none' : 'flex';
   }
-  showAgain();
-  new MutationObserver(showAgain).observe(document.body, {childList:true, subtree:true});
+  sync();
+  document.getElementById('ds2btn').addEventListener('click', function(){ setTimeout(sync, 0); });
+  new MutationObserver(sync).observe(document.body, {childList:true, subtree:true});
 })();
 </script>
 <style>
 /* 提案版自己接管背景，原本的放大打亮不要同時跑 */
 html.ds2 .landing.ds2leave .lbg{ animation:none !important }
-/* 2026-11-19：原本的 lout 是 .4s + 6 個元素各差 .04s，最後一個結束在 600ms，
+/* 2026-11-19：落地頁在提案版多了一顆 logo（插在內容欄最前面），
+   所以進場／離場的 nth-child 延遲全部往後移一位，logo 自己另外處理。
+   原本的 lout 是 .4s + 6 個元素各差 .04s，最後一個結束在 600ms，
    整個「定格」期間文字都還在往上飛——定格等於不存在。壓縮成 310ms 結束，
-   剛好跟最後一道隙落完同一幀：文字清場的瞬間柱列成形，然後靜止。
-   位移也從 −24px 收到 −16px（距離短、時長短，感知速度不變），
-   曲線跟「隙」統一成加速離場，整段才像同一件事。 */
+   位移從 −24px 收到 −16px，曲線跟轉場的離場統一。 */
+/* 進場也往後移一位 */
+html.ds2 .landing.enter>div:last-child>.ds2logo{ animation-delay:.05s !important }
+html.ds2 .landing.enter>div:last-child>:nth-child(2){ animation-delay:.15s !important }
+html.ds2 .landing.enter>div:last-child>:nth-child(3){ animation-delay:.3s !important }
+html.ds2 .landing.enter>div:last-child>:nth-child(4){ animation-delay:.5s !important }
+html.ds2 .landing.enter>div:last-child>:nth-child(5){ animation-delay:.65s !important }
+html.ds2 .landing.enter>div:last-child>:nth-child(6){ animation-delay:.8s !important }
+html.ds2 .landing.enter>div:last-child>:nth-child(7){ animation-delay:.95s !important }
+
 @keyframes ds2out{ to{ opacity:0; transform:translateY(-16px) } }
 html.ds2 .landing.ds2leave>div:last-child>*{
   animation:ds2out .22s cubic-bezier(.4,0,1,1) both !important }
-html.ds2 .landing.ds2leave>div:last-child>*:nth-child(1){ animation-delay:0s !important }
-html.ds2 .landing.ds2leave>div:last-child>*:nth-child(2){ animation-delay:.018s !important }
-html.ds2 .landing.ds2leave>div:last-child>*:nth-child(3){ animation-delay:.036s !important }
-html.ds2 .landing.ds2leave>div:last-child>*:nth-child(4){ animation-delay:.054s !important }
-html.ds2 .landing.ds2leave>div:last-child>*:nth-child(5){ animation-delay:.072s !important }
-html.ds2 .landing.ds2leave>div:last-child>*:nth-child(6){ animation-delay:.09s !important }
-#ds2again{
-  position:fixed; left:122px; bottom:calc(12px + env(safe-area-inset-bottom,0px)); z-index:99999;
-  display:none; align-items:center; min-height:36px; padding:0 13px; border:0; border-radius:18px;
-  background:rgba(20,28,32,.84); color:#fff; font:500 13px/1 system-ui,-apple-system,"Noto Sans TC",sans-serif;
-  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
-  box-shadow:0 4px 14px rgba(0,0,0,.3); cursor:pointer;
-}
+html.ds2 .landing.ds2leave>div:last-child>:nth-child(2){ animation-delay:0s !important }
+html.ds2 .landing.ds2leave>div:last-child>:nth-child(3){ animation-delay:.018s !important }
+html.ds2 .landing.ds2leave>div:last-child>:nth-child(4){ animation-delay:.036s !important }
+html.ds2 .landing.ds2leave>div:last-child>:nth-child(5){ animation-delay:.054s !important }
+html.ds2 .landing.ds2leave>div:last-child>:nth-child(6){ animation-delay:.072s !important }
+html.ds2 .landing.ds2leave>div:last-child>:nth-child(7){ animation-delay:.09s !important }
+/* logo 不跟著文字飛走——它是被撐開的那個，由 JS 接手 */
+html.ds2 .landing.ds2leave>div:last-child>.ds2logo{ animation:none !important }
+
 </style>
 <!-- ===== /DS2 對照層 ===== -->
 '''
