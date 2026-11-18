@@ -6,3 +6,9 @@
 
 # here.now 本機狀態與金鑰
 .herenow/
+
+# Playwright MCP 的暫存輸出
+.playwright-mcp/
+
+# ds2 對照站的發布產出（由 tools/build-ds2.py 產生，assets 與 b/ 重複）
+review-ds2/
