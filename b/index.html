@@ -267,7 +267,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .explaque h1{font-weight:700;font-size:26px;line-height:1.25;letter-spacing:.3px;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.35)}
 .explaque .exen{font-size:13px;line-height:1.4;color:rgba(255,255,255,.78)}
 .tabstick.flat,.tabstick.flat.stuck{padding:0 24px!important;background:#fff}
-.tabstick.flat .tabs2{background:none;box-shadow:inset 0 -1px 0 var(--line);border-radius:0;justify-content:flex-start;gap:24px;height:48px;width:auto}
+.tabstick.flat .tabs2{background:none;box-shadow:inset 0 -1px 0 var(--line);border-radius:0;justify-content:flex-start;gap:24px;height:60px;width:auto}   /* 2026-11-18：展覽內頁三個分頁的上下留白加大（48→60） */
 .tabstick.flat .tabs2 button{flex:0 0 auto;padding:0 2px;font-size:16px;font-weight:500;color:var(--text)} .tabstick.flat .tabs2 button.on{font-weight:700;color:var(--teal7)} .tabstick.flat .tabs2 button.on::after{height:3px;border-radius:2px}
 .tabstick.flat.stuck{box-shadow:0 4px 8px -6px rgba(0,0,0,.2)}
 .exrows{display:flex;flex-direction:column} .exrow{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 0;font-size:15px;line-height:1.4;color:var(--text)} .exrow+.exrow{border-top:1px solid var(--line)} .exrow>.ico,.exrow>svg{flex:0 0 18px}
@@ -787,26 +787,28 @@ const ITEMS = {
   w4:{n:'山海之間的共存與競逐', d:204, sign:true, no:'208', img:'work-4.jpg', fl:'2F', zone:'常設展廳'},
   w5:{n:'新秩序下的苦悶與夢想', d:178, no:'212', img:'work-5.jpg', fl:'2F', zone:'常設展廳', maint:'部分文物送修維護中，展櫃暫時以複製品展出'},   /* 後台「文物維護中」示意 */
   w6:{n:'走向民主這條路', d:190, sign:true, no:'215', img:'work-hero.jpg', fl:'2F', zone:'常設展廳'},
-  mz1:{n:'單元一｜海濱神姑：海口女巫的天后之路', d:110, no:'411', img:'mazu.jpg', fl:'4F', zone:'第一特展室', txt:'媽祖原為只知其姓的巫女林氏，經由歷代對媽祖顯聖事蹟的層累，形塑出神通廣大的女聖人樣貌，可看見媽祖在政治與宗教力量塑造下，成為護國救民的英烈天妃。本單元透過17至19世紀的圖像與經典文獻，看見媽祖的形象在官方與民間的共同詮釋下，逐步確立為天后林默的過程。'},   /* 萬相天后特展：單元名稱與文字照 A 版（官網展覽頁） */
-  mz2:{n:'單元二｜海上福星：媽祖信仰傳播的航跡', d:115, no:'412', img:'mazu.jpg', fl:'4F', zone:'第一特展室', txt:'媽祖的海上神蹟，深受閩、粵兩地崇奉。明代以來，隨著頻繁的海上活動，媽祖信仰從中國東南沿海出發，沿著貿易路徑向東亞諸國延伸。船員與移民隨身攜帶的神像與聖物，使媽祖香火得以越過汪洋，在異鄉落地生根；延伸至臺灣後，又向外輻射至世界各地。'},
-  mz3:{n:'單元三｜盛裝駕到：千變萬化的臺灣天后', d:120, no:'413', img:'mazu.jpg', fl:'4F', zone:'第一特展室', txt:'媽祖信仰深入臺灣後，因地域與族群的差異，被賦予不同的稱呼與形象：是榮及雙親的孝女，是慈愛赤子的媽婆；能以施藥救疫，也在戰火之中顯聖。除了多樣性的神像外，冠服、神輿與時尚精品，也形塑出不同時代的媽祖樣貌。'},
-  mz4:{n:'單元四｜萬年香火：當靈力鑄化為聖物', d:125, no:'414', img:'mazu.jpg', fl:'4F', zone:'第一特展室', txt:'無形的靈力，憑附於有形的物件，亦降於大符與各類聖物；承受香火的香爐與運載神火的香擔，是最關鍵的靈力載體。進香、遶境與過爐，是親近媽祖的神聖時刻，也是廟與廟、人與人之間交通互動的時刻，將世代的信仰記憶傳承下去。'},
-  mz5:{n:'單元五｜善願必佑：在當代與媽祖相遇', d:130, no:'415', img:'mazu.jpg', fl:'4F', zone:'第一特展室', txt:'隨時代更迭與社會結構變化，天后以各類形式顯聖與再現。數位科技改變了信仰傳播途徑，媽祖信仰以媒體直播與影像跨越地域限制；素昧平生的人們也因「結緣品」而聚合，比肩同行，使媽祖信仰得以歷久彌新。'},
+  mz1:{n:'單元一｜海濱神姑：海口女巫的天后之路', tonly:true, d:110, no:'411', img:'mazu.jpg', fl:'4F', zone:'第一特展室', txt:'媽祖原為只知其姓的巫女林氏，經由歷代對媽祖顯聖事蹟的層累，形塑出神通廣大的女聖人樣貌，可看見媽祖在政治與宗教力量塑造下，成為護國救民的英烈天妃。本單元透過17至19世紀的圖像與經典文獻，看見媽祖的形象在官方與民間的共同詮釋下，逐步確立為天后林默的過程。'},   /* 萬相天后特展：單元名稱與文字照 A 版（官網展覽頁） */
+  mz2:{n:'單元二｜海上福星：媽祖信仰傳播的航跡', tonly:true, d:115, no:'412', img:'mazu.jpg', fl:'4F', zone:'第一特展室', txt:'媽祖的海上神蹟，深受閩、粵兩地崇奉。明代以來，隨著頻繁的海上活動，媽祖信仰從中國東南沿海出發，沿著貿易路徑向東亞諸國延伸。船員與移民隨身攜帶的神像與聖物，使媽祖香火得以越過汪洋，在異鄉落地生根；延伸至臺灣後，又向外輻射至世界各地。'},
+  mz3:{n:'單元三｜盛裝駕到：千變萬化的臺灣天后', tonly:true, d:120, no:'413', img:'mazu.jpg', fl:'4F', zone:'第一特展室', txt:'媽祖信仰深入臺灣後，因地域與族群的差異，被賦予不同的稱呼與形象：是榮及雙親的孝女，是慈愛赤子的媽婆；能以施藥救疫，也在戰火之中顯聖。除了多樣性的神像外，冠服、神輿與時尚精品，也形塑出不同時代的媽祖樣貌。'},
+  mz4:{n:'單元四｜萬年香火：當靈力鑄化為聖物', tonly:true, d:125, no:'414', img:'mazu.jpg', fl:'4F', zone:'第一特展室', txt:'無形的靈力，憑附於有形的物件，亦降於大符與各類聖物；承受香火的香爐與運載神火的香擔，是最關鍵的靈力載體。進香、遶境與過爐，是親近媽祖的神聖時刻，也是廟與廟、人與人之間交通互動的時刻，將世代的信仰記憶傳承下去。'},
+  mz5:{n:'單元五｜善願必佑：在當代與媽祖相遇', tonly:true, d:130, no:'415', img:'mazu.jpg', fl:'4F', zone:'第一特展室', txt:'隨時代更迭與社會結構變化，天后以各類形式顯聖與再現。數位科技改變了信仰傳播途徑，媽祖信仰以媒體直播與影像跨越地域限制；素昧平生的人們也因「結緣品」而聚合，比肩同行，使媽祖信仰得以歷久彌新。'},
   s1:{n:'原住民族的語言與名字', d:196, no:'206', voice:false, sign:true, img:'rec-2.jpg', fl:'2F', zone:'常設展廳'},   /* 只有手語版的展品（示意） */
   r2:{n:'臺灣文化協會會歌', d:202, no:'210', img:'player-photo.jpg', fl:'2F', zone:'常設展廳'},
-  bd0:{n:'零、非關公民歷史教室', d:100, no:'431', img:'border.jpg', fl:'4F', zone:'走廊延伸展區', txt:'當邊界被劃下時，我們如何看見真正的彼此？從過去到現在，不同時代都存在著被排除在主流社會及國家制度之外的人——他們可能沒有戶籍、沒有國籍，始終游移在法律與現實的邊界。本區從更長遠的歷史脈絡出發，回看「非公民」如何被界定與形成。'},   /* 邊界之外特展：單元名稱與文字照 A 版（官網展覽頁） */
-  bd1:{n:'一、時代浪潮下的移動：跨越邊界的生命印記', d:105, no:'432', img:'bd-12.jpg', fl:'4F', zone:'第三特展室', txt:'「當動盪席捲世界，人們帶來的只是行李嗎？」臺灣的歷史與世界局勢緊密相連。來自圖伯特、緬甸、香港與烏克蘭的人們，因冷戰、政變、戰爭與迫害，陸續跨越邊界來到這裡；他們的移動不只是個人選擇，而是為了守護生命、自由、信仰與未來。'},
-  bd2:{n:'二、看不見的邊界', d:110, no:'433', img:'bd-10.jpg', fl:'4F', zone:'第三特展室', txt:'「跨過了邊界，邊界就消失了嗎？」「身分」的邊界，從來不是固定的，它會隨著法律制度、國際局勢與國家安全考量而被重新劃定。對許多來到臺灣的人而言，邊界不只存在於海關，也延伸到入境後的停留、居留或定居審查。'},
-  bd3:{n:'三、At Home', d:115, no:'434', img:'bd-11.jpg', fl:'4F', zone:'第三特展室', txt:'「『家』，對你來說是什麼？」對有些人而言，「家」是正在經歷戰火的地方；對流亡者而言，是宗教、文化與身分認同的延續；對離開香港的人而言，那個地方還在，卻已不同。來自不同地方的人們，帶著各自對「家」的記憶與牽掛來到臺灣。'},
-  bd4:{n:'四、邊界上的未盡旅程', d:120, no:'435', img:'bd-9.jpg', fl:'4F', zone:'第三特展室', txt:'「當全球的流離與遷徙來到臺灣，我們將讓邊界變窄，還是讓關係展開？」我們看見人們在動盪中離開家園，看見人的身分如何在穿越邊界後被重新定義，也看見許多人在不安的處境中，仍努力在這裡生活、行動並照顧彼此。'},
+  bd0:{n:'零、非關公民歷史教室', tonly:true, d:100, no:'431', img:'border.jpg', fl:'4F', zone:'走廊延伸展區', txt:'當邊界被劃下時，我們如何看見真正的彼此？從過去到現在，不同時代都存在著被排除在主流社會及國家制度之外的人——他們可能沒有戶籍、沒有國籍，始終游移在法律與現實的邊界。本區從更長遠的歷史脈絡出發，回看「非公民」如何被界定與形成。'},   /* 邊界之外特展：單元名稱與文字照 A 版（官網展覽頁） */
+  bd1:{n:'一、時代浪潮下的移動：跨越邊界的生命印記', tonly:true, d:105, no:'432', img:'bd-12.jpg', fl:'4F', zone:'第三特展室', txt:'「當動盪席捲世界，人們帶來的只是行李嗎？」臺灣的歷史與世界局勢緊密相連。來自圖伯特、緬甸、香港與烏克蘭的人們，因冷戰、政變、戰爭與迫害，陸續跨越邊界來到這裡；他們的移動不只是個人選擇，而是為了守護生命、自由、信仰與未來。'},
+  bd2:{n:'二、看不見的邊界', tonly:true, d:110, no:'433', img:'bd-10.jpg', fl:'4F', zone:'第三特展室', txt:'「跨過了邊界，邊界就消失了嗎？」「身分」的邊界，從來不是固定的，它會隨著法律制度、國際局勢與國家安全考量而被重新劃定。對許多來到臺灣的人而言，邊界不只存在於海關，也延伸到入境後的停留、居留或定居審查。'},
+  bd3:{n:'三、At Home', tonly:true, d:115, no:'434', img:'bd-11.jpg', fl:'4F', zone:'第三特展室', txt:'「『家』，對你來說是什麼？」對有些人而言，「家」是正在經歷戰火的地方；對流亡者而言，是宗教、文化與身分認同的延續；對離開香港的人而言，那個地方還在，卻已不同。來自不同地方的人們，帶著各自對「家」的記憶與牽掛來到臺灣。'},
+  bd4:{n:'四、邊界上的未盡旅程', tonly:true, d:120, no:'435', img:'bd-9.jpg', fl:'4F', zone:'第三特展室', txt:'「當全球的流離與遷徙來到臺灣，我們將讓邊界變窄，還是讓關係展開？」我們看見人們在動盪中離開家園，看見人的身分如何在穿越邊界後被重新定義，也看見許多人在不安的處境中，仍努力在這裡生活、行動並照顧彼此。'},
+  mz6:{n:'結語｜你心裡的媽祖，是哪一種樣子', tonly:true, d:95, no:'416', img:'mazu.jpg', fl:'4F', zone:'第一特展室', txt:'從海濱的巫女到護國的天后，從閩粵沿海一路到臺灣各地，再到今天的網路直播與結緣品——媽祖的樣貌一直在變。變的其實不只是神像的冠服與姿態，而是每個時代的人，如何透過她安放自己的不安與期待。走出展場之前，不妨想一想：在你心裡，媽祖是哪一種樣子？'},   /* 2026-11-18：結語為示意文字，正式文稿待館方提供 */
+  bd5:{n:'結語｜讓邊界變窄，還是讓關係展開', tonly:true, d:95, no:'436', img:'bd-7.jpg', fl:'4F', zone:'第三特展室', txt:'看完這些故事，邊界並沒有消失。它仍然寫在法律條文、居留審查與日常生活的縫隙裡。但展場裡的每一段生命也提醒我們：邊界是人劃下的，關係同樣是人建立的。離開展場之後，你會選擇讓邊界變窄，還是讓關係展開？'},   /* 2026-11-18：結語為示意文字，正式文稿待館方提供 */
 };
 const EXHIBITIONS = {
   perm:{n:'斯土斯民：臺灣的故事', card:'ex-permanent.jpg', hero:'ex-perm-hero.jpg', get meta(){ const l=IT_READY?guideIds('perm'):this.items;   /* 2026-11-17：文字導覽也是一則，不能濾掉——濾掉就會變成卡片 23、播放器 30 */ return [l.length+' 個導覽點・約 '+Math.round(l.reduce((n,id)=>n+(ITEMS[id]||{d:0}).d,0)/60)+' 分鐘','2F 常設展廳']; }, type:'常設展', fl:'2F',
     items:["p102","p201","p202","p302","p303","p304","p305","p401","p402","p403","p404","p405","p406","p408","p501","p503","p507","p508","p512","p516","p523","p601","p605","p606","p608","p609","p701"],
     intro:'陪伴我們的臺灣島嶼，一起穿越數百年的記憶流轉吧！在這裡，你會從神秘的起源傳說開始，跟著這塊土地，一次次歷經時代的更迭與鉅變，看見大歷史之下人群的樣貌、聲音與故事。展覽以「時代」作為單元，分為「臺灣，交會之島」、「最初的抵岸」、「倚海而生的島與人」、「山海之間的共存與競逐」、「新秩序下的苦悶與夢想」、「走向民主這條路」、「大家的博物館」7 大單元；從史前到當代，相異的時空情境中，是否喚起你似曾相似的共鳴？'},
-  zj:{n:'萬相天后：臺灣媽祖信仰文化特展', card:'mazu.jpg', hero:'mazu.jpg', date:'2026.10.13 – 2027.05.16', meta:['4F 第一特展室'], type:'特展', fl:'4F', items:[], theme:2, threeD:'mazu.jpg',   /* 2026-11-18：媽祖特展的導覽內容先拔掉（原為 mz1–mz5），只留展覽介紹；ITEMS 與 4F 點位一併收起 */
+  zj:{n:'萬相天后：臺灣媽祖信仰文化特展', card:'mazu.jpg', hero:'mazu.jpg', date:'2026.10.13 – 2027.05.16', meta:['4F 第一特展室'], type:'特展', fl:'4F', items:['mz1','mz2','mz3','mz4','mz5','mz6'], theme:2, threeD:'mazu.jpg',   /* 2026-11-18：媽祖特展導覽＝五個單元＋結語，共 6 則文字導覽 */
     intro:'媽祖是臺灣最具代表性的民間信仰之一。本次展覽透過館藏、國內外機構典藏，以及臺灣各地媽祖廟所傳承的重要文物，探討媽祖神蹟如何被詮釋，並展現出媽祖的多元面貌。'},   /* key 沿用 zj／asia（地圖、離線狀態都掛這兩個 key），內容照 A 版改成官網現有特展（2026-11-02） */
-  asia:{n:'邊界之外‧島嶼之中：當代臺灣非公民的故事特展', card:'bd-7.jpg', hero:'bd-7.jpg', date:'2026.09.15 – 2027.04.11', meta:['4F 第三特展室'], type:'特展', fl:'4F', items:[], threeD:'bd-7.jpg',   /* 2026-11-18：非公民特展的導覽內容先拔掉（原為 bd0–bd4），只留展覽介紹；ITEMS 與 4F 點位一併收起 */
+  asia:{n:'邊界之外‧島嶼之中：當代臺灣非公民的故事特展', card:'bd-7.jpg', hero:'bd-7.jpg', date:'2026.09.15 – 2027.04.11', meta:['4F 第三特展室'], type:'特展', fl:'4F', items:['bd0','bd1','bd2','bd3','bd4','bd5'], threeD:'bd-7.jpg',   /* 2026-11-18：非公民特展導覽＝五個單元＋結語，共 6 則文字導覽 */
     intro:'「非公民」是指有人沒有任何國家承認其國籍；也有人雖擁有國籍，卻因政治、戰亂與制度等因素，無法獲得原國家的保護。本特展透過主展場與走廊延伸展區，串聯這段歷史，並述說來到臺灣的不同群體的故事。'},
 };
 const LIST_META = {};   /* 展覽列表頁的特展卡 meta 跟首頁不同（照設計稿） */
@@ -1791,7 +1793,7 @@ function guideProgress(){
 }
 /* 播放器＝一個頁面三個分頁：展品介紹｜導覽中｜導覽列表（膠囊列固定浮在底部，左右滑動切換，不離開播放器） */
 /* 2026-11-02 改照 A 版架構：上方分頁＝導覽內容｜展品介紹（文字站只有展品介紹），底部固定一張共用的播放卡，導覽列表從卡片上的清單鈕開 */
-const ptabs=()=>S.player&&S.player.ctx.type==='pre'?['play']:S.player&&(it(S.player.id).tonly||nsText(S.player.id,S.player.ctx))?['detail']:['play','detail'];   /* 多媒體不分語言：沒有展品文字也保留「展品介紹」分頁看照片（2026-11-12） */   /* 參觀前先聽 3 分鐘是場館概覽，沒有展品可介紹：只留導覽內容（2026-11-11） */
+const ptabs=()=>S.player&&S.player.ctx.type==='pre'?['play']:S.player&&S.player.ctx.sg?['play']:S.player&&(it(S.player.id).tonly||nsText(S.player.id,S.player.ctx))?['detail']:['play','detail'];   /* 2026-11-18：手語導覽的 21 則只留手語影片，不放「介紹」分頁（文字導覽的內容不在手語導覽出現） */   /* 多媒體不分語言：沒有展品文字也保留「展品介紹」分頁看照片（2026-11-12） */   /* 參觀前先聽 3 分鐘是場館概覽，沒有展品可介紹：只留導覽內容（2026-11-11） */
 const hasPin=id=>{ const f=it(id).fl==='4F'?'4F':'2F'; return !!(PINS[f]&&PINS[f][id]); };   /* 地圖上有這則的點位才給地圖鍵 */
 /* 膠囊列：選中的深色底是獨立一層，切換時左右滑過去；圖示黑白交叉淡換、文字展開 */
 function capsule(){ const t=S.pTab||'play';   /* 上方分頁改用 B 版共用的 .tabs2（跟展覽頁分頁同一套）：白底卡片、等寬、選中金色底線（2026-11-02 留言） */
@@ -1847,9 +1849,9 @@ function sgMount(){ const p=S.player, x=p&&it(p.id); if(!SGV_HOLD.isConnected) d
   if(p.playing&&SGV.paused){ SGV.play().catch(()=>{ p.playing=false; sgIcons(); }); } else if(!p.playing&&!SGV.paused) SGV.pause(); }
 function sgIcons(){ const p=S.player; if(!p) return; document.querySelectorAll('.vbig').forEach(b=>{ b.innerHTML=MI(p.playing?ICW.pause:ICW.play,34,'#fff'); b.setAttribute('aria-label',p.playing?'暫停':'播放'); });
   document.querySelectorAll('.sgvid,.sfvid').forEach(v=>v.classList.toggle('signing',p.playing)); }
-const signYT=()=>{ const pl=!!(S.player&&S.player.playing), x=S.player&&it(S.player.id);
-  return `<div class="sgslot" style="position:absolute;inset:0;background:#000"><img src="${sgPoster(x)}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain"></div>
-    <button class="vbig" onclick="event.stopPropagation();sgToggle()" aria-label="${pl?'暫停':'播放'}手語導覽影片" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:32px;background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 0 0 1px rgba(255,255,255,.35) inset;display:grid;place-items:center">${MI(pl?ICW.pause:ICW.play,34,'#fff')}</button>`; };
+const signYT=(fs)=>{ const pl=!!(S.player&&S.player.playing), x=S.player&&it(S.player.id);   /* 2026-11-18：全螢幕已有控制列的播放鍵，中間那顆大圓鍵不再重複畫 */
+  return `<div class="sgslot" style="position:absolute;inset:0;background:#000"><img src="${sgPoster(x)}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain"></div>${fs?'':`
+    <button class="vbig" onclick="event.stopPropagation();sgToggle()" aria-label="${pl?'暫停':'播放'}手語導覽影片" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:32px;background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 0 0 1px rgba(255,255,255,.35) inset;display:grid;place-items:center">${MI(pl?ICW.pause:ICW.play,34,'#fff')}</button>`}`; };
 const SIGNER = `<svg viewBox="40 44 300 186" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
   <defs><linearGradient id="sgbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A5866"/><stop offset="1" stop-color="#22343C"/></linearGradient></defs>
   <rect width="380" height="236" fill="url(#sgbg)"/>
@@ -2112,7 +2114,7 @@ function closeSignFs(){ try{ if(document.fullscreenElement) document.exitFullscr
 window.addEventListener('resize',()=>{ if(S.sheet==='signfs') sfFit(); });
 function signFs(){ const p=S.player, x=it(p.id);
   return `<div class="viewer signfs ${S.vwIn?'fadein':''}" role="dialog" aria-label="手語影片全螢幕：${x.n}" onkeydown="if(event.key==='Escape'){closeSignFs()}">
-    <div class="sfvid" style="position:relative" onclick="sgTap()">${signYT()}</div>
+    <div class="sfvid" style="position:relative" onclick="sgTap()">${signYT(true)}</div>
     <div class="sfbar">
 
       <div style="display:flex;align-items:center;gap:12px">
@@ -2256,7 +2258,7 @@ const MAPS={
   '2F':{src:'map-2f-v2.png', bg:'#FEFEFE', w:1536, h:1024, fit:{s:.278, x:-26.7, y:183}, name:'常設展廳', area:'', label:[661,80]},
   '4F':{src:'map-4f-v2.png', bg:'#FEFEFE', w:1536, h:1024, fit:{s:.5482, x:-392, y:28.9}, name:'第一特展室',
     area:'887,507 1457,507 1457,738 887,738', label:[1172,507], elev:[620,397]} };
-const PINS={site:{}, '1F':{}, '2F':{'p102':[1290,705],'p201':[1225,615],'p202':[1335,610],'p302':[1200,470],'p303':[1120,560],'p304':[1050,615],'p305':[925,515],'p401':[1330,215],'p402':[1390,330],'p403':[1250,300],'p404':[1000,320],'p405':[1080,240],'p406':[915,215],'p408':[850,300],'p501':[700,300],'p503':[705,500],'p507':[400,560],'p508':[600,330],'p512':[300,380],'p516':[170,250],'p523':[160,620],'p601':[400,820],'p605':[620,860],'p606':[720,840],'p608':[1000,845],'p609':[1100,830],'p701':[1210,850]}, '4F':{}};   /* 照 A 版點位換算 */
+const PINS={site:{}, '1F':{}, '2F':{'p102':[1290,705],'p201':[1225,615],'p202':[1335,610],'p302':[1200,470],'p303':[1120,560],'p304':[1050,615],'p305':[925,515],'p401':[1330,215],'p402':[1390,330],'p403':[1250,300],'p404':[1000,320],'p405':[1080,240],'p406':[915,215],'p408':[850,300],'p501':[700,300],'p503':[705,500],'p507':[400,560],'p508':[600,330],'p512':[300,380],'p516':[170,250],'p523':[160,620],'p601':[400,820],'p605':[620,860],'p606':[720,840],'p608':[1000,845],'p609':[1100,830],'p701':[1210,850]}, '4F':{mz1:[982,569], mz2:[1157,569], mz3:[1350,584], mz4:[1273,675], mz5:[1041,675], mz6:[1041,745], bd0:[480,452], bd1:[127,367], bd2:[189,447], bd3:[236,357], bd4:[251,428], bd5:[251,492]}};   /* 2026-11-18：兩檔特展導覽復原，五個單元照 A 版點位；結語放在最後一個單元下方，確切位置待館方確認 */   /* 照 A 版點位換算 */
 /* 2026-11-18：導覽（總說／單元／子單元）也在地圖上有點位——借它底下第一件展品的座標；底下沒有展品就借同單元的第一件 */
 (()=>{ const P=PINS['2F'], first=o=>(o||[]).find(id=>P[id]);
   const uFirst=ui=>first((PERM_USEL[ui]||[]).concat(...PERM_GUIDE.filter(x=>x.u===ui).map(x=>PERM_SEL[x.id]||[])));
@@ -2365,15 +2367,16 @@ const EXC_IC={ clock:'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17
   voice:'M9 13c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 8c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm-6 4c.22-.72 3.31-2 6-2 2.7 0 5.8 1.29 6 2H3zM15.08 7.05c.84 1.18.84 2.71 0 3.89l1.68 1.69c2.02-2.02 2.02-5.07 0-7.27l-1.68 1.69zM20.07 2l-1.63 1.63c2.77 3.02 2.77 7.56 0 10.74L20.07 16c3.9-3.89 3.91-9.95 0-14z',   /* 2026-11-11 留言：語音語言用「說話的人」圖示，不加「語音：」字樣 */
   pin:'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 2.88-2.88 7.19-5 9.88C9.92 16.21 7 11.85 7 9zm5 2.5c1.38 0 2.5-1.12 2.5-2.5S13.38 6.5 12 6.5 9.5 7.62 9.5 9s1.12 2.5 2.5 2.5z' };   /* 2026-11-12 留言：地點圖示改 outline，跟其他圖示同風格 */
 function ex4Info(k){ const e=EXHIBITIONS[k], r=ROOMS4[k], en=S.lang==='en', n=e.items.length, mins=(e.meta[0].match(/約 (\d+) 分鐘/)||[])[1], on=guiding('ex',k);
+  const txtOnly=!!n&&e.items.every(id=>it(id).tonly), KIC=txtOnly?'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z':MD.head;   /* 2026-11-18：整檔都是文字導覽時不放耳機圖示、開始導覽也不放播放鍵（沿用「文字導覽不寫聆聽」的規則） */
   return `<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px">
     <div style="display:flex;gap:14px;align-items:center">   <!-- 2026-11-11 留言：加展覽主視覺縮圖（跟展品卡同尺寸 112px） -->
       <span style="flex:0 0 112px;height:112px;border-radius:12px;overflow:hidden;background:var(--cream)"><img src="${A(e.card||e.hero)}" alt="" style="width:100%;height:100%;object-fit:cover"></span>
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><span class="navk">${r.name}・${en?'Special exhibition':'特展'}</span>
       <b style="font-weight:700;font-size:18px;line-height:1.35;color:var(--ink)">${en&&EN[e.n]||e.n}</b>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">${n?`<span class="ex4meta">${MI(MD.head,14,'#2E5C6E')}${en?n+' stops':n+' 個導覽點'}</span>`:''}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">${n?`<span class="ex4meta">${MI(KIC,14,'#2E5C6E')}${en?n+' stops':n+' 個導覽點'}</span>`:''}
       ${mins?`<span class="ex4meta">${MI('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z',14,'#2E5C6E')}${en?'About '+mins+' min':'建議約 '+mins+' 分鐘'}</span>`:''}</div></div></div>   <!-- 2026-11-12 留言：拿掉展期，導覽點數與時間移到標題下方 -->
     <div style="display:flex;gap:8px;align-items:center">
-      ${n?`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="${on?"go('player')":`startExGuide('${k}')`}">${on?`<span class="eq go" aria-hidden="true"><i></i><i></i><i></i></span>${en?'Now playing':'正在導覽中'}`:`${MI('M8 5v14l11-7z',18,'#fff')}${en?'Start tour':'開始導覽'}`}</button>`:'<span style="flex:1"></span>'}
+      ${n?`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="${on?"go('player')":`startExGuide('${k}')`}">${on?`<span class="eq go" aria-hidden="true"><i></i><i></i><i></i></span>${en?'Now playing':'正在導覽中'}`:`${txtOnly?'':MI('M8 5v14l11-7z',18,'#fff')}${en?'Start tour':'開始導覽'}`}</button>`:'<span style="flex:1"></span>'}
       <button class="waybtn" style="min-height:44px" onclick="startNav('entry')" aria-label="帶我去這檔特展的入口">${MI(MD.nav,16,'#2E5C6E')}${en?'Take me':'帶我去'}</button></div>
     <span style="font-size:11px;color:var(--text2)">${Object.keys(ROOMS4).length>1&&!S.exOnly?(en?'Tap the other entrance on the map to switch exhibitions':'點地圖上另一個「特展入口」可以換看另一檔特展'):''}</span></div>`; }
 function setRoom4(k){ S.room4=k; S.mapSel=null; S.nav=null; S.navPending=null; S.herePick=false; S.arrived=null; S.mv=S.mv||{}; S.mv['4F']=fitV(ROOMS4[k].fit); render(); }
@@ -2796,7 +2799,7 @@ function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F'
       ${!(S.navFl&&f!==S.navFl)&&(S.nav||S.navPending)==='entry'&&navTarget('entry')?anchor(navTarget('entry').x,navTarget('entry').y,'mchip goal','⚑ 目的地：展區入口'):''}
       ${pinIds.map(id=>{ const [x,y]=PINS[f][id], wk=(S.walk||S.mapRoute&&ROUTES[S.mapRoute])?rtList(S.walk?S.walk.k:S.mapRoute).indexOf(id):-1, on=(S.walk&&wk===S.walk.i)||S.mapSel===id||S.nav===id||S.navPending===id, tnow=S.player&&!S.nav&&S.player.id===id, tnx=S.tour&&S.player&&!S.nav&&tourNextId()===id;
         return `<button class="mpin${wk>=0&&it(id).tonly&&!on?' tonly':''}${on||tnow?' on':''}${tnx?' nxt':''}${nx===id||(S.arrived&&firstOf(S.arrived)===id)?' next':''}${fst===id?' first':''}${it(id).maint?' maint':''}${tnow&&!it(id).tonly?' playing':''}" data-mx="${x}" data-my="${y}" style="left:${toScr(x,y)[0]}px;top:${toScr(x,y)[1]}px"
-          onclick="event.stopPropagation();pinTap('${id}')" aria-label="${wk>=0?'第 '+(wk+1)+' 站・'+it(id).n+'（'+gKind(it(id))+'導覽）':'展品 '+it(id).no}${nx===id?'（下一站）':fst===id?'（第一件展品）':''}" aria-pressed="${on}">${fst===id?'<i class="tip">第一件展品<small>點一下開始聽</small></i>':nx===id?'<i>下一站</i>':S.arrived&&firstOf(S.arrived)===id?'<i>第一件</i>':tnow?`<i>${it(id).tonly?'閱讀中':S.player.playing?'播放中':'已暫停'}</i>`:tnx?'<i>下一件</i>':''}${tnow&&!it(id).tonly?`<span class="peq${S.player.playing?' go':''}" aria-hidden="true"><b></b><b></b><b></b></span>`:''}${wk>=0?wk+1:it(id).no}</button>`; }).join('')}
+          onclick="event.stopPropagation();pinTap('${id}')" aria-label="${wk>=0?'第 '+(wk+1)+' 站・'+it(id).n+'（'+gKind(it(id))+'導覽）':'展品 '+it(id).no}${nx===id?'（下一站）':fst===id?'（第一件展品）':''}" aria-pressed="${on}">${fst===id?(it(id).tonly?'<i class="tip">第一則導覽<small>點一下開始讀</small></i>':'<i class="tip">第一件展品<small>點一下開始聽</small></i>'):nx===id?'<i>下一站</i>':S.arrived&&firstOf(S.arrived)===id?'<i>第一件</i>':tnow?`<i>${it(id).tonly?'閱讀中':S.player.playing?'播放中':'已暫停'}</i>`:tnx?'<i>下一件</i>':''}${tnow&&!it(id).tonly?`<span class="peq${S.player.playing?' go':''}" aria-hidden="true"><b></b><b></b><b></b></span>`:''}${wk>=0?wk+1:it(id).no}</button>`; }).join('')}
       ${S.herePick?(LANDMARKS[f]||[]).map(([n,x,y],i)=>anchor(x,y,'mlm',`<span class="lmn">${String.fromCharCode(65+i)}</span>${n}`,`role="button" tabindex="0" aria-label="我在${n}" onclick="event.stopPropagation();setHere(${x},${y})"`)).join(''):''}
       ${S.way?wayLayer(f,anchor)+facLayer(f):facLayer(f)}</div>`   /* 2026-11-18：帶我去的地圖一定要看得到設施，所以路線層之外再疊設施層 */
     : `<div style="position:absolute;inset:0;display:grid;place-items:center;color:var(--text2);font-size:13px">1F 平面圖待館方提供</div>`;
