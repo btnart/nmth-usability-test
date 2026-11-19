@@ -2890,7 +2890,7 @@ function openExMapIn(k,fl){ (S.mapStack=S.mapStack||[]).push({floor:S.floor,mapA
   S.hist.push('map'); (S.histTop=S.histTop||[]).push(null); histPush(); S._railc=null; S._zb=null;
   Object.assign(S,{floor:fl,mapEx:k,exOnly:k,exBare:false,mapAll:false,mapFloors:false,mapSel:null,facFind:null,zsMin:false}); render(true,'push'); }
 function exFromMap(k){ if(S.hist[S.hist.length-1]==='ex'&&S.ex===k) return back(); openEx(k); }   /* 地圖→展覽介紹：上一頁就是這檔展覽頁就直接退回 */
-function openExMap(k,fl){ const sn=S.mapSnaps&&S.mapSnaps[S.mapSnaps.length-1]; if(S.hist[S.hist.length-1]==='map'&&sn&&sn.d===S.hist.length&&sn.st.floor===fl) return back();   /* 上一頁就是這層的地圖：直接退回去，不再多疊一層（UX 顧問建議） */
+function openExMap(k,fl){ const sn=S.mapSnaps&&S.mapSnaps[S.mapSnaps.length-1]; if(S.hist[S.hist.length-1]==='map'&&sn&&sn.d===S.hist.length&&sn.st.floor===fl&&sn.st.exOnly===k) return back();   /* 上一頁就是「這檔展覽」的地圖：直接退回去，不再多疊一層（UX 顧問建議）。2026-11-20 留言：上一頁是全館地圖時不退回，要進這檔展覽自己的地圖，跟首頁卡片進來一樣 */
   S._hold=true; openMap(fl,k); S.exOnly=k; S.exBare=true; S._fxFocus=true;   /* exBare：2026-11-12 留言——從展覽頁進的地圖一開始不放底部面板，點了點位才出現展品卡片 */ S._hold=false; render(true,'push'); }   /* 2026-11-12：展覽頁點「地圖」——狀態一次設好，只畫一次，播放從右側推入的轉場（原本連畫兩次把動畫蓋掉） */
 /* 2026-11-12 留言：播放器裡開地圖＝跟導覽列表一樣由下往上滑的面板，播放器留在後面；地圖裡的操作都在面板裡進行，關閉回到播放器 */
 function openMapSheet(fl,ex,id){ S._hold=true; openMap(fl,ex,null,id); S.mapSheet=true; S._mapSheetIn=true; S._hold=false; render(true); }
