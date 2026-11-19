@@ -154,14 +154,14 @@ button.mapbar{padding:0 16px}
 .mnav{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none!important}
 .mzoom{position:absolute;right:20px;bottom:var(--zb,96px);transition:bottom var(--pan-dur) var(--pan-ez);z-index:7;display:flex;flex-direction:column;background:#fff;border-radius:12px;box-shadow:0 8px 12px -4px rgba(0,0,0,.14);overflow:hidden}
 .mzoom button{width:36px;height:36px;display:grid;place-items:center}   /* 2026-11-11：縮放鍵縮小（44→36px） */ .mzoom button+button{border-top:1px solid var(--border)}
-.pincard{}
+.pincard{filter:none;box-shadow:0 -6px 24px rgba(15,25,30,.18),0 -1px 4px rgba(15,25,30,.08)}   /* 2026-11-19 留言：點位卡要看得出是浮在地圖上的底部面板 */
 .mfac{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:15px;background:#fff;border:1.5px solid var(--teal7);display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:pointer;z-index:1}
 .mfac::before{content:'';position:absolute;inset:-7px} .mfac.on{background:var(--teal7);transform:translate(-50%,-50%) scale(1.15);z-index:3}
 .mfac .mflab{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:3px;white-space:nowrap;font-size:10px;line-height:1.4;font-weight:500;color:var(--ink);background:rgba(255,255,255,.92);padding:1px 6px;border-radius:7px;box-shadow:0 1px 3px rgba(0,0,0,.15);pointer-events:none}   /* 全區地圖：點位下方標名稱（照 A 版） */
 .mfac .mflab.f1{font-size:12px;font-weight:700;padding:2px 8px;border-radius:9px;background:var(--teal7);color:#fff}   /* 第 1 輪測試修正：1F 出口／入口文字標籤 */
 .mfac .mflab.f1.ev{background:var(--gold);color:var(--ink)}
 /* 2026-11-11 留言：廁所點位跟其他設施同尺寸（30px），取消第 1 輪測試時的放大 */
-.mfac.hl{box-shadow:0 0 0 3px var(--gold-mid),0 2px 6px rgba(0,0,0,.18);z-index:2}   /* 第 1 輪測試修正：「找廁所」時，地圖上的廁所加金框 */
+.mfac.hl{z-index:2} .facmode .mfac.cluhit{animation:none}   /* 2026-11-19 留言：找設施的點位不加金框、不閃爍，跟一般設施圖示一樣 */
 .mbld{position:absolute;transform:translate(-50%,-50%);z-index:2;background:var(--teal7);color:#fff;border-radius:14px;padding:8px 14px;display:flex;flex-direction:column;align-items:center;gap:1px;box-shadow:0 4px 12px rgba(0,0,0,.22);font-size:13px;font-weight:700;white-space:nowrap}
 .mbld span{font-size:10px;font-weight:400;opacity:.85}
 .facbar{position:absolute;left:20px;right:20px;top:62px;z-index:7;display:flex;gap:8px}
@@ -297,9 +297,6 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .exhero.ins .exgrad{position:absolute;top:0;bottom:0;left:-24px;right:-24px;background:linear-gradient(to bottom,rgba(0,0,0,0) 18%,rgba(0,0,0,.38) 48%,rgba(0,0,0,.82))}   /* 長展名（英文）會往上長到亮處，漸層提早開始 */
 .exhero.ins .explaque{left:20px;right:20px;bottom:24px}
 .exnav.ins:not(.ttl){box-shadow:none} .exnav.ins .c{transition:opacity .2s} .exnav.ins:not(.ttl) .c{opacity:0}
-.facrow{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:var(--cream);cursor:pointer} .facrow.sel{background:var(--tealL);cursor:default}
-.facrow .fi{flex:0 0 40px;height:40px;border-radius:20px;background:#fff;display:grid;place-items:center} .facrow .ft{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px} .facrow .ft b{font-weight:500;font-size:14px;color:var(--ink)} .facrow .ft small{font-size:12px;color:var(--text2)}
-.facrow .fsel{font-size:13px;font-weight:500;color:var(--teal7)} .facmore{align-self:flex-start;display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 4px;font-size:13px;font-weight:500;color:var(--teal7)}
 .rprog2{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
 .rprog2 .rp1{display:flex;align-items:center;gap:10px} .rprog2 .rp1 b{flex:0 0 auto;font-weight:500;font-size:13px;color:var(--text)} .rprog2 .rp1>span{flex:1;min-width:0;font-size:12px;color:var(--teal7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rprog2 .rp2{display:flex} .rprog2 .rp2 i{flex:1 1 0;min-width:0;height:6px;border-radius:3px}
@@ -2393,29 +2390,17 @@ function placeCard(k){ const [,f,i]=k.split(':'), [t,n,,,tx]=PLACES[f][+i];
     <p style="padding:12px 24px 0;font-size:13px;line-height:1.6;color:var(--text2)">${tx||'按帶我去，標出你在哪裡就幫你畫路線'}</p>${f==='site'&&SITE_TO_ENT[+i]
       ?`<div class="wbtns" style="padding:0 24px"><button class="tealbtn soft pickok" onclick="startNav('${k}')">帶我去這裡</button><button class="tealbtn pickok" onclick="siteFromExitNav(${+i})">從出口怎麼走？</button></div>`
       :`<div style="padding:0 24px;margin-top:auto"><button class="tealbtn pickok" onclick="startNav('${k}')">帶我去這裡</button></div>`}</div>`; }
-/* 第 1 輪測試修正：廁所／電梯／樓梯原本是「顯示／隱藏」開關，受測者以為是「帶我去廁所」，按了反而把圖示藏起來。
-   改成「找最近的」：設施圖示一律顯示；按鈕＝列出這層的廁所（由近到遠）＋每筆一顆帶我去 */
-function facRef(){ const f=S.floor, p=S.player&&PINS[f]&&PINS[f][S.player.id]; if(p) return {x:p[0],y:p[1],name:`正在聽 ${it(S.player.id).no}`};
-  if(hereOn()) return {x:S.here.x,y:S.here.y,name:'你的位置'}; return null; }
-function facFindSheet(){ const t=S.facFind, f=S.floor, ref=facRef(), [tn,td]=FAC_TYPES[t];
-  const list=(PLACES[f]||[]).map((p,i)=>({p,i})).filter(o=>o.p[0]===t).map(o=>({...o, m:ref?pathM(walkPath(f,[ref.x,ref.y],[o.p[2],o.p[3]])||[[ref.x,ref.y],[o.p[2],o.p[3]]],f):null}));
-  if(ref) list.sort((a,b)=>a.m-b.m);
-  /* 2026-11-16：面板只放一個選項（預設最近的），其他收在「其他 N 處」；展開選了一個就收回，面板不會變高蓋住地圖 */
-  const pick=list.find(o=>o.i===S.facPick)||list[0], more=list.filter(o=>o!==pick);
-  const row=(o,sel)=>`<div class="facrow${sel?' sel':''}" ${sel?'':`role="button" tabindex="0" onclick="facPick(${o.i})" onkeydown="if(event.key==='Enter')facPick(${o.i})"`}>
-      <span class="fi">${MI(td,22,'#2E5C6E')}</span>
-      <span class="ft"><b>${o.p[1]}${o===list[0]&&ref?'・最近':''}</b><small>${o.m!=null?`約 ${o.m} 公尺・${Math.max(1,Math.ceil(o.m/60))} 分鐘`:f}</small></span>
-      ${sel?`<button class="tealbtn" style="min-height:40px;padding:0 14px" onclick="event.stopPropagation();S.facFind=null;startNav('p:${f}:${o.i}')">帶我去</button>`:`<span class="fsel">選這個</span>`}</div>`;
-  return `<div class="zonesheet navsheet" role="dialog" aria-label="這層的${tn}">${closeX('facClose()','關閉')}
-    <div style="padding:0 24px;display:flex;align-items:baseline;gap:8px"><b class="navt" style="margin:0">${ref?`離你最近的${tn}`:`這層的${tn}`}</b><span style="font-size:12px;color:var(--text2)">${f}・共 ${list.length} 處</span></div>
-    <div style="display:flex;flex-direction:column;gap:8px;padding:0 24px">${list.length?row(pick,true)
-      +(more.length?(S.facMore?more.map(o=>row(o,false)).join('')+`<button class="facmore" onclick="S.facMore=false;render()" aria-expanded="true">收合 ${MI(MD.chev,16,'#2E5C6E')}</button>`
-        :`<button class="facmore" onclick="S.facMore=true;render()" aria-expanded="false">其他 ${more.length} 處 <span style="display:inline-flex;transform:rotate(180deg)">${MI(MD.chev,16,'#2E5C6E')}</span></button>`):'')
-      :`<p style="font-size:13px;color:var(--text2)">這層沒有${tn}</p>`}</div></div>`; }
-function facPick(i){ S.facPick=i; S.facMore=false; const p=PLACES[S.floor][i]; if(p) mapFocus(p[2],p[3]); render(); }
-function facClose(){ S.facFind=null; if(S.mapOnly) S.mapSel=S.mapOnly; render(); }   /* 2026-11-12 留言：從單件展品地圖找設施，關掉後回到這件展品的「帶我去」畫面 */
+/* 2026-11-19 留言：找設施只在地圖上標點位、不出清單面板；地圖平順縮放到這層同類設施全部看得到 */
+function facFit(){ const w=document.querySelector('#app > .scr .mapwrap'), t=S.facFind, f=S.floor; if(!w||!FAC_TYPES[t]) return;
+  const pts=(PLACES[f]||[]).filter(p=>p[0]===t); if(!pts.length) return;
+  const fb=document.querySelector('#app > .scr .facbar'), wr=w.getBoundingClientRect(), top=fb?fb.getBoundingClientRect().bottom-wr.top+24:104, H=mapVisH(w), W=w.clientWidth;
+  const x0=Math.min(...pts.map(p=>p[2]))-60, x1=Math.max(...pts.map(p=>p[2]))+60, y0=Math.min(...pts.map(p=>p[3]))-60, y1=Math.max(...pts.map(p=>p[3]))+60;
+  const k=f+'|'+S.mapOnly+'|'+S.exOnly; if(!S._facPrev||S._facPrev.k!==k) S._facPrev={k, v:{...mapView()}};   /* 記住原本的視角，取消找設施時回去 */
+  const ah=Math.max(120,H-top-24), base=fitV(mapOf(f).fit).s, sc=Math.min((W-48)/(x1-x0), ah/(y1-y0), Math.max(base*1.2, S._facPrev.v.s));   /* 只有一兩處時不放太大，還看得出在館內哪裡 */
+  animView({s:sc, x:W/2-(x0+x1)/2*sc, y:top+ah/2-(y0+y1)/2*sc}); }
+function facClose(){ S.facFind=null; if(S.mapOnly) S.mapSel=S.mapOnly; render(); const pv=S._facPrev; S._facPrev=null; if(pv&&pv.k===S.floor+'|'+S.mapOnly+'|'+S.exOnly) setTimeout(()=>animView(pv.v),0); }   /* 2026-11-12 留言：從單件展品地圖找設施，關掉後回到這件展品的「帶我去」畫面 */
 function facBar(){ return `<div class="facbar" role="group" aria-label="找最近的設施">${Object.entries(FAC_TYPES).map(([t,[n,d]])=>{ const on=S.facFind===t;
-  return `<button class="facchip${on?' on':''}" aria-pressed="${on}" onclick="if(S.facFind==='${t}') return facClose(); S.facFind='${t}';S.facPick=null;S.facMore=false;S.mapSel=null;render()">${MI(d,14,on?'#fff':'#2E5C6E')}找${n}</button>`; }).join('')}</div>`; }
+  return `<button class="facchip${on?' on':''}" aria-pressed="${on}" onclick="if(S.facFind==='${t}') return facClose(); S.facFind='${t}';S.mapSel=null;S._facFit=true;render()">${MI(d,14,on?'#fff':'#2E5C6E')}找${n}</button>`; }).join('')}</div>`; }
 /* 4F 有兩間特展室，地圖下方可以切換；範圍、標籤、點位、入口都跟著換 */
 const ROOMS4={zj:{name:'第一特展室', area:'887,507 1457,507 1457,738 887,738', label:[1250,507], elevTip:'出電梯往右 → 第一特展室', fit:{s:0.5482, x:-392, y:28.9}}, asia:{name:'第三特展室', area:'80,307 283,307 283,497 80,497', label:[182,307], elevTip:'出電梯往左 → 第三特展室（走廊另有延伸展區）', fit:{s:0.8274, x:-1.4, y:76.7}}};
 /* 2026-11-12 樓層展覽分頁：全館／全區地圖（樓層檢視）先顯示整層點位；下方面板頂部分頁選展覽＝篩出該展點位。只有一檔展覽的樓層不顯示分頁 */
@@ -2623,7 +2608,7 @@ function flFadeIn(){ if(!S._flIn) return; S._flIn=false; const D=300;
   const z=document.querySelector('#app > .scr > .zonesheet'); if(!z) return; const h=z.offsetHeight;
   if(S._flOldH&&S._flOldH!==h){ z.style.overflow='hidden'; z.dataset.fh=h; z.animate([{height:S._flOldH+'px'},{height:h+'px'}],{duration:PAN_MS,easing:PAN_EZ}).onfinish=()=>{ z.style.overflow=''; delete z.dataset.fh; }; }
   [...z.children].forEach(c=>c.animate([{opacity:0},{opacity:1}],{duration:D,easing:'ease-out'})); }
-function mapMount(){ flFadeIn(); if(S._fxFocus){ S._fxFocus=false; setTimeout(fxFocus,0); } requestAnimationFrame(floorRailFit); floorRailFit();
+function mapMount(){ flFadeIn(); if(S._fxFocus){ S._fxFocus=false; setTimeout(fxFocus,0); } if(S._facFit){ S._facFit=false; setTimeout(facFit,0); } requestAnimationFrame(floorRailFit); floorRailFit();
   const fi=document.getElementById('ftind'); if(fi){ const to=['1F','2F','4F'].indexOf(S.floor); fi.offsetWidth; fi.style.setProperty('--i',to); S.ftPrev=null; }   /* 樓層膠囊的深色底從上一層滑到這一層 */
   const w=document.querySelector('.mapwrap'); if(!w||!MAPS[S.floor]) return;
   const pts=new Map(); let st=null, dragT=0;
@@ -2949,7 +2934,7 @@ function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F'
   const rtK=!S.way&&(S.walk?S.walk.k:S.mapRoute&&ROUTES[S.mapRoute]?S.mapRoute:null), rtFloors=rtK?['4F','2F','1F'].filter(x=>PINS[x]&&rtList(rtK).some(id=>PINS[x][id])):null;   /* 2026-11-16：主題路線的地圖只放路線經過的樓層；只有一層就不顯示樓層列 */
   const exMapP=M&&S.exOnly&&EXHIBITIONS[S.exOnly]&&!S.mapRoute&&!S.mapOnly, uniP=M&&(fvOn()&&floorExs(f).length||exMapP);   /* 2026-11-12：展覽地圖跟全館地圖用同一套面板（展覽資訊頭＋開始導覽／帶我去＋可展開清單），只是不顯示分頁、不連回展覽介紹 */
   const navTitle = S.mapOnly ? it(S.mapOnly).n : f==='site' ? '全區地圖' : S.mapFloors&&!S.exOnly ? ({'1F':'1F 大廳','2F':'2F 常設展廳','4F':'4F 特展室'}[f]||f) :   /* 2026-11-11 留言：從首頁全區地圖進來換樓層，標題是樓層，不是某檔展覽 */ S.mapAll&&!S.way ? '展區地圖' : f==='4F' ? EXHIBITIONS[exKey].n : S.mapRoute&&ROUTES[S.mapRoute] ? ROUTES[S.mapRoute].n : EXHIBITIONS.perm.n;
-  const sheet = M&&S.walk&&!S.way ? walkSheet() : M&&S.way ? waySheet() : M&&S.herePick ? pickSheet() : M&&S.nav ? navSheet() : M&&S.arrived ? arrivedSheet() : M&&S.facFind&&FAC_TYPES[S.facFind]&&!S.mapSel ? facFindSheet() : M&&S.tour&&S.player&&!S.mapOnly&&!S.mapSel ? guideSheet() : S.mapSel&&M ? (S.mapSel.startsWith('p:')?placeCard(S.mapSel):pinCard(S.mapSel)) : M&&(exMapP&&S.exBare||S.player&&S.mapBare===f) ? '' : M&&S.zsMin ? `<div class="zonesheet zsminw">   <!-- 第 1 輪測試修正（T5）：收合後只留一顆展開鈕，地圖看得比較大 -->${fvOn()?fxTabs(f):''}
+  const sheet = M&&S.walk&&!S.way ? walkSheet() : M&&S.way ? waySheet() : M&&S.herePick ? pickSheet() : M&&S.nav ? navSheet() : M&&S.arrived ? arrivedSheet() : M&&S.facFind&&FAC_TYPES[S.facFind]&&!S.mapSel ? '' : M&&S.tour&&S.player&&!S.mapOnly&&!S.mapSel ? guideSheet() : S.mapSel&&M ? (S.mapSel.startsWith('p:')?placeCard(S.mapSel):pinCard(S.mapSel)) : M&&(exMapP&&S.exBare||S.player&&S.mapBare===f) ? '' : M&&S.zsMin ? `<div class="zonesheet zsminw">   <!-- 第 1 輪測試修正（T5）：收合後只留一顆展開鈕，地圖看得比較大 -->${fvOn()?fxTabs(f):''}
       <button class="zsmin" onclick="S.zsMin=false;render()" aria-label="展開下方面板"><span style="display:inline-flex;transform:rotate(180deg)">${MI(MD.chev,20,'#2E5C6E')}</span>展開${f==='site'?'說明':RT?`站點清單・${cardIds.length} 站`:`導覽點清單・${cardIds.length} 個`}</button></div>` : `<div class="zonesheet${fvOn()||exMapP?' zsfv':''}">
       ${M&&cardIds.length&&!uniP&&f!=='4F'?`<button class="zstog" onclick="S.zsFull=!S.zsFull;render()" aria-expanded="${!!S.zsFull}" aria-label="${S.zsFull?'收合展品清單':'展開展品清單'}"><span style="display:inline-flex${S.zsFull?'':';transform:rotate(180deg)'}">${MI(MD.chev,18,'#2E5C6E')}</span>${S.zsFull?'收合清單':RT?`展開站點清單・${cardIds.length} 站`:`展開導覽點清單・${cardIds.length} 個`}</button>`:''}   <!-- 2026-11-12 方案 1：兩段式面板——預設矮版（分頁＋展覽資訊＋按鈕），按「展開展品清單」才出現卡片；文字按鈕可點，不靠拖曳（WCAG 2.5.7） -->
       ${uniP?`${exMapP?fxHead(S.exOnly,cardIds.length):`${fxTabs(f)}${S.fx||floorExs(f).length===1?fxHead(S.fx||floorExs(f)[0]):`<div style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;min-height:32px"><div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">${f} ${M.name}</b><span style="font-size:11px;color:var(--text2)">${cardIds.length} 件展品・${floorExs(f).length} 檔展覽</span></div></div>`}`}
@@ -3671,7 +3656,7 @@ function syncSheet0(){ document.querySelectorAll('#app > .scr').forEach(scr=>{ c
 /* 第 1 輪測試修正：底部面板動態——只在「打開那一刻」由下往上滑出（300ms ease-in-out），遮罩淡入；關閉時先把舊面板複製一份往下滑出再移除。
    用「面板種類」判斷是否剛打開：同一個面板重繪（播放進度、切換選項）種類不變，不重播。置中的語言彈窗用淡入＋輕微放大。 */
 function shSig(){ const ov=S.sheet&&!['menu','viewer','signfs'].includes(S.sheet)?S.sheet:null;
-  const base=S.screen==='map'?(S.way?'way':S.herePick?'pick':S.nav?'nav':S.arrived?'arr':S.walk?'walk':S.facFind?'fac':(S.tour&&S.player&&!S.mapOnly&&!S.mapSel)?'tour':S.mapSel?'sel':S.zsMin?'min':S.zsFull?'full':'def'):null;
+  const base=S.screen==='map'?(S.way?'way':S.herePick?'pick':S.nav?'nav':S.arrived?'arr':S.walk?'walk':S.facFind&&!S.mapSel?'fac':(S.tour&&S.player&&!S.mapOnly&&!S.mapSel)?'tour':S.mapSel?'sel':S.zsMin?'min':S.zsFull?'full':'def'):null;
   if(ov) return {scr:S.screen,k:'ov:'+ov,ov:true,base};   /* 2026-11-19：記下彈窗底下原本是哪個面板，關掉彈窗時那個面板原地不動，不重播進場 */
   return {scr:S.screen,k:base}; }
 const shPanel=(o,n)=>!!(o&&o!=='min'&&!(o==='def'&&n!=='min'));   /* 舊的算不算「要收起的面板」：地圖預設面板只有收合時才算 */
