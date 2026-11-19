@@ -2967,7 +2967,8 @@ function doLogin(){ const n=S.fav.size; S.loggedIn=true;
   { const el=document.getElementById('em'), em=((el&&el.value)||'').trim()||'nmth.visitor@gmail.com';
     S.user={em, n:em.split('@')[0].replace(/[._-]+/g,' '), ini:(em[0]||'N').toUpperCase()}; }   /* 正式版改抓 OIDC 的 picture／name */ if(S.afterLogin&&S.afterLogin.rev){ const k=S.afterLogin.rev; S.afterLogin=null; back(); S.revK=k; S.revStar=0; S.revText=''; S.sheet='review'; render(); setTimeout(()=>toast('已登入，可以寫評論了'),60); return; } if(S.fromLanding) return loginToHome('已登入，收藏與收聽紀錄會保留在帳號裡'); S.screen='member'; render(true);   /* 登入頁換成會員中心，返回鍵不再回登入頁 */
   const el=document.createElement('div'); el.className='ltoast'; el.setAttribute('role','status');
-  el.innerHTML=`${img('ic-check-toast.svg',16,16)}<span>已將您未登入時的 ${n} 筆收藏合併至帳號</span>`; document.getElementById('app').appendChild(el); setTimeout(()=>el.remove(),2600); }
+  const nn=Object.keys(S.notes||{}).filter(id=>it(id)).length, parts=[n?`${n} 筆收藏`:'', nn?`${nn} 則筆記`:''].filter(Boolean);   /* 2026-11-18：規格 MEM-01／03——未登入時的收藏與筆記，登入時一起合併，提示也要講到筆記 */
+  el.innerHTML=`${img('ic-check-toast.svg',16,16)}<span>${parts.length?`已將您未登入時的 ${parts.join('與 ')}合併至帳號`:'已登入'}</span>`; document.getElementById('app').appendChild(el); setTimeout(()=>el.remove(),2600); }
 function scrLogin(){
   const btn=t=>`<button onclick="doLogin()" style="width:100%;background:var(--cream);border-radius:24px;padding:13px 0;font-weight:500;font-size:14px;line-height:normal;color:var(--text)">${t}</button>`;
   return `<div class="scr loginscr">   <!-- 2026-11-16 留言：登入頁高度貼齊螢幕、不捲動；上方標題區吃剩下的空間，螢幕矮就縮小留白 -->
