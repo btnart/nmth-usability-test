@@ -682,7 +682,6 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .fxtabs button.on{color:var(--ink);font-weight:700;box-shadow:inset 0 -3px 0 var(--teal7)}   /* 選取＝深色粗體＋底線，不只靠顏色（AA） */
 .zsminw .fxtabs{margin:0 0 10px}
 .zonesheet.pctall{display:flex;flex-direction:column} .pctall .pcimg{position:relative;display:block;flex:1 1 auto;min-height:90px;margin:4px 24px 0;border-radius:14px;overflow:hidden} .pctall .pcimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover} .pctall>div:last-child{padding-bottom:4px}
-.pcback{display:inline-flex;align-items:center;gap:2px;min-height:40px;padding:0 10px 0 2px;border-radius:20px;font-size:14px;font-weight:500;color:var(--teal7)}
 .zcard.hit{box-shadow:0 0 0 3px var(--gold-mid)}
 .zonesheet.zsminw{padding:12px 0} .withmini .zonesheet.zsminw{padding-bottom:104px}   /* 2026-11-11 留言：收合後有迷你播放器時，展開鈕要在播放器上方，不被蓋住 */
 .zsmin{align-self:stretch;margin:0 24px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:22px;background:var(--cream);font-size:13px;font-weight:500;color:var(--teal7)}   /* 第 1 輪測試修正（T5）：下方面板可以收合 */
@@ -2918,7 +2917,7 @@ function mapNextId(){ if(S.walk) return null; const k=S.mapRoute; if(!k||!ROUTES
 function pinCard(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||floorEx();   /* 4F「全部」時用展品自己所屬的展覽 */
   if(S.mapOnly) return `<div style="position:absolute;left:20px;right:20px;bottom:28px;z-index:8">   <!-- 2026-11-12 留言：播放器開的地圖面板只留「帶我去」，不放底部面板（關閉面板＝回到播放器） -->
       <button class="tealbtn pickok" style="width:100%;box-shadow:0 10px 24px -6px rgba(15,25,30,.45),0 2px 6px rgba(15,25,30,.2)" onclick="startNav('${id}')" aria-label="帶我去展品 ${x.no} ${x.n}">帶我去這裡</button></div>`;
-  const bare=S.exOnly&&S.exBare || S.floor==='4F' || !!(S.player&&S.mapBare===S.floor) || !!(S.mapRoute&&ROUTES[S.mapRoute]&&!S.walk);   /* 2026-11-19 留言：主題路線地圖的點位卡跟地圖點位卡一樣，右上關閉，不再「返回站點清單」 */   /* 2026-11-18：「返回展品清單」只在面板真的有清單時才有意義——4F 面板沒有展品清單、縮小播放器回來的地圖不放面板，這些情況一律用關閉鈕 */
+  const bare=true;   /* 2026-11-20 留言：舊版「← 展品清單／站點清單」版型已刪除——所有地圖的點位卡一律右上關閉 ✕，高度照內容 */
   /* 2026-11-13 留言：導覽長度、手語改成同一排膠囊；位置已經在地圖上看得到，不再重複列 */
   /* 2026-11-18：卡片要講「按下去真的會得到什麼」。手語只在手語導覽那條線出現（pickVersion 在非手語線一律不給手語），
      所以非手語線的展品即使有手語影片，也是走文字——卡片就寫文字導覽，不放手語膠囊、不放播放圖示。時間只在真的有音檔／影片或 tonly 的閱讀估計時才標。 */
@@ -2927,7 +2926,7 @@ function pinCard(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||f
   const caps=noG?'':`<span class="pccaps">${asText&&(!x.tonly||rk)?'':`<span class="pccap">${MI(EXC_IC.clock,14,'#5F5F5F')}${mmss(x.d)}</span>`}${asSign?`<span class="pccap sg">${SIGN_IC}手語影片</span>`:asText?`<span class="pccap">文字導覽</span>`:''}</span>`;   /* 從展覽頁進的地圖：沒有清單可以回，卡片右上改關閉 ✕；只留「開始導覽」「帶我去」 */
   const tall=false;   /* 2026-11-18：拿掉「上方大圖」版型，點位卡一律左圖右文；同一個點位不論從清單或地圖點進來都同一個樣子 */   /* 2026-11-12 留言：面板沿用清單高度時，照片改成上方大圖撐滿，不留一大片空白 */
   return `<div class="zonesheet pincard${tall?' pctall':''}" role="dialog" aria-label="展品 ${x.no} ${x.n}" style="${S._zsDefH&&!bare?`min-height:${S._zsDefH}px`:''}">
-    ${bare?closeX('pinBack()','關閉展品卡片'):S.mapOnly?'':`<div style="padding:0 12px 4px;margin-top:-6px"><button class="pcback" onclick="pinBack()" aria-label="返回${rk?'站點':'展品'}清單">${MI('M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',22,'#2E5C6E')}${rk?'站點':'展品'}清單</button></div>`}
+    ${closeX('pinBack()','關閉展品卡片')}
     ${tall?`<span class="pcimg"><img src="${A(x.img)}" alt="">${x.maint?'<span class="mbadge">維護中</span>':''}</span>
     <div style="display:flex;flex-direction:column;gap:4px;padding:12px 24px 0">
       <span style="font-size:12px;color:var(--text2)">${x.no?'#'+x.no:''}</span>
