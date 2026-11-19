@@ -618,8 +618,8 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .scr.mapsheet .mstitle{position:absolute;left:20px;top:18px;right:72px;font-weight:700;font-size:18px;line-height:1.4;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* 2026-11-12 留言：面板標題顯示樓層 */
 .scr.mapsheet .maphead .pcx{top:10px}   /* 2026-11-12 留言：面板標頭只留關閉，同導覽列表 */
 .scr.mapsheet{top:10%;border-radius:24px 24px 0 0;z-index:4;box-shadow:0 -10px 30px rgba(15,25,30,.25)} .scr.mapsheet.msin{animation:shUp var(--pan-dur) var(--pan-ez) both}   /* 2026-11-12 留言：上滑速度跟導覽列表一致 */   /* 播放器開的地圖面板 */
-.mini .box.tx{height:84px;padding:0 10px 0 8px;gap:10px}   /* 2026-11-12 留言：只有展品文字時重新排版——標題放大、兩行，右側只留下一則與關閉 */
-.mini .box.tx .th{height:84px;padding:12px 6px 12px 10px}
+.mini .box.tx{height:72px;padding:0 10px 0 8px;gap:10px}   /* 2026-11-12 留言：只有展品文字時重新排版——標題放大、兩行，右側只留下一則與關閉 */
+.mini .box.tx .th{width:auto;flex:0 0 auto;height:72px;padding:12px 4px 12px 10px} .mini .box.tx .th img,.mini .box.tx .th .sgth{width:48px;height:48px;border-radius:10px}   /* 2026-11-20 留言：高度、縮圖跟導覽內頁底部的播放卡一樣（72px 高、縮圖 48×48 圓角 10） */
 .mini .box.tx .info{gap:3px;padding:0}
 .mini .box.tx .tt{overflow:hidden;min-width:0}
 .mini .box.tx .tt span{font-size:16px;font-weight:500;line-height:1.35;letter-spacing:.2px;white-space:nowrap;display:block;overflow:hidden;text-overflow:ellipsis;-webkit-mask-image:none;mask-image:none}   /* 2026-11-16 留言：標題維持一排，放不下就跑馬燈（見 miniMarquee） */
@@ -757,6 +757,13 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .exrev{padding:8px 24px 16px}.exrev h2{font-weight:500;font-size:20px;letter-spacing:.5px;color:var(--text)}.exrev .avg{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2)}.exrev .avg b{font-weight:700;color:var(--ink)}
 .stars{display:inline-flex;gap:1px}.stars i{font-style:normal;color:#D8D2C6;line-height:1}.stars i.on{color:var(--gold-mid)}
 .rv{padding:12px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}.rv .rh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}.rv .rh b{font-weight:500;color:var(--ink);font-size:13px}.rv .rh em{font-style:normal;font-size:11px;padding:1px 8px;border-radius:9px;background:#fff7e0;color:#8a6d00}.rv p{font-size:14px;line-height:1.6;color:var(--text)}.rv small{font-size:11px;color:var(--text2)}.rv.mine{background:var(--cream);border-radius:12px;padding:12px;border:0}
+.revbox{display:flex;flex-direction:column;gap:8px;width:100%;margin:12px 0 4px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:#fff;text-align:left}
+.revbox .revstars{display:flex;gap:2px;margin-left:-6px} .revbox .revstars i{font-style:normal;font-size:22px;line-height:1;color:#D8D2C6;padding:0 4px}
+.revbox .revstars button{width:40px;height:40px;font-size:26px;line-height:1;color:#D8D2C6} .revbox .revstars button.on{color:var(--gold-mid)}
+.revbox .revph{font-size:14px;color:var(--text2)} .revbox .revlg{align-self:flex-end;font-size:13px;font-weight:500;color:var(--teal7)}
+.revbox textarea{width:100%;border:0;padding:0;font:400 14px/1.6 'Noto Sans TC',sans-serif;color:var(--text);resize:none;background:transparent;outline:none}
+.revbox.on:focus-within{border-color:var(--teal7)}
+.revft{display:flex;align-items:center;justify-content:space-between;gap:8px} .revft small{font-size:12px;color:var(--text2)} .revft .tealbtn{min-width:88px;height:40px;border-radius:20px;padding:0 18px;font-size:14px} .revft .tealbtn:disabled{opacity:.4}   /* 2026-11-20：評論輸入框放在第一則評論的位置 */
 .revnote{font-size:11px;line-height:1.5;color:var(--text2);margin-top:10px}
 .starbtn{width:44px;height:44px;font-size:30px;line-height:1;color:#D8D2C6}.starbtn.on{color:var(--gold-mid)}
 .tgl{width:44px;height:26px;border-radius:13px;background:#D8D2C6;position:relative;flex:0 0 44px;transition:background .2s}.tgl i{position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}.tgl.on{background:var(--teal7)}.tgl.on i{transform:translateX(18px)}
@@ -1982,11 +1989,19 @@ function exReviews(k){ const R=REVIEWS[k], mine=(S.myReview||{})[k];
   return `<section class="exrev" id="exSecRev" aria-labelledby="revH">
     <div style="display:flex;align-items:center;justify-content:space-between;min-height:48px"><h2 id="revH">觀眾評論</h2>${R?`<span class="avg">${stars(R.avg)}<b>${R.avg}</b><span>・${R.n} 則</span></span>`:''}</div>
     <div style="height:1px;background:var(--border);margin-bottom:4px"></div>
+    ${mine?'':revComposer(k)}   <!-- 2026-11-20 留言：輸入框直接放在第一則評論的位置；未登入點了先去登入 -->
     ${mine?`<div class="rv mine"><div class="rh"><b>你的評論</b>${stars(mine.s,12)}<em>審核中</em></div>${mine.t?`<p>${mine.t.replace(/</g,'&lt;')}</p>`:''}<small>館方審核通過後才會公開</small></div>`:''}
     ${R?R.list.slice(0,(S.revAll||{})[k]?R.n:REV_SHOW).map(([who,d,s,tx])=>`<div class="rv"><div class="rh"><b>${who}</b>${stars(s,12)}<span>${d}</span></div><p>${tx}</p></div>`).join('')+(R.n>REV_SHOW?`<button onclick="(S.revAll=S.revAll||{})['${k}']=!S.revAll['${k}'];render()" aria-expanded="${!!(S.revAll||{})[k]}" style="display:block;margin:4px auto 0;min-height:44px;font-size:13px;font-weight:500;color:var(--teal7)">${(S.revAll||{})[k]?'收合評論':`看全部 ${R.n} 則評論`}</button>`:''):`<p style="padding:12px 0;font-size:13px;color:var(--text2)">還沒有評論</p>`}
-    ${mine?'':`<button class="tealbtn soft" style="width:100%;height:44px;border-radius:22px;margin-top:8px" onclick="writeReview('${k}')">${S.loggedIn?'寫下你的評論':'登入後寫評論'}</button>`}
     <p class="revnote">經館方審核後公開</p></section>`; }
-function writeReview(k){ if(!S.loggedIn){ S.afterLogin={rev:k}; go('login'); return; } S.revK=k; S.revStar=0; S.revText=''; S.sheet='review'; render(); }
+function revComposer(k){ const on=S.loggedIn, cur=S.revK===k, st=cur?S.revStar||0:0, tx=cur?S.revText||'':'';
+  if(!on) return `<button class="revbox" onclick="writeReview('${k}')" aria-label="寫評論（需要先登入）">
+      <span class="revstars" aria-hidden="true">${[1,2,3,4,5].map(()=>'<i>★</i>').join('')}</span>
+      <span class="revph">分享你的參觀感受…</span><span class="revlg">登入後寫評論</span></button>`;
+  return `<div class="revbox on" id="revBox">
+    <div role="radiogroup" aria-label="評分" class="revstars">${[1,2,3,4,5].map(i=>`<button role="radio" aria-checked="${st===i}" aria-label="${i} 顆星" class="${i<=st?'on':''}" onclick="S.revK='${k}';S.revStar=${i};render()">★</button>`).join('')}</div>
+    <label class="sr" for="rvT_${k}">評論內容</label><textarea id="rvT_${k}" rows="3" maxlength="300" placeholder="分享你的參觀感受（選填，300 字內）" oninput="S.revK='${k}';S.revText=this.value">${tx.replace(/</g,'&lt;')}</textarea>
+    <div class="revft"><small>${st?'':'先點星星評分'}</small><button class="tealbtn" ${st?'':'disabled aria-disabled="true"'} onclick="submitReview()">送出</button></div></div>`; }
+function writeReview(k){ if(!S.loggedIn){ S.afterLogin={rev:k}; go('login'); return; } S.revK=k; render(); const b=document.getElementById('revBox'); if(b) b.scrollIntoView({block:'center'}); }
 function reviewSheet(){ const k=S.revK, s=S.revStar||0;
   return `<div class="dim" onclick="S.sheet=null;render()"></div>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rvH" style="border-radius:24px 24px 0 0;padding:14px 24px 26px;display:flex;flex-direction:column;gap:14px">${closeX('S.sheet=null;render()')}<div class="grab"></div>
@@ -2315,7 +2330,7 @@ function miniDock(){
         <button class="th" onclick="go('player')" aria-label="打開播放器">${p.sign&&!x.tonly?`<img src="${sgPoster(x)}" alt="" style="object-position:72% 40%">`:`<img src="${A(x.img)}" alt="">`}</button>   <!-- 2026-11-13：手語用影片縮圖（固定一張海報），不要展品照 -->
         <div class="info" onclick="go('player')" style="cursor:pointer">
           <div class="tt"><span>${x.n}</span></div>
-          <div class="mm">${stop}<span id="miniLeft" translate="no">-${mmss(x.d-p.pos)}</span>${i>=0?`<span>・</span><span translate="no">${i+1} / ${l.length}</span>`:''}</div></div>
+          <div class="mm">${stop}${x.no?`<span translate="no">#${x.no}</span><span>・</span>`:''}<span id="miniLeft" translate="no">-${mmss(x.d-p.pos)}</span>${i>=0?`<span>・</span><span translate="no">${i+1} / ${l.length}</span>`:''}</div></div>
         <button class="pb" onclick="event.stopPropagation();S.player.playing=!S.player.playing;render()" aria-label="${p.playing?'暫停':'播放'}">${MI(p.playing?MD.pause:'M8 5v14l11-7z',24,'#fff')}</button>
         <button class="nx" onclick="event.stopPropagation();step(1)" aria-label="${atEdge(1)?'已經是最後一'+sUnit(p.ctx):'下一'+sUnit(p.ctx)}" ${atEdge(1)?'disabled':''}>${MI(MD.next,24,'#2E5C6E')}</button>
         <button class="cx" onclick="event.stopPropagation();S.player=null;render()" aria-label="關閉">${MI(MD.close,20,'#5F5F5F')}</button></div></div></div>`;
@@ -3003,7 +3018,7 @@ function scrMap(){ if(fvOn()&&S.fx) S.fx=null;   /* 2026-11-19 留言：全館�
 function goMember(){ S.loggedIn ? go('mylist') : go('login'); }
 function doLogin(){ const n=S.fav.size; S.loggedIn=true;
   { const el=document.getElementById('em'), em=((el&&el.value)||'').trim()||'nmth.visitor@gmail.com';
-    S.user={em, n:em.split('@')[0].replace(/[._-]+/g,' '), ini:(em[0]||'N').toUpperCase()}; }   /* 正式版改抓 OIDC 的 picture／name */ if(S.afterLogin&&S.afterLogin.rev){ const k=S.afterLogin.rev; S.afterLogin=null; back(); S.revK=k; S.revStar=0; S.revText=''; S.sheet='review'; render(); setTimeout(()=>toast('已登入，可以寫評論了'),60); return; } if(S.fromLanding) return loginToHome('已登入，收藏與收聽紀錄會保留在帳號裡'); S.screen='member'; render(true);   /* 登入頁換成會員中心，返回鍵不再回登入頁 */
+    S.user={em, n:em.split('@')[0].replace(/[._-]+/g,' '), ini:(em[0]||'N').toUpperCase()}; }   /* 正式版改抓 OIDC 的 picture／name */ if(S.afterLogin&&S.afterLogin.rev){ const k=S.afterLogin.rev; S.afterLogin=null; back(); S.revK=k; S.revStar=0; S.revText=''; render(); setTimeout(()=>{ const b=document.getElementById('revBox'); if(b){ b.scrollIntoView({block:'center'}); } toast('已登入，可以寫評論了'); },60); return; } if(S.fromLanding) return loginToHome('已登入，收藏與收聽紀錄會保留在帳號裡'); S.screen='member'; render(true);   /* 登入頁換成會員中心，返回鍵不再回登入頁 */
   const el=document.createElement('div'); el.className='ltoast'; el.setAttribute('role','status');
   const nn=Object.keys(S.notes||{}).filter(id=>it(id)).length, parts=[n?`${n} 筆收藏`:'', nn?`${nn} 則筆記`:''].filter(Boolean);   /* 2026-11-18：規格 MEM-01／03——未登入時的收藏與筆記，登入時一起合併，提示也要講到筆記 */
   el.innerHTML=`${img('ic-check-toast.svg',16,16)}<span>${parts.length?`已將您未登入時的 ${parts.join('與 ')}合併至帳號`:'已登入'}</span>`; document.getElementById('app').appendChild(el); setTimeout(()=>el.remove(),2600); }
