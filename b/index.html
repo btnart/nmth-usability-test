@@ -2951,8 +2951,7 @@ function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F'
       <div style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;min-height:32px">
         ${f==='4F'?ex4Info(exKey)   /* 第 1 輪測試修正（T8）：4F 面板＝目前選的特展資訊＋開始導覽；原本的切換 chip 和「開始導覽這個特展」整併進來，切換改點地圖上的特展入口 */
         :f==='site'?`<div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">臺史博全區</b></div>`:`<div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">${RT?ROUTES[RT].n:M?M.name:'1F 大廳'}</b>${cardIds.length?`<span style="font-size:11px;color:var(--text2)">${RT?`${cardIds.length} 站・${cardIds.filter(id=>it(id).guide).length} 站有導覽`:`${cardIds.length} 個導覽點`}</span>`:''}</div><button class="waybtn" onclick="startNav(${ENTRY[f]?"'entry'":''})" aria-label="${ENTRY[f]?`帶我去${M?M.name:''}入口`:'帶我去：選起點和目的地，幫你畫路線'}">${MI(MD.nav,16,'#2E5C6E')}帶我去</button>`}</div>`}
-      ${f==='site'?`<p style="padding:${fvOn()?'4px 24px 0':'0 24px 8px'};font-size:13px;line-height:1.6;color:var(--text2)">點地圖上的點位看說明</p>
-      <div class="hs zrow" style="gap:12px;padding:12px 24px 28px;margin-bottom:-28px">
+      ${f==='site'?`<div class="hs zrow" style="gap:12px;padding:0 24px 28px;margin-bottom:-28px">   <!-- 2026-11-19 留言：全區面板拿掉說明文字，只留卡片，面板矮一點（有迷你播放器時不會吃掉半個畫面） -->
         <div class="zcard" onclick="S.floor='1F';S.mapSel=null;render()"><img src="${A('home-hero.jpg')}" alt="">
           <div class="t"><span>1F・2F・4F 展廳</span><b>展示教育大樓</b></div></div></div>`:''}
       ${M&&!cardIds.length&&f!=='site'?`<p style="padding:0 24px;font-size:13px;line-height:1.6;color:var(--text2)">${S.exOnly?`這層沒有「${EXHIBITIONS[S.exOnly].n.split('：')[0]}」的展品。`:'這層沒有導覽展品。'}點地圖上的設施，可以帶你過去。</p>`:''}
