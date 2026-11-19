@@ -163,7 +163,10 @@ button.mapbar{padding:0 16px}
 .mfac .mflab.f1{font-size:12px;font-weight:700;padding:2px 8px;border-radius:9px;background:var(--teal7);color:#fff}   /* 第 1 輪測試修正：1F 出口／入口文字標籤 */
 .mfac .mflab.f1.ev{background:var(--gold);color:var(--ink)}
 /* 2026-11-11 留言：廁所點位跟其他設施同尺寸（30px），取消第 1 輪測試時的放大 */
-.mfac.hl{z-index:2} .facmode .mfac.cluhit{animation:none}   /* 2026-11-19 留言：找設施的點位不加金框、不閃爍，跟一般設施圖示一樣 */
+.mfac.hl{z-index:2}
+.fachint{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:8;display:flex;align-items:center;gap:12px;padding:6px 6px 6px 16px;border-radius:24px;background:var(--ink);color:#fff;font-size:13px;white-space:nowrap;box-shadow:0 8px 24px rgba(15,25,30,.3)}
+.fachint span{display:inline-flex;align-items:center;gap:6px} .fachint button{min-height:36px;padding:0 14px;border-radius:18px;background:#fff;color:var(--teal7);font-size:13px;font-weight:700}
+.withmini .fachint{bottom:108px} .facmode .mfac.cluhit{animation:none}   /* 2026-11-19 留言：找設施的點位不加金框、不閃爍，跟一般設施圖示一樣 */
 .mbld{position:absolute;transform:translate(-50%,-50%);z-index:2;background:var(--teal7);color:#fff;border-radius:14px;padding:8px 14px;display:flex;flex-direction:column;align-items:center;gap:1px;box-shadow:0 4px 12px rgba(0,0,0,.22);font-size:13px;font-weight:700;white-space:nowrap}
 .mbld span{font-size:10px;font-weight:400;opacity:.85}
 .facbar{position:absolute;left:20px;right:20px;top:62px;z-index:7;display:flex;gap:8px}
@@ -2401,6 +2404,9 @@ function facFit(){ const w=document.querySelector('#app > .scr .mapwrap'), t=S.f
   const k=f+'|'+S.mapOnly+'|'+S.exOnly; if(!S._facPrev||S._facPrev.k!==k) S._facPrev={k, v:{...mapView()}};   /* 記住原本的視角，取消找設施時回去 */
   const ah=Math.max(120,H-top-24), base=fitV(mapOf(f).fit).s, sc=Math.min((W-48)/(x1-x0), ah/(y1-y0), Math.max(base*1.2, S._facPrev.v.s));   /* 只有一兩處時不放太大，還看得出在館內哪裡 */
   animView({s:sc, x:W/2-(x0+x1)/2*sc, y:top+ah/2-(y0+y1)/2*sc}); }
+/* 2026-11-19 留言：只顯示設施時，底部提示現在只看得到哪一種設施，按「返回導覽」回到原本的點位 */
+function facHint(){ const [tn,td]=FAC_TYPES[S.facFind];
+  return `<div class="fachint" role="status"><span>${MI(td,16,'#fff')}只顯示${tn}</span><button onclick="facClose()">返回導覽</button></div>`; }
 function facClose(){ S.facFind=null; if(S.mapOnly) S.mapSel=S.mapOnly; render(); const pv=S._facPrev; S._facPrev=null; if(pv&&pv.k===S.floor+'|'+S.mapOnly+'|'+S.exOnly) setTimeout(()=>animView(pv.v),0); }   /* 2026-11-12 留言：從單件展品地圖找設施，關掉後回到這件展品的「帶我去」畫面 */
 function facBar(){ return `<div class="facbar" role="group" aria-label="找最近的設施">${Object.entries(FAC_TYPES).map(([t,[n,d]])=>{ const on=S.facFind===t;
   return `<button class="facchip${on?' on':''}" aria-pressed="${on}" onclick="if(S.facFind==='${t}') return facClose(); S.facFind='${t}';S.mapSel=null;S._facFit=true;render()">${MI(d,14,on?'#fff':'#2E5C6E')}找${n}</button>`; }).join('')}</div>`; }
@@ -2414,7 +2420,7 @@ const FIT4ALL={s:.2443, x:-0.8, y:196.6};
 /* 2026-11-19 留言：全館地圖的 2F／4F 面板跟全區一樣只放卡片——這層有哪些展覽，點了進展覽頁從那裡開始完整導覽；地圖上的點位照樣可以點來聽單件 */
 function fxCards(f){ const ks=floorExs(f);
   return `<div style="display:flex;align-items:center;padding:0 24px;min-height:32px"><b style="font-weight:700;font-size:18px;color:var(--ink)">${f} ${f==='4F'?'特展室':MAPS[f].name}</b></div>
-    <div class="hs zrow" style="gap:12px;padding:0 24px 28px;margin-bottom:-28px">${ks.map(k=>{ const e=EXHIBITIONS[k];
+    <div class="hs zrow" style="gap:12px;padding:8px 24px 28px;margin-bottom:-28px">${ks.map(k=>{ const e=EXHIBITIONS[k];
       return `<div class="zcard" role="button" tabindex="0" onclick="exFromMap('${k}')" onkeydown="if(event.key==='Enter')exFromMap('${k}')" aria-label="${e.n}，看展覽介紹"><img src="${A(e.card||e.hero)}" alt=""><div class="t"><span>${ROOMS4[k]?ROOMS4[k].name:'常設展廳'}・${e.items.length} 個導覽點</span><b>${e.n.split('：')[0]}</b></div></div>`; }).join('')}</div>`; }
 function fxTabs(f){ const ks=floorExs(f); if(!ks.length) return '';   /* 只有一檔展覽的樓層也顯示同一排（單一分頁＝展名標籤），2F、4F 版面一致、高度一樣 */
   const b=(k,t)=>{ const on=(S.fx||null)===k; return `<button role="tab" aria-selected="${on}" class="${on?'on':''}" onclick="fxSel(${k?`'${k}'`:'S.fx'})">${t}</button>`; };
@@ -2949,20 +2955,20 @@ function scrMap(){ if(fvOn()&&S.fx) S.fx=null;   /* 2026-11-19 留言：全館�
   const rtK=!S.way&&(S.walk?S.walk.k:S.mapRoute&&ROUTES[S.mapRoute]?S.mapRoute:null), rtFloors=rtK?['4F','2F','1F'].filter(x=>PINS[x]&&rtList(rtK).some(id=>PINS[x][id])):null;   /* 2026-11-16：主題路線的地圖只放路線經過的樓層；只有一層就不顯示樓層列 */
   const exMapP=M&&S.exOnly&&EXHIBITIONS[S.exOnly]&&!S.mapRoute&&!S.mapOnly, uniP=M&&(fvOn()&&floorExs(f).length||exMapP);   /* 2026-11-12：展覽地圖跟全館地圖用同一套面板（展覽資訊頭＋開始導覽／帶我去＋可展開清單），只是不顯示分頁、不連回展覽介紹 */
   const navTitle = S.mapOnly ? it(S.mapOnly).n : f==='site' ? '全區地圖' : S.mapFloors&&!S.exOnly ? ({'1F':'1F 大廳','2F':'2F 常設展廳','4F':'4F 特展室'}[f]||f) :   /* 2026-11-11 留言：從首頁全區地圖進來換樓層，標題是樓層，不是某檔展覽 */ S.mapAll&&!S.way ? '展區地圖' : f==='4F' ? EXHIBITIONS[exKey].n : S.mapRoute&&ROUTES[S.mapRoute] ? ROUTES[S.mapRoute].n : EXHIBITIONS.perm.n;
-  const sheet = M&&S.walk&&!S.way ? walkSheet() : M&&S.way ? waySheet() : M&&S.herePick ? pickSheet() : M&&S.nav ? navSheet() : M&&S.arrived ? arrivedSheet() : M&&S.facFind&&FAC_TYPES[S.facFind]&&!S.mapSel ? '' : M&&S.tour&&S.player&&!S.mapOnly&&!S.mapSel ? guideSheet() : S.mapSel&&M ? (S.mapSel.startsWith('p:')?placeCard(S.mapSel):pinCard(S.mapSel)) : M&&(exMapP&&S.exBare||S.player&&S.mapBare===f) ? '' : M&&S.zsMin ? `<div class="zonesheet zsminw">   <!-- 第 1 輪測試修正（T5）：收合後只留一顆展開鈕，地圖看得比較大 -->${exMapP?fxTabs(f):''}
+  const sheet = M&&S.walk&&!S.way ? walkSheet() : M&&S.way ? waySheet() : M&&S.herePick ? pickSheet() : M&&S.nav ? navSheet() : M&&S.arrived ? arrivedSheet() : M&&S.facFind&&FAC_TYPES[S.facFind]&&!S.mapSel ? facHint() : M&&S.tour&&S.player&&!S.mapOnly&&!S.mapSel ? guideSheet() : S.mapSel&&M ? (S.mapSel.startsWith('p:')?placeCard(S.mapSel):pinCard(S.mapSel)) : M&&(exMapP&&S.exBare||S.player&&S.mapBare===f) ? '' : M&&S.zsMin ? `<div class="zonesheet zsminw">   <!-- 第 1 輪測試修正（T5）：收合後只留一顆展開鈕，地圖看得比較大 -->${exMapP?fxTabs(f):''}
       <button class="zsmin" onclick="S.zsMin=false;render()" aria-label="展開下方面板"><span style="display:inline-flex;transform:rotate(180deg)">${MI(MD.chev,20,'#2E5C6E')}</span>展開${f==='site'?'說明':RT?`站點清單・${cardIds.length} 站`:`導覽點清單・${cardIds.length} 個`}</button></div>` : `<div class="zonesheet${fvOn()||exMapP?' zsfv':''}">
       ${M&&cardIds.length&&!uniP&&f!=='4F'&&!RT?`<button class="zstog" onclick="S.zsFull=!S.zsFull;render()" aria-expanded="${!!S.zsFull}" aria-label="${S.zsFull?'收合展品清單':'展開展品清單'}"><span style="display:inline-flex${S.zsFull?'':';transform:rotate(180deg)'}">${MI(MD.chev,18,'#2E5C6E')}</span>${S.zsFull?'收合清單':RT?`展開站點清單・${cardIds.length} 站`:`展開導覽點清單・${cardIds.length} 個`}</button>`:''}   <!-- 2026-11-12 方案 1：兩段式面板——預設矮版（分頁＋展覽資訊＋按鈕），按「展開展品清單」才出現卡片；文字按鈕可點，不靠拖曳（WCAG 2.5.7） -->
       ${uniP?`${exMapP?fxHead(S.exOnly,cardIds.length):fxCards(f)}
       ${S.zsFull&&exMapP?`<div class="hs zrow" style="gap:12px;padding:12px 24px 28px;margin-bottom:-28px">${cardIds.map(id=>`<div class="zcard" data-id="${id}" onclick="pinTap('${id}')"><img src="${A(it(id).img)}" alt=""><div class="t"><span>${RT?`第 ${rtNo(RT,id)} 站`:it(id).no?'#'+it(id).no:''}</span><b>${it(id).n}</b></div></div>`).join('')}</div>`:''}
-    </div>`:''}${uniP?'':`${RT&&M?'':`   <!-- 2026-11-19 留言：主題路線地圖不放路線標題與帶我去，只放可左右滑的站點小卡 -->
+    </div>`:''}${uniP?'':`   <!-- 2026-11-19 留言：主題路線地圖保留路線名稱與站數（知道下面是什麼卡片），不放帶我去 -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;min-height:32px">
         ${f==='4F'?ex4Info(exKey)   /* 第 1 輪測試修正（T8）：4F 面板＝目前選的特展資訊＋開始導覽；原本的切換 chip 和「開始導覽這個特展」整併進來，切換改點地圖上的特展入口 */
-        :f==='site'?`<div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">臺史博全區</b></div>`:`<div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">${RT?ROUTES[RT].n:M?M.name:'1F 大廳'}</b>${cardIds.length?`<span style="font-size:11px;color:var(--text2)">${RT?`${cardIds.length} 站・${cardIds.filter(id=>it(id).guide).length} 站有導覽`:`${cardIds.length} 個導覽點`}</span>`:''}</div><button class="waybtn" onclick="startNav(${ENTRY[f]?"'entry'":''})" aria-label="${ENTRY[f]?`帶我去${M?M.name:''}入口`:'帶我去：選起點和目的地，幫你畫路線'}">${MI(MD.nav,16,'#2E5C6E')}帶我去</button>`}</div>`}
-      ${f==='site'?`<div class="hs zrow" style="gap:12px;padding:0 24px 28px;margin-bottom:-28px">   <!-- 2026-11-19 留言：全區面板拿掉說明文字，只留卡片，面板矮一點（有迷你播放器時不會吃掉半個畫面） -->
+        :f==='site'?`<div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">臺史博全區</b></div>`:`<div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">${RT?ROUTES[RT].n:M?M.name:'1F 大廳'}</b>${cardIds.length?`<span style="font-size:11px;color:var(--text2)">${RT?`${cardIds.length} 站・${cardIds.filter(id=>it(id).guide).length} 站有導覽`:`${cardIds.length} 個導覽點`}</span>`:''}</div>${RT&&M?'':`<button class="waybtn" onclick="startNav(${ENTRY[f]?"'entry'":''})" aria-label="${ENTRY[f]?`帶我去${M?M.name:''}入口`:'帶我去：選起點和目的地，幫你畫路線'}">${MI(MD.nav,16,'#2E5C6E')}帶我去</button>`}`}</div>
+      ${f==='site'?`<div class="hs zrow" style="gap:12px;padding:8px 24px 28px;margin-bottom:-28px">   <!-- 2026-11-19 留言：全區面板拿掉說明文字，只留卡片，面板矮一點（有迷你播放器時不會吃掉半個畫面） -->
         <div class="zcard" onclick="S.floor='1F';S.mapSel=null;render()"><img src="${A('home-hero.jpg')}" alt="">
           <div class="t"><span>1F・2F・4F 展廳</span><b>展示教育大樓</b></div></div></div>`:''}
       ${M&&!cardIds.length&&f!=='site'?`<p style="padding:0 24px;font-size:13px;line-height:1.6;color:var(--text2)">${S.exOnly?`這層沒有「${EXHIBITIONS[S.exOnly].n.split('：')[0]}」的展品。`:'這層沒有導覽展品。'}點地圖上的設施，可以帶你過去。</p>`:''}
-      ${f==='4F'||!(S.zsFull||RT&&M)?'':`<div class="hs zrow" style="gap:12px;padding:${RT&&M?'0':'12px'} 24px 28px;margin-bottom:-28px">${cardIds.map(id=>`<div class="zcard" data-id="${id}" onclick="${M?`pinTap('${id}')`:`play('${id}',{type:'ex',key:'${exKey}'})`}">
+      ${f==='4F'||!(S.zsFull||RT&&M)?'':`<div class="hs zrow" style="gap:12px;padding:12px 24px 28px;margin-bottom:-28px">${cardIds.map(id=>`<div class="zcard" data-id="${id}" onclick="${M?`pinTap('${id}')`:`play('${id}',{type:'ex',key:'${exKey}'})`}">
         <img src="${A(it(id).img)}" alt=""><div class="t"><span>${RT?`第 ${rtNo(RT,id)} 站`:it(id).no?'#'+it(id).no:''}</span><b>${it(id).n}</b></div></div>`).join('')}</div>`}   <!-- 第 1 輪測試修正（T8）：4F 面板只放特展資訊，展品卡片拿掉（地圖上的導覽點可以直接點），地圖可視區比較大 -->
     </div>`}`;
   const mbg=M&&M.bg||'#F0F0F0';   /* 地圖區與整頁底色跟平面圖一致，圖外看起來是同一張延伸的地圖 */
