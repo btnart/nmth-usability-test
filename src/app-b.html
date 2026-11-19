@@ -166,7 +166,7 @@ button.mapbar{padding:0 16px}
 .mfac.hl{z-index:2}
 .fachint{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);z-index:8;display:flex;align-items:center;gap:12px;padding:6px 6px 6px 16px;border-radius:24px;background:var(--ink);color:#fff;font-size:13px;white-space:nowrap;box-shadow:0 8px 24px rgba(15,25,30,.3)}
 .fachint span{display:inline-flex;align-items:center;gap:6px} .fachint button{min-height:36px;padding:0 14px;border-radius:18px;background:#fff;color:var(--teal7);font-size:13px;font-weight:700}
-.withmini .fachint{bottom:108px} .facmode .mfac.cluhit{animation:none}   /* 2026-11-19 留言：找設施的點位不加金框、不閃爍，跟一般設施圖示一樣 */
+.withmini .fachint{bottom:108px}   /* 2026-11-19 留言：找設施的點位不加金框、不閃爍，跟一般設施圖示一樣 */
 .mbld{position:absolute;transform:translate(-50%,-50%);z-index:2;background:var(--teal7);color:#fff;border-radius:14px;padding:8px 14px;display:flex;flex-direction:column;align-items:center;gap:1px;box-shadow:0 4px 12px rgba(0,0,0,.22);font-size:13px;font-weight:700;white-space:nowrap}
 .mbld span{font-size:10px;font-weight:400;opacity:.85}
 .facbar{position:absolute;left:20px;right:20px;top:62px;z-index:7;display:flex;gap:8px}
@@ -201,9 +201,8 @@ button.mapbar{padding:0 16px}
 .waymode .mapwrap{bottom:var(--sh,300px)}
 .waymode .zonesheet{gap:12px}
 .pickhead .wb{background:none}
-.way-b .wpl,.way-b .mpin:not(.on):not(.now){animation:selGlow 1.6s ease-in-out infinite}   /* 2026-11-11 留言：選目的地時，可點的展品與設施發亮，讓人知道要點點位、不是地圖任意一點 */
+/* 2026-11-19 留言：選目的地時可點的點位只留靜態金圈，不再閃爍（原 2026-11-11 的呼吸光暈拿掉） */
 .way-b .wpl{border-color:var(--gold-mid)} .way-b .mpin:not(.on):not(.now){outline:2px solid var(--gold-mid)} .way-b .wpl,.way-b .mpin:not(.on):not(.now){box-shadow:0 0 0 3px rgba(201,169,97,.55)}   /* 減少動態時保留靜態光圈 */
-@keyframes selGlow{0%,100%{box-shadow:0 0 0 3px rgba(201,169,97,.7)}50%{box-shadow:0 0 0 9px rgba(201,169,97,.2)}}
 .wpl{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:4px;height:28px;padding:0 9px 0 3px;border-radius:14px;background:#fff;border:1.5px solid var(--teal7);
   font-size:11px;font-weight:500;color:var(--ink);white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:pointer;pointer-events:auto!important;z-index:2}
 .wpl i{width:20px;height:20px;border-radius:10px;background:var(--tealL);display:grid;place-items:center}
@@ -746,9 +745,6 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .loginscr .lgbot>button,.loginscr .lgbot>input{padding-top:clamp(10px,1.6vh,13px)!important;padding-bottom:clamp(10px,1.6vh,13px)!important}
 .loginscr .lgbot>div{padding:clamp(2px,.8vh,8px) 0!important}
 .loginscr .lgbot>div i{flex:1;width:auto!important} .loginscr .lgbot>div span{white-space:nowrap}   /* 「或使用 Email」不換行，兩側線條撐滿 */
-@keyframes cluhit{0%{box-shadow:0 0 0 0 rgba(201,145,46,.9)}35%{box-shadow:0 0 0 7px rgba(201,145,46,.55)}100%{box-shadow:0 0 0 12px rgba(201,145,46,0)}}
-.mpins .cluhit{animation:cluhit .8s ease-out 2}
-@media (prefers-reduced-motion:reduce){.mpins .cluhit{animation:none;outline:3px solid #C9912E;outline-offset:2px}}
 #app .scr .mapwrap{bottom:0!important}   /* 地圖鋪滿到底，面板疊在上面（見 mapVisH） */
 #app .mapwrap .pickpin{top:calc((100% - var(--sh,0px))/2)}   /* 標位置的圖釘＝看得到的地圖正中間 */
 .pnext{flex-direction:column;align-items:center;gap:8px;padding:0 16px}.pnext>*{pointer-events:auto}.pnext .rateb{align-self:stretch}
@@ -2574,7 +2570,7 @@ function clusterPins(){ const root=document.querySelector('#app > .scr .mpins');
     b.onclick=ev=>{ ev.stopPropagation(); const w=document.querySelector('.mapwrap'), cur=mapView().s, W=w?w.clientWidth:375, H=w?mapVisH(w):600;
       const fit=Math.min((W-96)/Math.max(x1-x0,1), (H*.5)/Math.max(y1-y0,1)), sep=1/Math.max(dmin,.001)*1.2;   /* 拉近到整組都還在畫面裡（fit），但不超過剛好分得開的倍率（sep） */
       mapZoomTo((x0+x1)/2,(y0+y1)/2,Math.min(2.6,Math.max(cur*1.2,Math.min(fit,sep))));
-      const keys=new Set(g.map(q=>q.mx+','+q.my)); setTimeout(()=>{ document.querySelectorAll('#app .mpins .mpin,#app .mpins .mfac,#app .mpins .wpl').forEach(e=>{ if(keys.has(e.dataset.mx+','+e.dataset.my)){ e.classList.remove('cluhit'); void e.offsetWidth; e.classList.add('cluhit'); setTimeout(()=>e.classList.remove('cluhit'),1700); } }); },380); };   /* 拉近後，剛才聚在一起的點亮一圈，分得出是哪幾個（旁邊原本就分開的點不亮） */
+      };   /* 2026-11-19 留言：聚集點拉近後不再加閃爍光暈（所有地圖、含帶我去） */
     root.appendChild(b); }); }
 /* 放大到某一點：平滑過渡，點位跟著一起移動 */
 function mapZoomTo(mx,my,s){ const v=mapView(), w=document.querySelector('.mapwrap'); if(!w) return; const W=w.clientWidth, H=mapVisH(w);
