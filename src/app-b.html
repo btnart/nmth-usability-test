@@ -763,7 +763,6 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .revbox textarea{width:100%;border:0;padding:0;font:400 14px/1.6 'Noto Sans TC',sans-serif;color:var(--text);resize:none;background:transparent;outline:none}
 .revbox.on:focus-within{border-color:var(--teal7)}
 .revft{display:flex;align-items:center;justify-content:space-between;gap:8px} .revft small{font-size:12px;color:var(--text2)} .revft .tealbtn{min-width:88px;height:40px;border-radius:20px;padding:0 18px;font-size:14px} .revft .tealbtn:disabled{opacity:.4}   /* 2026-11-20：評論輸入框放在第一則評論的位置 */
-.revnote{font-size:11px;line-height:1.5;color:var(--text2);margin-top:10px}
 .starbtn{width:44px;height:44px;font-size:30px;line-height:1;color:#D8D2C6}.starbtn.on{color:var(--gold-mid)}
 .tgl{width:44px;height:26px;border-radius:13px;background:#D8D2C6;position:relative;flex:0 0 44px;transition:background .2s}.tgl i{position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}.tgl.on{background:var(--teal7)}.tgl.on i{transform:translateX(18px)}
 .sitemap section h2{font-weight:700;font-size:16px;color:var(--ink);padding-bottom:6px;border-bottom:1px solid var(--border)}.sitemap ul{list-style:none;margin:0;padding:0}.sitemap li button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;text-align:left;font-size:15px;color:var(--text);border-bottom:1px solid var(--line)}
@@ -1977,7 +1976,7 @@ function exReviews(k){ const R=REVIEWS[k], mine=(S.myReview||{})[k];
     ${mine?'':revComposer(k)}   <!-- 2026-11-20 留言：輸入框直接放在第一則評論的位置；未登入點了先去登入 -->
     ${mine?`<div class="rv mine"><div class="rh"><b>你的評論</b>${stars(mine.s,12)}<em>審核中</em></div>${mine.t?`<p>${mine.t.replace(/</g,'&lt;')}</p>`:''}<small>館方審核通過後才會公開</small></div>`:''}
     ${R?R.list.slice(0,(S.revAll||{})[k]?R.n:REV_SHOW).map(([who,d,s,tx])=>`<div class="rv"><div class="rh"><b>${who}</b>${stars(s,12)}<span>${d}</span></div><p>${tx}</p></div>`).join('')+(R.n>REV_SHOW?`<button onclick="(S.revAll=S.revAll||{})['${k}']=!S.revAll['${k}'];render()" aria-expanded="${!!(S.revAll||{})[k]}" style="display:block;margin:4px auto 0;min-height:44px;font-size:13px;font-weight:500;color:var(--teal7)">${(S.revAll||{})[k]?'收合評論':`看全部 ${R.n} 則評論`}</button>`:''):`<p style="padding:12px 0;font-size:13px;color:var(--text2)">還沒有評論</p>`}
-    <p class="revnote">經館方審核後公開</p></section>`; }
+    </section>`; }   /* 2026-11-20 留言：拿掉底部「經館方審核後公開」 */
 function revComposer(k){ const on=S.loggedIn, cur=S.revK===k, st=cur?S.revStar||0:0, tx=cur?S.revText||'':'';
   if(!on) return `<button class="revbox" onclick="writeReview('${k}')" aria-label="寫評論（需要先登入）">
       <span class="revstars" aria-hidden="true">${[1,2,3,4,5].map(()=>'<i>★</i>').join('')}</span>
