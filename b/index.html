@@ -2657,7 +2657,8 @@ function startNav(id){ const f=S.floor, pl=id&&id.startsWith('p:')?PLACES[id.spl
   let a=hereOn()?{fl:f,x:S.here.x,y:S.here.y,name:S.tour&&S.player?`剛聽完 ${it(S.player.id).no}・${it(S.player.id).n}`:'我的位置',key:'here'}:null;   /* 現場導覽中：起點就是剛聽完的那件 */
   /* 第 1 輪測試修正：從播放器／導覽中的地圖進帶我去，起點自動帶入正在聽的那一站（同一層、而且目的地不是它自己）；要改可按「更改」 */
   const pp=S.player&&PINS[f]&&PINS[f][S.player.id];
-  if(!a&&pp&&!(b&&b.key==='x:'+S.player.id)) a={fl:f,x:pp[0],y:pp[1],name:`正在聽 ${it(S.player.id).no}・${it(S.player.id).n}`,id:S.player.id,key:'x:'+S.player.id};
+  /* 2026-11-20 留言：只在「照順序導覽中」或播放器開的地圖才自動帶起點；一般地圖、主題路線地圖背景有迷你播放器時不帶，起點一律在地圖上選（正在聽的那件不一定是人現在站的位置） */
+  if(!a&&pp&&(S.tour||S.mapOnly)&&!(b&&b.key==='x:'+S.player.id)) a={fl:f,x:pp[0],y:pp[1],name:`正在聽 ${it(S.player.id).no}・${it(S.player.id).n}`,id:S.player.id,key:'x:'+S.player.id};
   S.way={step:a&&b?'route':a?'b':'a', a, b, bPre:!!b, from:f, mapOnly:S.mapOnly}; S.arrived=null; S.facFind=null;   /* 第 1 輪測試修正：已有起點就直接選目的地 */ S.mapSel=null; S.nav=null; S.navPending=null; S.herePick=false;
   wayFit(); render(); }
 function wayFit(){ const w=S.way, f=S.floor; S.mv=S.mv||{}; S.mv[f]=fitV(mapOf(f).fit);
