@@ -2203,7 +2203,19 @@ function playerMount(){
       if(dy>120){ scr.style.transition=''; collapsePlayer(); return; }
       scr.style.transition='transform .28s cubic-bezier(.2,.8,.2,1),border-radius .28s'; scr.style.transform=''; scr.style.borderRadius=''; };
     scr.addEventListener('pointerup',end); scr.addEventListener('pointercancel',end);
-    scr.addEventListener('click',ev=>{ if(Date.now()-dragT<350){ ev.stopPropagation(); ev.preventDefault(); } },true); }
+    scr.addEventListener('click',ev=>{ if(Date.now()-dragT<350){ ev.stopPropagation(); ev.preventDefault(); } },true);
+    /* 2026-11-20 留言：整頁都能往下拉收合（像抽屜由上往下關）——內容已捲到最上面時，在內容區往下拉也會收合；內容還沒捲到頂就照常往上捲。
+       用 touch 事件：內容區是 pan-y，pointer 事件會被瀏覽器的捲動接手（pointercancel），只有 touchmove 能在捲到頂時攔下來 */
+    let tc=null;
+    const atTop=el=>{ for(let n=el;n&&n!==scr.parentNode;n=n.parentElement){ const o=getComputedStyle(n).overflowY; if((o==='auto'||o==='scroll')&&n.scrollHeight>n.clientHeight+1&&n.scrollTop>0) return false; } return true; };
+    scr.addEventListener('touchstart',e=>{ const tg=e.target; tc=null; if(S.sheet||e.touches.length>1||tg.closest('.pnav,.vprog,#prog,.hs,.sheet,input,textarea,select,#vwImg')||(tg.closest('#pimg')&&!tg.closest('.pscroll'))) return; if(!atTop(tg)) return; const t=e.touches[0]; tc={x:t.clientX,y:t.clientY,on:false,dy:0}; },{passive:true});
+    scr.addEventListener('touchmove',e=>{ if(!tc) return; const t=e.touches[0], dx=t.clientX-tc.x, dy=t.clientY-tc.y;
+      if(!tc.on){ if(Math.hypot(dx,dy)<8) return; if(dy<=0||Math.abs(dx)>Math.abs(dy)){ tc=null; return; } tc.on=true; scr.style.transition='none'; }
+      e.preventDefault(); tc.dy=Math.max(0,dy); scr.style.transform=`translateY(${tc.dy}px) scale(${1-Math.min(tc.dy,400)/4000})`; scr.style.borderRadius='28px'; scr.style.overflow='hidden'; },{passive:false});
+    const tend=()=>{ if(!tc) return; const on=tc.on, dy=tc.dy; tc=null; if(!on) return; dragT=Date.now();
+      if(dy>120){ scr.style.transition=''; collapsePlayer(); return; }
+      scr.style.transition='transform .28s cubic-bezier(.2,.8,.2,1),border-radius .28s'; scr.style.transform=''; scr.style.borderRadius=''; };
+    scr.addEventListener('touchend',tend); scr.addEventListener('touchcancel',tend); }
   /* 左右滑動切換三個分頁，等同點膠囊列；圖片輪播、進度條、橫向捲動列照舊各自處理 */
   const box=document.getElementById('ptrack'); if(box&&!REDUCED){ let g=null;
     const host=box.parentElement;
