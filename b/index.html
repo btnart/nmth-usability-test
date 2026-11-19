@@ -102,12 +102,17 @@ button.mapbar{padding:0 16px}
 .mapwrap.picking{cursor:crosshair} .mapwrap.picking .mpin,.mapwrap.picking .mchip{pointer-events:none}
 .mapwrap{touch-action:none;user-select:none;-webkit-user-select:none}
 .mlayer{position:absolute;left:0;top:0;transform-origin:0 0} .mlayer img{display:block;max-width:none;pointer-events:none}
+.pmorebg{position:fixed;inset:0;z-index:40} .pmore{position:absolute;right:0;top:48px;z-index:41;min-width:184px;background:#fff;border-radius:16px;box-shadow:0 12px 32px -8px rgba(15,25,30,.35),0 2px 8px rgba(15,25,30,.12);padding:6px;display:flex;flex-direction:column;animation:hintin .18s ease-out both}
+.pmore button{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:12px;font-size:15px;color:var(--ink);text-align:left} .pmore button:active{background:var(--cream)} .pmore .aa{width:20px;display:inline-flex;align-items:baseline;justify-content:center;font-weight:700;color:#3C3C3C}   /* 2026-11-18：播放器右上「更多」選單（收藏、筆記、文字大小） */
 .mpins{position:absolute;inset:0;pointer-events:none} .mpins>*{pointer-events:auto}
 .mpin{position:absolute;transform:translate(-50%,-100%);min-width:44px;height:30px;padding:0 9px;border-radius:15px;background:var(--teal7);color:#fff;
   font:700 13px Roboto,'Noto Sans TC',sans-serif;box-shadow:0 4px 10px rgba(15,25,30,.3);display:grid;place-items:center;margin-top:-6px;transition:background .2s,transform .2s}
 .mpin::after{content:'';position:absolute;left:50%;top:100%;margin-left:-6px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid var(--teal7)}
 .mpin.playing{display:flex;align-items:center;justify-content:center;gap:5px;padding:0 10px} .peq{display:inline-flex;gap:2px;align-items:flex-end;height:12px} .peq b{width:3px;height:6px;background:var(--ink);border-radius:1px} .peq.go b{animation:eq .9s ease-in-out infinite} .peq.go b:nth-child(2){animation-delay:.2s} .peq.go b:nth-child(3){animation-delay:.4s} .mpin.playing>i{background:var(--teal7);color:#fff}   /* 2026-11-11 留言：正在播的點位——金底放大＋跳動音波＋「播放中」 */
 .mpin.on{background:var(--gold);color:var(--ink);transform:translate(-50%,-100%) scale(1.15);z-index:2} .mpin.on::after{border-top-color:var(--gold)}
+.mpin.now{background:var(--gold);color:var(--ink);z-index:3;animation:nowGlow 1.8s ease-out infinite} .mpin.now::after{border-top-color:var(--gold)}
+@keyframes nowGlow{0%{box-shadow:0 0 0 0 rgba(201,169,97,.8),0 4px 10px rgba(15,25,30,.25)}70%{box-shadow:0 0 0 14px rgba(201,169,97,0),0 4px 10px rgba(15,25,30,.25)}100%{box-shadow:0 0 0 0 rgba(201,169,97,0),0 4px 10px rgba(15,25,30,.25)}}
+@media (prefers-reduced-motion:reduce){ .mpin.now{animation:none;box-shadow:0 0 0 4px rgba(201,169,97,.45),0 4px 10px rgba(15,25,30,.25)} }   /* 2026-11-18：導覽中的點位外圈一直往外擴散的光暈，跟「選中」（金色放大、靜態）分開 */
 .mpin.tonly{background:#fff;color:#5F5F5F;box-shadow:0 0 0 2px #9A9A9A inset,0 4px 10px rgba(15,25,30,.2)} .mpin.tonly::after{border-top-color:#9A9A9A}   /* 走路線：只有文字導覽的站＝白底灰框 */
 .mpin.maint{background:#6B6B6B} .mpin.maint::after{border-top-color:#6B6B6B}
 .mpin.nxt{background:#fff;color:var(--teal7);box-shadow:0 0 0 2px var(--teal7) inset,0 4px 10px rgba(15,25,30,.3)} .mpin.nxt::after{border-top-color:var(--teal7)}
@@ -174,7 +179,7 @@ button.mapbar{padding:0 16px}
 .zrow .zcard img{height:80px;flex:0 0 80px}
 .zrow .zcard .t{flex:1;padding:10px 12px}
 .zrow .zcard b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:18px;min-height:36px}   /* 名稱最多兩行，短的也留兩行高 */
-.pickmode .facbar,.pickmode .floorsel,.pickmode .maphead,.pickmode .mini,.pickmode .mclu,.pickmode .mpin:not(.on){display:none!important}
+.pickmode .facbar,.pickmode .floorsel,.pickmode .maphead,.pickmode .mini,.pickmode .mclu,.pickmode .mpin:not(.on):not(.now){display:none!important}
 .pickmode .mapwrap{bottom:var(--sh,250px)}
 .pickhead{position:absolute;left:0;right:0;top:0;z-index:9;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 20px;background:var(--ink);color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25)}
 .pickhead.phin{animation:phdown .42s cubic-bezier(.2,.8,.2,1)} @keyframes phdown{from{transform:translateY(-100%)}}   /* 2026-11-12 留言：切到帶我去時，標頭由上往下進場 */
@@ -191,8 +196,8 @@ button.mapbar{padding:0 16px}
 .waymode .mapwrap{bottom:var(--sh,300px)}
 .waymode .zonesheet{gap:12px}
 .pickhead .wb{background:none}
-.way-b .wpl,.way-b .mpin:not(.on){animation:selGlow 1.6s ease-in-out infinite}   /* 2026-11-11 留言：選目的地時，可點的展品與設施發亮，讓人知道要點點位、不是地圖任意一點 */
-.way-b .wpl{border-color:var(--gold-mid)} .way-b .mpin:not(.on){outline:2px solid var(--gold-mid)} .way-b .wpl,.way-b .mpin:not(.on){box-shadow:0 0 0 3px rgba(201,169,97,.55)}   /* 減少動態時保留靜態光圈 */
+.way-b .wpl,.way-b .mpin:not(.on):not(.now){animation:selGlow 1.6s ease-in-out infinite}   /* 2026-11-11 留言：選目的地時，可點的展品與設施發亮，讓人知道要點點位、不是地圖任意一點 */
+.way-b .wpl{border-color:var(--gold-mid)} .way-b .mpin:not(.on):not(.now){outline:2px solid var(--gold-mid)} .way-b .wpl,.way-b .mpin:not(.on):not(.now){box-shadow:0 0 0 3px rgba(201,169,97,.55)}   /* 減少動態時保留靜態光圈 */
 @keyframes selGlow{0%,100%{box-shadow:0 0 0 3px rgba(201,169,97,.7)}50%{box-shadow:0 0 0 9px rgba(201,169,97,.2)}}
 .wpl{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:4px;height:28px;padding:0 9px 0 3px;border-radius:14px;background:#fff;border:1.5px solid var(--teal7);
   font-size:11px;font-weight:500;color:var(--ink);white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:pointer;pointer-events:auto!important;z-index:2}
@@ -1045,7 +1050,7 @@ function go(scr, opt){ const from=S.screen; if(scr!==from){ S._railc=null; S._zb
     else { S.hist.push(from); (S.histTop=S.histTop||[]).push(scrollSnap());
       if(from==='map') (S.mapSnaps=S.mapSnaps||[]).push({d:S.hist.length, st:{floor:S.floor,mapAll:S.mapAll,mapFloors:S.mapFloors,exOnly:S.exOnly,mapEx:S.mapEx,mapRoute:S.mapRoute,fx:S.fx,room4:S.room4,zsFull:S.zsFull,mv:JSON.parse(JSON.stringify(S.mv||{}))}}); }   /* 2026-11-12：離開地圖前記下狀態（樓層檢視、選的展覽…），回來時還原，不會變回舊樣式 */
     histPush(); }
-  Object.assign(S, opt||{}); if(scr!=="map"){ S.floorOpen=false; S.signPick=false; S.nav=null; S.herePick=false; S.navPending=null; S.mapSel=null; S.mapOnly=null; S.here=null; S.arrived=null; S.navFl=null; S.way=null; S.facFind=null; }   /* 第 1 輪測試修正：離開地圖收起找設施清單 */
+  Object.assign(S, opt||{}); S.pmore=false; if(scr!=="map"){ S.floorOpen=false; S.signPick=false; S.nav=null; S.herePick=false; S.navPending=null; S.mapSel=null; S.mapOnly=null; S.here=null; S.arrived=null; S.navFl=null; S.way=null; S.facFind=null; }   /* 第 1 輪測試修正：離開地圖收起找設施清單 */
   if(scr!=='map') S.mapSheet=false;
   S.screen=scr; S.sheet=null;
   render(true, scr===from?null : scr==='player'?'up' : (top||from==='landing')?'fade' : 'push'); }
@@ -1634,8 +1639,10 @@ const PRE=['pre0'];
 const exPins=k=>{ const e=EXHIBITIONS[k]; if(!e||!IT_READY) return []; const p=S.player, key=(p&&p.ctx.type==='ex'&&p.ctx.key===k&&p.ctx.sg)||((S.screen==='ex'&&S.ex===k)||(S.screen==='map'&&S.exOnly===k))&&S.exLine==='sign'?'sign':'main', g=(lineOf(k,key)||{ids:[]}).ids; return (k==='perm'&&!PERM_OBJ_ON)?g:[...new Set(g.concat(e.items||[]))]; };   /* 地圖點位＝這條線的清單 */
 const exOf=id=>Object.keys(EXHIBITIONS).find(k=>exPins(k).includes(id))||'perm';
 function startPre(){ startGuide(PRE[0],{type:'pre',key:'pre'}); }
-function startGuide(id,ctx){ const p=S.player;
-  if(p && (p.ctx.type!==ctx.type||p.ctx.key!==ctx.key||!!p.ctx.sg!==!!ctx.sg) && p.pos<it(p.id).d){ S.pending={id,ctx}; S.sheet='switch'; render(); return; }   /* 2026-11-18：同一檔展覽在手語導覽與文字導覽之間切換也要先問——兩邊的則數與內容不同，切過去會從第 1 則重來 */
+/* 播放清單的身分：類型＋展覽／路線＋線（手語）＋是否單件展品瀏覽。不一樣就是「切換播放清單」 */
+const listKey=c=>c?[c.type,c.key,c.sg?'sg':'',c.objs?'objs':''].join('|'):'';
+const switchingList=ctx=>!!S.player&&listKey(S.player.ctx)!==listKey(ctx);
+function startGuide(id,ctx){   /* 2026-11-18：同一檔展覽在手語導覽與文字導覽之間切換也要先問——兩邊的則數與內容不同，切過去會從第 1 則重來 */
   play(id,ctx); }
 function switchSheet(){ const p=S.player, n=S.pending;
   const sameEx=!n.walk&&p.ctx.type===n.ctx.type&&p.ctx.key===n.ctx.key;   /* 只差在手語／文字 */
@@ -1647,7 +1654,7 @@ function switchSheet(){ const p=S.player, n=S.pending;
     <p style="font-size:13px;line-height:1.6;color:var(--text2)">${sameEx?`目前在「${kindP}」看「${it(p.id).n}」，共 ${ctxList(p.ctx).length} 則；「${kindN}」是另一份清單，共 ${ctxList(n.ctx).length} 則。切換後會從第 1 則開始，原本看到哪裡會記在導覽歷程。`:`目前正在聽「${it(p.id).n}」（${ctxName(p.ctx)}）。${n.walk?'開始走路線後，目前的播放會停止，':'切換後會從第 1 則開始，'}原本聽到哪裡會記在導覽歷程。`}</p>
     <div style="display:flex;gap:10px">
       <button onclick="S.sheet=null;render()" style="flex:1;min-height:48px;background:var(--cream);border-radius:24px;font-size:14px;color:var(--text)">繼續原本的</button>
-      <button class="tealbtn" style="flex:1;min-height:48px;border-radius:24px" onclick="const n=S.pending;S.pending=null;S.sheet=null;n.walk?startWalk(n.walk,true):play(n.id,n.ctx)">${n.walk?'中斷並開始走路線':sameEx?'切換成'+kindN:'切換導覽'}</button></div>
+      <button class="tealbtn" style="flex:1;min-height:48px;border-radius:24px" onclick="const n=S.pending;S.pending=null;S.sheet=null;n.walk?startWalk(n.walk,true):play(n.id,n.ctx,n.sign,n.tab,true)">${n.walk?'中斷並開始走路線':sameEx?'切換成'+kindN:'切換導覽'}</button></div>
   </div>`;
 }
 function scrEx(){
@@ -1750,9 +1757,10 @@ function applyVersion(p, v){ p.sign=v.sign; p.cc=v.cc; p.transcript=!!v.tx; p.no
   if(v.fb){ S.typeTip=v.fb; S._fbTip=true; S.earSeen=true; clearTimeout(onStopChange.t); onStopChange.t=setTimeout(()=>{ S.typeTip=null; const e=document.getElementById('typeTip'); if(e) e.remove(); },4500); } }
 /* 2026-11-18：現正展出那條線的「瀏覽展品」＝直接進導覽模式看第一件，不是捲到下面的展品清單——
    使用者回報按這顆鈕應該直接開導覽。已經在看這檔展覽就回到原本那一件 */
-function play(id, ctx, sign, tab){   /* tab：從展品列表點進來時先看「展品介紹」 */
+function play(id, ctx, sign, tab, force){   /* tab：從展品列表點進來時先看「展品介紹」；force：已經確認過要切換 */
   if(!ctx) ctx={type:'ex',key:'perm'};
-  if(ctx.type==='ex'&&!ctx.sg&&EXHIBITIONS[ctx.key]&&!guideIds(ctx.key).includes(id)&&(EXHIBITIONS[ctx.key].items||[]).includes(id)) ctx=Object.assign({},ctx,{objs:true});   /* 2026-11-17：從展品列表／地圖／掃碼點進單件展品時，上一則／下一則在展品之間走；「開始導覽」才走常設展的 30 則單元 */
+  if(ctx.type==='ex'&&!ctx.sg&&EXHIBITIONS[ctx.key]&&!guideIds(ctx.key).includes(id)&&(EXHIBITIONS[ctx.key].items||[]).includes(id)) ctx=Object.assign({},ctx,{objs:true});
+  if(!force&&switchingList(ctx)){ S.pending={id,ctx,sign,tab}; S.sheet='switch'; render(); return; }   /* 2026-11-18：要換到另一份播放清單（別的展覽、主題路線、手語線、展品瀏覽）一律先問，不論從哪個入口點進來 */   /* 2026-11-17：從展品列表／地圖／掃碼點進單件展品時，上一則／下一則在展品之間走；「開始導覽」才走常設展的 30 則單元 */
   if(ctx.type==='route') ctx.idx=rtGuide(ctx.key).indexOf(id);
   if(sign || S.signPick || ctx.sg) S.gType='sign';   /* 從手語入口進來＝選了手語 */
   const v = pickVersion(id,ctx);
@@ -2120,9 +2128,11 @@ function scrPlayer(){
       <div class="nav pnav" style="height:64px;padding:8px 12px;position:relative">
         <div class="l"><button onclick="collapsePlayer()" aria-label="收合播放器" style="width:44px;height:44px;display:grid;place-items:center">${MI(MD.collapse,24,'#3C3C3C')}</button></div>
         <div class="c" style="color:var(--text)">${ctxName(p.ctx)}</div>
-        <div class="r" style="display:flex;gap:2px;flex:0 0 auto"><button onclick="toggleFs()" aria-label="調整文字大小" aria-pressed="${S.fs==='l'}" style="width:44px;height:44px;display:grid;place-items:center;color:${S.fs==='l'?'var(--teal7)':'#3C3C3C'}"><span style="font-weight:700;display:inline-flex;align-items:baseline;justify-content:center;width:34px;height:34px;align-items:center;border-radius:17px;${S.fs==='l'?'background:var(--tealL)':''}"><span style="font-size:11px">A</span><span style="font-size:17px">A</span></span></button><!-- 第 1 輪測試修正：已調大＝主色字＋淡青小圓底（2026-11-12 試過亮青字＋光暈，使用者決定改回這個） -->
-          <button onclick="openNote('${p.id}')" aria-label="${noteOf(p.id)?'編輯筆記':'寫筆記'}" aria-pressed="${!!noteOf(p.id)}" style="width:44px;height:44px;display:grid;place-items:center;color:${noteOf(p.id)?'var(--teal7)':'#3C3C3C'}">${MI('M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z',20,'currentColor')}</button>
-          <button onclick="toggleFav('${p.id}')" aria-label="收藏" aria-pressed="${S.fav.has(p.id)}" style="width:44px;height:44px;display:grid;place-items:center">${img(S.fav.has(p.id)?'ic-heart-filled.svg':'ic-heart.svg',20,20)}</button></div></div>
+        <div class="r" style="display:flex;gap:2px;flex:0 0 auto;position:relative"><button onclick="S.pmore=!S.pmore;render()" aria-label="更多：收藏、筆記、文字大小" aria-haspopup="menu" aria-expanded="${!!S.pmore}" style="width:44px;height:44px;display:grid;place-items:center;border-radius:22px;${S.pmore?'background:var(--tealL)':''}">${MI('M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z',24,'#3C3C3C')}</button>
+          ${S.pmore?`<div class="pmorebg" onclick="S.pmore=false;render()"></div><div class="pmore" role="menu" aria-label="更多">
+            <button role="menuitemcheckbox" aria-checked="${S.fav.has(p.id)}" onclick="S.pmore=false;toggleFav('${p.id}')">${img(S.fav.has(p.id)?'ic-heart-filled.svg':'ic-heart.svg',20,20)}<span>${S.fav.has(p.id)?'已收藏':'加入收藏'}</span></button>
+            <button role="menuitem" onclick="S.pmore=false;openNote('${p.id}')">${MI('M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z',20,noteOf(p.id)?'var(--teal7)':'#3C3C3C')}<span>${noteOf(p.id)?'編輯筆記':'寫筆記'}</span></button>
+            <button role="menuitemcheckbox" aria-checked="${S.fs==='l'}" onclick="S.pmore=false;toggleFs()"><span class="aa"><span style="font-size:11px">A</span><span style="font-size:17px">A</span></span><span>${S.fs==='l'?'恢復標準字級':'放大文字'}</span></button></div>`:''}</div></div>
       ${T.length>1?`<div style="padding:0 16px 10px">${capsule()}</div>`:''}<!-- 只剩一個分頁就不放分頁列：不管剩下的是「導覽」（參觀前先聽、手語導覽）還是「介紹」（文字導覽），都沒有可切換的對象（2026-11-18 使用者決定） -->
       <div style="flex:1;min-height:0;overflow:hidden;position:relative">
         <div class="ptrack" id="ptrack" style="width:${T.length*100}%;transform:translateX(-${ti*100/T.length}%)">
@@ -2531,7 +2541,7 @@ function clusterPins(){ const root=document.querySelector('#app > .scr .mpins');
   root.querySelectorAll('.inclu').forEach(p=>p.classList.remove('inclu'));
   const all=[...root.querySelectorAll('.mpin')];   /* 2026-11-16 留言：設施（廁所、電梯、樓梯、出入口等）不聚，只聚展品點位；設施疊到時由 facDeclutter 錯開 */
   const rb=root.getBoundingClientRect();
-  const free=all.filter(p=>!/\b(on|nxt|next|hl)\b/.test(p.className)&&p.getAttribute('aria-pressed')!=='true'&&p.offsetParent!==null&&getComputedStyle(p).visibility!=='hidden')
+  const free=all.filter(p=>!/\b(on|now|nxt|next|hl)\b/.test(p.className)&&p.getAttribute('aria-pressed')!=='true'&&p.offsetParent!==null&&getComputedStyle(p).visibility!=='hidden')
     .map(p=>{ const r=p.getBoundingClientRect(); return {p,r,mx:+p.dataset.mx,my:+p.dataset.my}; });
   const hit=(a,b)=>!(a.right<b.left-2||b.right<a.left-2||a.bottom<b.top-2||b.bottom<a.top-2);
   /* 先兩兩疊到的併起來；合成的膠囊（約 70×36）再跟附近的點或膠囊疊到，就繼續併，直到畫面上都不重疊 */
@@ -2870,7 +2880,7 @@ function mapNextId(){ if(S.walk) return null; const k=S.mapRoute; if(!k||!ROUTES
 function pinCard(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||floorEx();   /* 4F「全部」時用展品自己所屬的展覽 */
   if(S.mapOnly) return `<div style="position:absolute;left:20px;right:20px;bottom:28px;z-index:8">   <!-- 2026-11-12 留言：播放器開的地圖面板只留「帶我去」，不放底部面板（關閉面板＝回到播放器） -->
       <button class="tealbtn pickok" style="width:100%;box-shadow:0 10px 24px -6px rgba(15,25,30,.45),0 2px 6px rgba(15,25,30,.2)" onclick="startNav('${id}')" aria-label="帶我去展品 ${x.no} ${x.n}">帶我去這裡</button></div>`;
-  const bare=S.exOnly&&S.exBare;
+  const bare=S.exOnly&&S.exBare || S.floor==='4F' || !!(S.player&&S.mapBare===S.floor);   /* 2026-11-18：「返回展品清單」只在面板真的有清單時才有意義——4F 面板沒有展品清單、縮小播放器回來的地圖不放面板，這些情況一律用關閉鈕 */
   /* 2026-11-13 留言：導覽長度、手語改成同一排膠囊；位置已經在地圖上看得到，不再重複列 */
   /* 2026-11-18：卡片要講「按下去真的會得到什麼」。手語只在手語導覽那條線出現（pickVersion 在非手語線一律不給手語），
      所以非手語線的展品即使有手語影片，也是走文字——卡片就寫文字導覽，不放手語膠囊、不放播放圖示。時間只在真的有音檔／影片或 tonly 的閱讀估計時才標。 */
@@ -2919,7 +2929,7 @@ function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F'
       ${S.navFl&&f!==S.navFl&&S.nav?anchor(ELEV[f][0],ELEV[f][1],'mchip goal',`⚑ 先到電梯，搭到 ${S.navFl}`):''}
       ${!(S.navFl&&f!==S.navFl)&&(S.nav||S.navPending)==='entry'&&navTarget('entry')?anchor(navTarget('entry').x,navTarget('entry').y,'mchip goal','⚑ 目的地：展區入口'):''}
       ${pinIds.map(id=>{ const [x,y]=PINS[f][id], wk=(S.walk||S.mapRoute&&ROUTES[S.mapRoute])?rtList(S.walk?S.walk.k:S.mapRoute).indexOf(id):-1, on=(S.walk&&wk===S.walk.i)||S.mapSel===id||S.nav===id||S.navPending===id, tnow=S.player&&!S.nav&&S.player.id===id, tnx=S.tour&&S.player&&!S.nav&&tourNextId()===id;
-        return `<button class="mpin${on||tnow?' on':''}${tnx?' nxt':''}${nx===id||(S.arrived&&firstOf(S.arrived)===id)?' next':''}${fst===id?' first':''}${it(id).maint?' maint':''}${tnow&&!isTxt(id,S.player.ctx)?' playing':''}" data-mx="${x}" data-my="${y}" style="left:${toScr(x,y)[0]}px;top:${toScr(x,y)[1]}px"
+        return `<button class="mpin${on?' on':''}${tnow?' now':''}${tnx?' nxt':''}${nx===id||(S.arrived&&firstOf(S.arrived)===id)?' next':''}${fst===id?' first':''}${it(id).maint?' maint':''}${tnow&&!isTxt(id,S.player.ctx)?' playing':''}" data-mx="${x}" data-my="${y}" style="left:${toScr(x,y)[0]}px;top:${toScr(x,y)[1]}px"
           onclick="event.stopPropagation();pinTap('${id}')" aria-label="${wk>=0?'第 '+(wk+1)+' 站・'+it(id).n+(it(id).rstop?(it(id).guide?'（有導覽）':'（沒有導覽）'):'（'+gKind(it(id),S.player&&S.player.ctx)+'導覽）'):(it(id).lv!=null?'導覽點 ':'展品 ')+it(id).no}${nx===id?'（下一站）':fst===id?'（第一件展品）':''}" aria-pressed="${on}">${fst===id?(it(id).tonly?'<i class="tip">第一則導覽<small>點一下開始讀</small></i>':'<i class="tip">第一件展品<small>點一下開始聽</small></i>'):nx===id?'<i>下一站</i>':S.arrived&&firstOf(S.arrived)===id?'<i>第一件</i>':tnow?'<i>導覽中</i>':tnx?'<i>下一件</i>':''}${tnow&&!isTxt(id,S.player.ctx)?`<span class="peq${S.player.playing?' go':''}" aria-hidden="true"><b></b><b></b><b></b></span>`:''}${wk>=0?wk+1:it(id).no}</button>`; }).join('')}
       ${S.herePick?(LANDMARKS[f]||[]).map(([n,x,y],i)=>anchor(x,y,'mlm',`<span class="lmn">${String.fromCharCode(65+i)}</span>${n}`,`role="button" tabindex="0" aria-label="我在${n}" onclick="event.stopPropagation();setHere(${x},${y})"`)).join(''):''}
       ${S.way?wayLayer(f,anchor)+facLayer(f):facLayer(f)}</div>`   /* 2026-11-18：帶我去的地圖一定要看得到設施，所以路線層之外再疊設施層 */
