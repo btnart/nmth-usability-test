@@ -1971,16 +1971,19 @@ function nextExCard(k){ const n=nextExKey(k); if(!n) return ''; const E=EXHIBITI
   return `<div class="nextex" role="status"><span>這檔導覽聽完了，${n.same?'同一層還有':E.fl+' 還有'}</span><b>${E.n}</b>${(E.meta||[])[0]?`<small>${E.meta[0]}・${E.meta[1]||E.fl}</small>`:''}
     <div><button class="tealbtn" onclick="startExGuide('${n.k}')">${MI('M8 5v14l11-7z',18,'#fff')}開始導覽</button><button class="tealbtn soft" onclick="openEx('${n.k}')">看展覽介紹</button></div></div>`; }
 /* 審查 #20、22／簡報 P14：展覽評論與評分——要登入、館方審核後公開；不登入也能用全部導覽 */
-const REVIEWS={perm:{avg:4.7,n:128,list:[['王＊＊','11/10',5,'手語影片很清楚，跟著展區一路看下來不會迷路。'],['Lin＊＊','11/08',4,'展品很多，建議先選一條主題路線再逛。']]},
-  zj:{avg:4.6,n:46,list:[['陳＊＊','11/12',5,'媽祖神像的故事很好聽，小孩也聽得懂。'],['張＊＊','11/09',4,'導覽點不多，15 分鐘剛好。']]},
-  asia:{avg:4.5,n:21,list:[['黃＊＊','11/11',5,'走廊延伸展區差點錯過，還好地圖有標。']]}};
+const REVIEWS={perm:{list:[['王＊＊','11/10',5,'手語影片很清楚，跟著展區一路看下來不會迷路。'],['Lin＊＊','11/08',4,'展品很多，建議先選一條主題路線再逛。'],['吳＊＊','11/07',5,'帶爸媽來，文字導覽字夠大，長輩看得很輕鬆。'],['Chen＊＊','11/05',5,'找廁所的功能很實用，地圖一點就帶過去。'],['許＊＊','11/03',4,'內容很豐富，一次逛不完，下次想再來聽後半段。'],['蔡＊＊','11/01',5,'主題路線「聽」很有趣，小孩一直要按下一站。']]},
+  zj:{list:[['陳＊＊','11/12',5,'媽祖神像的故事很好聽，小孩也聽得懂。'],['張＊＊','11/09',4,'導覽點不多，15 分鐘剛好。'],['楊＊＊','11/06',5,'展場燈光很美，配著語音導覽很有氣氛。'],['Lee＊＊','11/04',4,'英文導覽也有，帶外國朋友來很方便。']]},
+  asia:{list:[['黃＊＊','11/11',5,'走廊延伸展區差點錯過，還好地圖有標。'],['劉＊＊','11/08',4,'展品介紹寫得清楚，不聽語音也看得懂。'],['Wang＊＊','11/02',5,'很喜歡最後一區的互動，值得慢慢看。']]}};
+/* 2026-11-20 留言：標頭的則數與平均分數一律從評論清單算，不再另外寫死（原本寫 128 則、清單只有 2 則） */
+Object.values(REVIEWS).forEach(R=>{ R.n=R.list.length; R.avg=Math.round(R.list.reduce((t,r)=>t+r[2],0)/R.n*10)/10; });
+const REV_SHOW=3;   /* 一開始先列最新 3 則，其餘按「看全部」在原地展開 */
 const stars=(n,sz)=>`<span class="stars" aria-hidden="true">${[1,2,3,4,5].map(i=>`<i class="${i<=Math.round(n)?'on':''}" style="font-size:${sz||14}px">★</i>`).join('')}</span>`;
 function exReviews(k){ const R=REVIEWS[k], mine=(S.myReview||{})[k];
   return `<section class="exrev" id="exSecRev" aria-labelledby="revH">
     <div style="display:flex;align-items:center;justify-content:space-between;min-height:48px"><h2 id="revH">觀眾評論</h2>${R?`<span class="avg">${stars(R.avg)}<b>${R.avg}</b><span>・${R.n} 則</span></span>`:''}</div>
     <div style="height:1px;background:var(--border);margin-bottom:4px"></div>
     ${mine?`<div class="rv mine"><div class="rh"><b>你的評論</b>${stars(mine.s,12)}<em>審核中</em></div>${mine.t?`<p>${mine.t.replace(/</g,'&lt;')}</p>`:''}<small>館方審核通過後才會公開</small></div>`:''}
-    ${R?R.list.map(([who,d,s,tx])=>`<div class="rv"><div class="rh"><b>${who}</b>${stars(s,12)}<span>${d}</span></div><p>${tx}</p></div>`).join(''):`<p style="padding:12px 0;font-size:13px;color:var(--text2)">還沒有評論</p>`}
+    ${R?R.list.slice(0,(S.revAll||{})[k]?R.n:REV_SHOW).map(([who,d,s,tx])=>`<div class="rv"><div class="rh"><b>${who}</b>${stars(s,12)}<span>${d}</span></div><p>${tx}</p></div>`).join('')+(R.n>REV_SHOW?`<button onclick="(S.revAll=S.revAll||{})['${k}']=!S.revAll['${k}'];render()" aria-expanded="${!!(S.revAll||{})[k]}" style="display:block;margin:4px auto 0;min-height:44px;font-size:13px;font-weight:500;color:var(--teal7)">${(S.revAll||{})[k]?'收合評論':`看全部 ${R.n} 則評論`}</button>`:''):`<p style="padding:12px 0;font-size:13px;color:var(--text2)">還沒有評論</p>`}
     ${mine?'':`<button class="tealbtn soft" style="width:100%;height:44px;border-radius:22px;margin-top:8px" onclick="writeReview('${k}')">${S.loggedIn?'寫下你的評論':'登入後寫評論'}</button>`}
     <p class="revnote">經館方審核後公開</p></section>`; }
 function writeReview(k){ if(!S.loggedIn){ S.afterLogin={rev:k}; go('login'); return; } S.revK=k; S.revStar=0; S.revText=''; S.sheet='review'; render(); }
