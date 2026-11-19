@@ -1795,7 +1795,7 @@ function walkSheet(){ const k=S.walk.k, l=rtList(k), i=S.walk.i, x=it(l[i]);
         <div style="min-width:0"><b class="navt" style="display:block;margin:0">${x.n}</b><span style="font-size:12px;color:var(--text2)">${x.no?'#'+x.no+'・':''}${x.zone}</span></div></div>
       <div style="display:flex;gap:10px;margin-top:2px">
         <button class="tealbtn soft" ${i?'':'disabled'} onclick="walkGo(-1)">上一站</button>
-        ${x.guide?`<button class="tealbtn" style="flex:1" onclick="walkOpen()">開始導覽</button>`:`<button class="tealbtn" style="flex:1" onclick="startNav('${l[i]}')">帶我去</button>`}
+        ${x.guide?`<button class="tealbtn" style="flex:1" onclick="walkOpen()">單點導覽</button>`:`<button class="tealbtn" style="flex:1" onclick="startNav('${l[i]}')">帶我去</button>`}
         <button class="tealbtn soft" ${i<l.length-1?'':'disabled'} onclick="walkGo(1)">下一站</button></div></div></div>`; }
 function scrStop(){ const k=S.stopRoute, l=rtList(k), id=S.stopId, i=l.indexOf(id), x=it(id);
   return `<div class="scr"><div class="scroll">
@@ -2930,7 +2930,7 @@ function pinCard(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||f
       ${S.mapOnly?`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="back()">${asText?'回到介紹':MI('M8 5v14l11-7z',18,'#fff')+'繼續聆聽'}</button>`   /* 2026-11-16 留言：文字導覽的展品沒有播放，不放播放圖示、不寫聆聽 */
         :S.player&&S.player.id===id?`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="go('player')">${asText?'回到介紹':`<span class="eq${S.player.playing?' go':''}" aria-hidden="true"><i></i><i></i><i></i></span>${S.player.playing?'正在播放':'已暫停・回到播放器'}`}</button>`   /* 2026-11-11 留言：點到正在播的展品，按鈕顯示播放中狀態，按了回播放器 */
         :noG?''
-        :`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="play('${id}',${rk?`{type:'route',key:'${rk}'}`:`{type:'ex',key:'${ex}'${mapSg(ex)?',sg:true':''}}`})">${asText?'':MI('M8 5v14l11-7z',18,'#fff')}${asText||bare?'開始導覽':'播放導覽'}</button>`}
+        :`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="play('${id}',${rk?`{type:'route',key:'${rk}'}`:`{type:'ex',key:'${ex}'${mapSg(ex)?',sg:true':''}}`})">${asText?'':MI('M8 5v14l11-7z',18,'#fff')}${rk?'單點導覽':asText||bare?'開始導覽':'播放導覽'}</button>`}
       <button class="${noG?'tealbtn':'waybtn'}" style="min-height:44px${noG?';flex:1':''}" onclick="startNav('${id}')" aria-label="帶我去這件展品">${MI(MD.nav,16,noG?'#fff':'#2E5C6E')}帶我去</button></div>${rk&&!S.mapOnly?rtSwitch(rk,id):''}</div>`; }
 /* 2026-11-19 留言：主題路線的站點卡可以直接切上一站／下一站，不用關掉卡片再點小卡 */
 function rtStops(k){ return rtList(k).filter(id=>PINS[S.floor]&&PINS[S.floor][id]); }
