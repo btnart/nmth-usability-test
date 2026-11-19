@@ -25,7 +25,8 @@ window.addEventListener('hashchange',()=>location.reload());</script>
   --fs:1;                                    /* 顯示設定：字級倍率 */
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;touch-action:manipulation}   /* 2026-11-17：關掉雙擊縮放（雙擊會讓版面跑掉）；雙指縮放保留，無障礙需求 */
+html,body{height:100%;touch-action:manipulation}
+:where(*){touch-action:manipulation}   /* 2026-11-20 留言：雙擊仍會放大——touch-action 只往上算到最近的捲動容器，html／body 的設定管不到 .scroll 裡面；每個元素都設一次（:where 權重 0，地圖、拖曳等自己設 none／pan-y 的照舊）。雙指縮放仍保留 */   /* 2026-11-17：關掉雙擊縮放（雙擊會讓版面跑掉）；雙指縮放保留，無障礙需求 */
 body{background:#ECE9E4;font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;color:var(--text);
   -webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:center}
