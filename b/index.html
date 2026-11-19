@@ -1052,7 +1052,7 @@ const SPEEDS = [[0.8,'較慢'],[1,'標準'],[1.25,'稍快'],[1.5,'快速']];
    ===================================================================== */
 const S = { screen:'home', hist:[], ex:'perm', exTab:'intro', route:null, floor:'2F', exChip:'全部',
   player:null,        /* {id, ctx:{type:'ex'|'route', key, idx}, pos, playing, speed, track, transcript} */
-  heard:{perm:new Set(['p101','p102'])}, fav:new Set(['p405','p508','p601']),
+  heard:{perm:new Set(['p101','p102'])}, fav:new Set(),   /* 2026-11-20：收藏從空的開始，存在本機（nmth.fav）；未登入也能收藏 */
   notes:{}, user:null,   /* 2026-11-18：MEM-06 個人筆記（收藏／導覽內容都可以寫）；user＝登入帳號（正式版用 OIDC 回傳的頭像與名稱） */
   sheet:null, code:'', fs:'std', hc:false, howtoSeen:false, here:null, herePick:false, nav:null, lang:'zh', loggedIn:false, offline:{perm:'none',asia:'dl',zj:'done'} };
 /* 頂層頁（2026-11-11 留言）：首頁、主題路線、展覽、手語導覽、全館地圖是「切換」不是「進下一層」——沒有返回鍵，靠選單切換；
@@ -1369,7 +1369,7 @@ function menuOverlay(){
   :`<button onclick="S.sheet=null;${RO}go('login')" ${mbOn?'aria-current="page"':''} style="display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;border-radius:16px;text-align:left;background:${mbOn?'var(--tealL)':'var(--cream)'}">
     <span style="flex:0 0 44px;width:44px;height:44px;border-radius:22px;background:var(--teal7);display:grid;place-items:center">${MI('M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',24,'#fff')}</span>
     <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><b style="font-weight:700;font-size:17px;color:var(--ink)">${S.loggedIn?'會員中心':'登入會員'}</b>
-      <span style="font-size:12px;line-height:1.5;color:var(--text2)">${S.loggedIn?'我的收藏・導覽歷程・我的筆記':'登入後可收藏、換手機接著聽'}</span></span>
+      <span style="font-size:12px;line-height:1.5;color:var(--text2)">${S.loggedIn?'我的收藏・導覽歷程・我的筆記':'登入後收藏與筆記會保留到帳號'}</span></span>
     ${img('ic-arrow-right-dark2.svg',16,16)}</button>`;
   const row=([t,fn,scr])=>{ const on=scr.includes(cur); return `<button onclick="S.sheet=null;${fn}" ${on?'aria-current="page"':''} style="display:flex;align-items:center;gap:10px;min-height:52px;width:100%;text-align:left;border-top:1px solid var(--line)">
       ${on?img('dot-gold-8.svg',8,8):''}<span style="flex:1;font-weight:${on?700:500};font-size:17px;color:var(--ink)">${t}</span>${img('ic-arrow-right-dark2.svg',16,16)}</button>`; };
@@ -1380,7 +1380,7 @@ function menuOverlay(){
       ${logo}<p style="flex:1;min-width:0;font-weight:700;font-size:18px;line-height:1.3;color:var(--ink)">臺史博手機導覽</p>
       <button onclick="S.sheet=null;render()" aria-label="關閉選單" style="display:grid;place-items:center;margin:-10px;padding:10px">${img('ic-close.svg',24,24)}</button></div>
     <nav style="padding:12px 24px 32px">${mbCard}
-      ${S.loggedIn?memberCards()+memberNote()+memberRows():''}
+      ${S.loggedIn?memberCards()+memberNote()+memberRows():guestMine()}   <!-- 2026-11-20 留言：未登入也看得到收藏與筆記（存在本機），空的時候先留標題與做法 -->
       ${sec('服務與協助')}${svc.map(row).join('')}
       ${NMTH?'':`<div style="display:flex;align-items:center;gap:10px;min-height:52px;border-top:1px solid var(--line);opacity:.6" aria-disabled="true"><span style="flex:1;font-weight:500;font-size:17px;color:var(--ink)">AI 館員</span><span style="background:var(--gold);color:var(--ink);font-weight:700;font-size:10px;padding:2px 8px;border-radius:9px;white-space:nowrap">COMING SOON</span></div>`}
       ${sec('設定')}${sets.map(setRow).join('')}
@@ -2279,7 +2279,8 @@ function tickDOM(){ const p=S.player; if(!p) return; const x=it(p.id), pct=p.pos
   const b=document.getElementById('miniBar'), ml=document.getElementById('miniLeft'); if(b) b.style.width=Math.max(pct,8)+'%'; if(ml) ml.textContent='-'+mmss(x.d-p.pos);
   if(p.sign){ const i=curSent(), cap=document.getElementById('sgCap'), cf=document.getElementById('sgCapFs'); if(cap&&cap.textContent!==SENT[i]) cap.textContent=SENT[i]; if(cf&&cf.textContent!==SENT[i]) cf.textContent=SENT[i];
     const box=document.getElementById('sgtx'); if(box){ const c=box.querySelector('.cur'); if(!c||+c.dataset.i!==i){ if(c) c.classList.remove('cur'); const nx=box.querySelector(`[data-i="${i}"]`); if(nx){ nx.classList.add('cur'); box.scrollTo({top:nx.offsetTop-box.offsetTop-(box.clientHeight-nx.offsetHeight)/2, behavior:'smooth'}); } } } } }
-function toggleFav(id){ S.fav.has(id)?S.fav.delete(id):S.fav.add(id); toast(S.fav.has(id)?'已加入收藏':'已移除收藏'); render(); }
+function toggleFav(id){ S.fav.has(id)?S.fav.delete(id):S.fav.add(id); try{ localStorage.setItem('nmth.fav',JSON.stringify([...S.fav])); }catch(e){}
+  toast(S.fav.has(id)?(S.loggedIn?'已加入收藏':'已加入收藏，存在這支手機'):'已移除收藏'); render(); }
 function seek(s){ const p=S.player; const was=p.pos>=it(p.id).d; p.pos=Math.max(0,Math.min(it(p.id).d,p.pos+s)); if(p.sign){ try{ SGV.currentTime=p.pos; }catch(e){} } if(was!==(p.pos>=it(p.id).d)) render(); else tickDOM(); }
 function speedSheet(){ const p=S.player;
   return `<div class="dim" onclick="S.sheet=null;render()"></div>
@@ -3137,6 +3138,15 @@ function memberCards(full){
       <div class="hs" style="gap:12px;margin:-8px -24px -16px;padding:8px 24px 24px">${cs.join('')}</div></div>`).join('');   /* 上下多留白，卡片陰影不會被捲動區切掉 */
 }
 /* MEM-06／MEM-09（標規 p122–123）：收藏可加個人筆記，會員中心要有「我的筆記」 */
+/* 2026-11-20 留言：未登入的收藏與筆記——存在這支手機，登入後合併進帳號；還沒有內容時保留標題、告訴使用者怎麼做 */
+function guestMine(){ const fs=[...S.fav].filter(id=>it(id));
+  const empty=t=>`<p style="font-size:12px;line-height:1.7;color:var(--text2);background:var(--cream);border-radius:12px;padding:12px">${t}</p>`;
+  return `<p style="display:flex;gap:6px;align-items:flex-start;margin:14px 0 12px;font-size:12px;line-height:1.6;color:var(--text2)"><span style="flex:0 0 16px;margin-top:2px">${MI('M17 1.01 7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z',16,'#5F5F5F')}</span><span>收藏與筆記目前存在這支手機。登入後會保留到你的帳號，換手機也看得到。</span></p>
+    <div style="padding:8px 0 16px;display:flex;flex-direction:column;gap:12px">
+      <div class="goldhead" style="padding:0"><i></i><b>我的收藏</b></div>
+      ${fs.length?`<div class="hs" style="gap:12px;margin:-8px -24px -16px;padding:8px 24px 24px">${fs.map(id=>`<button class="zcard" onclick="S.sheet=null;play('${id}',{type:'ex',key:exOf(id)})" style="text-align:left"><img src="${A(it(id).img)}" alt=""><div class="t"><span>${it(id).no?'#'+it(id).no:''}${noteOf(id)?'・有筆記':''}</span><b>${it(id).n}</b></div></button>`).join('')}</div>`
+        :empty('還沒有收藏。在導覽內頁點右上角「⋯」→「加入收藏」，就會出現在這裡。')}</div>
+    ${noteList()}`; }
 function memberNote(){ return noteList(); }
 function memberRows(){ return ''; }
 /* MEM-06（標規 p122）：個人筆記——收藏或任何一則導覽內容都寫得了，只有自己看得到 */
@@ -3176,7 +3186,7 @@ function noteList(){ const ns=Object.entries(S.notes||{}).filter(([id])=>it(id))
         ${img('ic-note.svg',16,16)}<span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
           <b style="font-weight:500;font-size:14px;color:var(--ink)">${it(id).n}</b>
           <span style="font-size:12px;line-height:1.6;color:var(--text2)">${t}</span></span></button>`).join('')
-      :`<p style="font-size:12px;line-height:1.7;color:var(--text2);background:var(--cream);border-radius:12px;padding:12px">還沒有筆記</p>`}</div>`; }   /* 2026-11-18：跨裝置同步的資訊拿掉；顯示設定與帳號與隱私移到選單的「設定」區 */
+      :`<p style="font-size:12px;line-height:1.7;color:var(--text2);background:var(--cream);border-radius:12px;padding:12px">還沒有筆記。在導覽內頁點右上角「⋯」→「寫筆記」，就會出現在這裡。</p>`}</div>`; }   /* 2026-11-18：跨裝置同步的資訊拿掉；顯示設定與帳號與隱私移到選單的「設定」區 */
 /* 登入帳號的大頭照：正式版用 OIDC 回傳的 picture，這裡用帳號首字母的圓形頭像示意 */
 function avatar(sz){ const u=S.user||{}; return u.photo?`<img src="${u.photo}" alt="" style="flex:0 0 ${sz}px;width:${sz}px;height:${sz}px;border-radius:50%;object-fit:cover">`
   :`<span aria-hidden="true" style="flex:0 0 ${sz}px;width:${sz}px;height:${sz}px;border-radius:50%;background:var(--teal7);color:#fff;display:grid;place-items:center;font-family:Roboto,'Noto Sans TC',sans-serif;font-weight:700;font-size:${Math.round(sz*0.42)}px">${u.ini||'N'}</span>`; }
@@ -3850,6 +3860,7 @@ S.detect=detectLang();
 S.lang=S.detect;
 try{ S.signPref = localStorage.getItem('nmth.signPref')==='1'; S.gType=localStorage.getItem('nmth.gType')||null; }catch(e){ S.signPref=false; }
 try{ S.notes=JSON.parse(localStorage.getItem('nmth.notes')||'{}')||{}; }catch(e){}
+try{ S.fav=new Set(JSON.parse(localStorage.getItem('nmth.fav')||'[]')); }catch(e){}
 try{ const r=JSON.parse(localStorage.getItem('nmth.resume')||'null'); if(r&&ITEMS[r.id]&&(r.ctx.type==='route'?ROUTES[r.ctx.key]:EXHIBITIONS[r.ctx.key])&&r.pos>3&&r.pos<it(r.id).d-3) S.resume=r; }catch(e){}   /* 審查 #10：同一支手機中斷後重開，首頁提示續聽 */
 setInterval(()=>{ const p=S.player; if(!p||isTxt(p.id,p.ctx)||p.ctx.type==='pre') return; try{ localStorage.setItem('nmth.resume',JSON.stringify({id:p.id,ctx:{type:p.ctx.type,key:p.ctx.key,idx:p.ctx.idx,sg:p.ctx.sg},pos:Math.floor(p.pos),t:Date.now()})); }catch(e){} },2000);
 /* 易用性測試的情境入口：?go=home 直接到首頁；?go=pt:412 掃到展籤 QR Code（開掃碼頁並帶入編號）；?go=play:205 參觀到一半、正在聽這一件 */
