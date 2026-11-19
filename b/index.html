@@ -3157,7 +3157,7 @@ const noteOf=id=>(S.notes||{})[id]||'';
   const sync=()=>{ const kb=Math.max(0, Math.round(window.innerHeight-vv.height-vv.offsetTop)); root.style.setProperty('--kb', (kb>80?kb:0)+'px'); if(window.scrollY||document.scrollingElement.scrollTop) window.scrollTo(0,0); };
   vv.addEventListener('resize',sync); vv.addEventListener('scroll',sync);
   document.addEventListener('focusout',()=>setTimeout(sync,60)); })();
-function openNote(id){ S.noteId=id; S.menuUnder=S.sheet==='menu'; S.sheet='note'; render(); if(!matchMedia('(pointer:coarse)').matches) setTimeout(()=>{ const t=document.getElementById('ntTx'); if(t) t.focus({preventScroll:true}); },80); }   /* 2026-11-18：手機上一打開就聚焦會立刻彈鍵盤、把整頁捲上去，面板看起來飄在半空；改成點輸入框才彈 */
+function openNote(id,nav){ S.noteId=id; S.noteNav=!!nav; S.menuUnder=S.sheet==='menu'; S.sheet='note'; render(); if(!matchMedia('(pointer:coarse)').matches) setTimeout(()=>{ const t=document.getElementById('ntTx'); if(t) t.focus({preventScroll:true}); },80); }   /* 2026-11-18：手機上一打開就聚焦會立刻彈鍵盤、把整頁捲上去，面板看起來飄在半空；改成點輸入框才彈 */
 function closeNote(){ S.sheet=S.menuUnder?'menu':null; S.menuUnder=false; S.noteId=null; render(); }
 function saveNote(){ const el=document.getElementById('ntTx'), v=(el?el.value:'').trim(), id=S.noteId;
   if(v) S.notes[id]=v; else delete S.notes[id];
@@ -3165,6 +3165,14 @@ function saveNote(){ const el=document.getElementById('ntTx'), v=(el?el.value:''
   closeNote(); if(!v) return toast('筆記已刪除');
   toast(S.loggedIn?'筆記已儲存在會員資料中':'筆記已存在這支手機，登入後會一起存進會員資料', {label:'前往查看', fn:goMyNotes}); }   /* 2026-11-18：規格 MEM-01 免登入可收藏，匿名資料先存本機、登入時合併——未登入時不能說「已存在會員資料」 */
 function goMyNotes(){ S.sheet=null; S.menuUnder=false; S.myTab='fav'; go('mylist'); setTimeout(()=>{ const n=document.getElementById('myNotes'); if(n) n.scrollIntoView({block:'start'}); },60); }
+/* 2026-11-20 留言：從「我的筆記」清單打開時，多筆可以切上一筆／下一筆；切換前把改過的內容先存起來（清空不算刪除，刪除要按刪除鈕） */
+const noteIds=()=>Object.keys(S.notes||{}).filter(id=>it(id));
+function noteStep(d){ const l=noteIds(), n=l[l.indexOf(S.noteId)+d]; if(!n) return; const el=document.getElementById('ntTx'), v=el?el.value.trim():'';
+  if(v&&v!==noteOf(S.noteId)){ S.notes[S.noteId]=v; try{ localStorage.setItem('nmth.notes',JSON.stringify(S.notes)); }catch(e){} }
+  S.noteId=n; render(); }
+function noteSwitch(){ const l=noteIds(), i=l.indexOf(S.noteId); if(!S.noteNav||i<0||l.length<2) return '';
+  const ch=(d,lab)=>`<button class="rtsw-b" ${l[i+d]?`onclick="noteStep(${d})"`:'disabled'} aria-label="${lab}${l[i+d]?'：'+it(l[i+d]).n:''}">${d<0?MI('M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',20,'currentColor'):''}${lab}${d>0?MI('M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z',20,'currentColor'):''}</button>`;
+  return `<div class="rtsw" style="margin:0">${ch(-1,'上一筆')}<span>${i+1}／${l.length}</span>${ch(1,'下一筆')}</div>`; }
 function noteSheet(){ const id=S.noteId, x=it(id)||{n:'',no:''}, had=!!noteOf(id);
   return `<div class="dim" onclick="closeNote()"></div>
   <div class="sheet" role="dialog" aria-labelledby="ntH" style="border-radius:24px 24px 0 0;padding:14px 24px 28px;display:flex;flex-direction:column;gap:12px">
@@ -3176,12 +3184,13 @@ function noteSheet(){ const id=S.noteId, x=it(id)||{n:'',no:''}, had=!!noteOf(id
     <textarea id="ntTx" rows="5" placeholder="寫下你的想法，只有你看得到" style="width:100%;background:var(--cream);border:0;border-radius:14px;padding:12px 14px;font:400 15px/1.7 'Noto Sans TC',sans-serif;color:var(--text);resize:none">${noteOf(id)}</textarea>
     <button class="tealbtn" style="width:100%;height:48px;border-radius:24px;font-size:16px" onclick="saveNote()">${had?'更新筆記':'儲存筆記'}</button>
     ${had?`<button onclick="document.getElementById('ntTx').value='';saveNote()" style="min-height:44px;font-size:13px;color:var(--text2)">刪除這則筆記</button>`:''}
+    ${noteSwitch()}
   </div>`; }
 /* 選單與「我的收藏」頁共用的筆記清單 */
 function noteList(){ const ns=Object.entries(S.notes||{}).filter(([id])=>it(id));
   return `<div style="padding:4px 0 16px;display:flex;flex-direction:column;gap:8px">
     <div class="goldhead" style="padding:0"><i></i><b>我的筆記</b></div>
-    ${ns.length?ns.map(([id,t])=>`<button onclick="openNote('${id}')" style="width:100%;text-align:left;background:var(--cream);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+    ${ns.length?ns.map(([id,t])=>`<button onclick="openNote('${id}',1)" style="width:100%;text-align:left;background:var(--cream);border-radius:12px;padding:12px;display:flex;gap:10px;align-items:flex-start">
         ${img('ic-note.svg',16,16)}<span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
           <b style="font-weight:500;font-size:14px;color:var(--ink)">${it(id).n}</b>
           <span style="font-size:12px;line-height:1.6;color:var(--text2)">${t}</span></span></button>`).join('')
