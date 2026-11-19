@@ -82,11 +82,13 @@ img{display:block}
 .tabs2 button{flex:1;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1.4;letter-spacing:.35px;color:var(--text2);position:relative}
 .tabs2 button.on{color:var(--teal7)}
 .tabs2 button.on::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--gold-mid)}
-.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;z-index:30}
+.sheet{position:absolute;left:0;right:0;bottom:var(--kb,0px);background:#fff;border-radius:24px 24px 0 0;z-index:30;transition:bottom .2s ease-out}   /* 2026-11-18：--kb＝螢幕鍵盤高度，鍵盤彈出時面板貼在鍵盤上緣，不讓整頁被捲上去 */
 .dim{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:29}
 .grab{width:36px;height:4px;border-radius:2px;background:var(--border);margin:0 auto;visibility:hidden}   /* 面板都不能拖曳，把手只是裝飾，隱藏但保留間距 */
 .toast{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);background:rgba(26,26,26,.88);color:#fff;font-size:13px;
   padding:10px 16px;border-radius:12px;z-index:60;white-space:nowrap;pointer-events:none}
+.toast.tact{pointer-events:auto;white-space:normal;width:calc(100% - 32px);max-width:420px;box-sizing:border-box;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 16px;line-height:1.5}
+.toast.tact button{flex:0 0 auto;min-height:36px;padding:0 14px;border-radius:18px;background:#fff;color:var(--teal7);font-weight:700;font-size:13px}   /* 2026-11-18：帶動作的 banner */
 .toast{z-index:80;animation:toastIn .22s cubic-bezier(.2,.8,.2,1)} @keyframes toastIn{from{translate:0 8px}}   /* 只做上滑、不從透明開始：動畫沒跑也看得到 */
 
 /* 卡片 hscroll（首頁） */
@@ -1071,15 +1073,17 @@ function scrollRestore(snap){ const scr=(document.querySelector('#app > .scr.map
   snap.forEach(([i,t])=>{ const el=all[i]; if(el){ el.scrollTop=t; el.dispatchEvent(new Event('scroll')); } });
   if(bar){ bar.offsetHeight; bar.style.transition=''; } }
 /* toast 掛在 #device（不在 #app 裡），呼叫後馬上 render() 也不會被洗掉；位置自動避開播放卡、迷你播放器、FAB、下方面板（2026-11-11 留言） */
-function toast(t){ const dev=document.getElementById('device')||document.getElementById('app');
+function toast(t,act){ const dev=document.getElementById('device')||document.getElementById('app');   /* act＝{label,fn}：帶一顆動作鈕的 banner（例：筆記已儲存・前往查看） */
   document.querySelectorAll('#device > .toast').forEach(e=>e.remove());
-  const el=document.createElement('div'); el.className='toast'; el.setAttribute('role','status'); el.setAttribute('aria-live','polite'); el.textContent=t; dev.appendChild(el);
+  const el=document.createElement('div'); el.className='toast'+(act?' tact':''); el.setAttribute('role','status'); el.setAttribute('aria-live','polite'); el.textContent=t;
+  if(act){ const b=document.createElement('button'); b.type='button'; b.textContent=act.label; b.onclick=()=>{ el.remove(); act.fn(); }; el.appendChild(b); }
+  dev.appendChild(el);
   if(S.lang&&S.lang!=='zh'&&typeof i18nNode==='function') i18nNode(el);
   const place=()=>{ const r=dev.getBoundingClientRect(); let top=r.bottom-24;
-    document.querySelectorAll('#app #pcard, #app .mini .box, #app .mini, #app .scanfab, #app .zonesheet, #app .sheet').forEach(n=>{ const b=n.getBoundingClientRect(); if(b.height&&b.top>r.top+r.height*.4) top=Math.min(top,b.top); });
+    document.querySelectorAll('#app #pcard, #app .pstep, #app .mini .box, #app .mini, #app .scanfab, #app .zonesheet, #app .sheet').forEach(n=>{ if(n.closest('.shghost,.ghost')) return; const b=n.getBoundingClientRect(); if(b.height&&b.top>r.top+r.height*.4) top=Math.min(top,b.top); });   /* 2026-11-18：收起中的面板複本不算，否則 banner 會停在已經消失的面板上緣 */
     el.style.bottom=Math.max(24,r.bottom-top+12)+'px'; };
-  place(); requestAnimationFrame(place); setTimeout(place,0);
-  clearTimeout(toast.t); toast.t=setTimeout(()=>{ el.style.transition='opacity .25s'; el.style.opacity='0'; setTimeout(()=>el.remove(),260); },2000); }
+  place(); requestAnimationFrame(place); setTimeout(place,0); setTimeout(place,(typeof PAN_MS==='number'?PAN_MS:300)+40);   /* 面板收起動畫結束後再對一次位置 */
+  clearTimeout(toast.t); toast.t=setTimeout(()=>{ el.style.transition='opacity .25s'; el.style.opacity='0'; setTimeout(()=>el.remove(),260); },act?5000:2000); }
 function toggleFs(){ S.fs=S.fs==='l'?'m':'l'; render(); toast(S.fs==='l'?'文字已放大':'文字已恢復標準大小'); }
 const mmss = s => Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
 /* 語言規則（2026-11-12 會議初步結論，全站套用）：介面是哪個語言，就只顯示那個語言的語音（中文介面含台語、客語音軌）；
@@ -3083,12 +3087,21 @@ function memberNote(){ return noteList(); }
 function memberRows(){ return ''; }
 /* MEM-06（標規 p122）：個人筆記——收藏或任何一則導覽內容都寫得了，只有自己看得到 */
 const noteOf=id=>(S.notes||{})[id]||'';
-function openNote(id){ S.noteId=id; S.menuUnder=S.sheet==='menu'; S.sheet='note'; render(); setTimeout(()=>{ const t=document.getElementById('ntTx'); if(t) t.focus(); },80); }
+/* 2026-11-18：螢幕鍵盤處理（根本原因修正）
+   外層 #device 是 100dvh。iOS Safari 彈鍵盤時不縮版面，而是把整頁往上捲讓輸入框露出來，收鍵盤後常停在捲上去的位置，
+   底部面板就像飄在半空。改成：頁面永遠不捲（捲回 0），改把底部面板抬到鍵盤上緣（--kb＝鍵盤高度）。 */
+(()=>{ const vv=window.visualViewport, root=document.documentElement; if(!vv) return;
+  const sync=()=>{ const kb=Math.max(0, Math.round(window.innerHeight-vv.height-vv.offsetTop)); root.style.setProperty('--kb', (kb>80?kb:0)+'px'); if(window.scrollY||document.scrollingElement.scrollTop) window.scrollTo(0,0); };
+  vv.addEventListener('resize',sync); vv.addEventListener('scroll',sync);
+  document.addEventListener('focusout',()=>setTimeout(sync,60)); })();
+function openNote(id){ S.noteId=id; S.menuUnder=S.sheet==='menu'; S.sheet='note'; render(); if(!matchMedia('(pointer:coarse)').matches) setTimeout(()=>{ const t=document.getElementById('ntTx'); if(t) t.focus({preventScroll:true}); },80); }   /* 2026-11-18：手機上一打開就聚焦會立刻彈鍵盤、把整頁捲上去，面板看起來飄在半空；改成點輸入框才彈 */
 function closeNote(){ S.sheet=S.menuUnder?'menu':null; S.menuUnder=false; S.noteId=null; render(); }
 function saveNote(){ const el=document.getElementById('ntTx'), v=(el?el.value:'').trim(), id=S.noteId;
   if(v) S.notes[id]=v; else delete S.notes[id];
   try{ localStorage.setItem('nmth.notes',JSON.stringify(S.notes)); }catch(e){}
-  closeNote(); toast(v?'筆記已儲存':'筆記已刪除'); }
+  closeNote(); if(!v) return toast('筆記已刪除');
+  toast(S.loggedIn?'筆記已儲存在會員資料中':'筆記已存在這支手機，登入後會一起存進會員資料', {label:'前往查看', fn:goMyNotes}); }   /* 2026-11-18：規格 MEM-01 免登入可收藏，匿名資料先存本機、登入時合併——未登入時不能說「已存在會員資料」 */
+function goMyNotes(){ S.sheet=null; S.menuUnder=false; S.myTab='fav'; go('mylist'); setTimeout(()=>{ const n=document.getElementById('myNotes'); if(n) n.scrollIntoView({block:'start'}); },60); }
 function noteSheet(){ const id=S.noteId, x=it(id)||{n:'',no:''}, had=!!noteOf(id);
   return `<div class="dim" onclick="closeNote()"></div>
   <div class="sheet" role="dialog" aria-labelledby="ntH" style="border-radius:24px 24px 0 0;padding:14px 24px 28px;display:flex;flex-direction:column;gap:12px">
@@ -3127,7 +3140,7 @@ function scrMyList(){
       <div class="c" style="color:var(--text)">我的收藏與歷程</div><div class="r"></div></div>
     <div class="tabs2" role="tablist" style="padding:0 24px">${tb('fav','我的收藏')}${tb('hist','導覽歷程')}</div>
     <ol class="glist" style="padding:16px 24px 8px">${list.map(r=>`<li>${row(r)}</li>`).join('')}</ol>
-    <div style="padding:8px 24px 24px">${noteList()}</div>
+    <div id="myNotes" style="padding:8px 24px 24px;scroll-margin-top:72px">${noteList()}</div>
     ${S.player?'<div style="height:104px"></div>':''}
   </div>${miniDock()}</div>`;
 }
