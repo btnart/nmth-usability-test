@@ -3136,6 +3136,9 @@ function memberNote(){ return noteList(); }
 function memberRows(){ return ''; }
 /* MEM-06（標規 p122）：個人筆記——收藏或任何一則導覽內容都寫得了，只有自己看得到 */
 const noteOf=id=>(S.notes||{})[id]||'';
+/* 2026-11-20 留言：連點「停用」的按鈕（例如最後一則的「下一則」）會把整頁放大——iOS 只對「點得動」的元素取消雙擊放大，
+   停用的按鈕不算，第二下就被當成雙擊縮放。點在停用按鈕上的觸控一律不交給瀏覽器（它本來就不會觸發任何動作），雙指縮放不受影響 */
+document.addEventListener('touchend',e=>{ if(e.touches.length) return; const t=e.target&&e.target.closest&&e.target.closest('button:disabled,[aria-disabled="true"]'); if(t&&e.cancelable) e.preventDefault(); },{passive:false});
 /* 2026-11-18：螢幕鍵盤處理（根本原因修正）
    外層 #device 是 100dvh。iOS Safari 彈鍵盤時不縮版面，而是把整頁往上捲讓輸入框露出來，收鍵盤後常停在捲上去的位置，
    底部面板就像飄在半空。改成：頁面永遠不捲（捲回 0），改把底部面板抬到鍵盤上緣（--kb＝鍵盤高度）。 */
