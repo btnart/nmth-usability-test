@@ -665,6 +665,7 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .exent em{display:grid;place-items:center}
 .exent.on{background:var(--teal7);border-color:var(--teal7)} .exent.on::after{border-top-color:var(--teal7)} .exent.on i{background:#fff} .exent.on b{color:#fff} .exent.on small{color:rgba(255,255,255,.85)}
 .waymode .exent,.pickmode .exent{display:none}
+.fv4 .exent{min-height:34px;gap:6px;padding:3px 10px 3px 3px} .fv4 .exent i{flex-basis:26px;width:26px;height:26px} .fv4 .exent small,.fv4 .exent em{display:none} .fv4 .exent::before{content:'';position:absolute;inset:-6px -2px}   /* 2026-11-19：整層檢視地圖比較小，入口標籤精簡成一行展名（點擊範圍仍保留 44px 高） */
 .exchip{display:inline-flex;align-items:flex-start;gap:6px;min-height:32px;padding:6px 12px 6px 10px;border-radius:16px;background:var(--cream);font-size:14px;line-height:20px;color:var(--text);max-width:100%} .exchip>svg{flex:0 0 auto;margin-top:2px} .exchip>span{min-width:0}   /* 展覽內頁資訊膠囊（跟地圖特展面板同款，放大一級） */
 .ex4meta{display:inline-flex;align-items:center;gap:4px;min-height:26px;padding:0 10px;border-radius:13px;background:var(--cream);font-size:12px;color:var(--text)} .ex4meta:empty{display:none}   /* 第 1 輪測試修正（T8）：可點的特展入口標記＋特展資訊 */
 .zsgrab{align-self:center;display:inline-flex;align-items:center;gap:4px;min-height:32px;margin:-10px 0 -4px;padding:0 12px;border-radius:16px;font-size:12px;color:var(--text2)}
@@ -2410,6 +2411,11 @@ const fvOn=()=>(S.mapAll||S.mapFloors)&&!S.exOnly&&!S.mapRoute&&!S.mapOnly;
 const floorExs=f=>f==='4F'?Object.keys(ROOMS4):f==='2F'?['perm']:[];
 const fv4All=()=>S.floor==='4F'&&fvOn()&&!S.fx&&!S.way;
 const FIT4ALL={s:.2443, x:-0.8, y:196.6};
+/* 2026-11-19 留言：全館地圖的 2F／4F 面板跟全區一樣只放卡片——這層有哪些展覽，點了進展覽頁從那裡開始完整導覽；地圖上的點位照樣可以點來聽單件 */
+function fxCards(f){ const ks=floorExs(f);
+  return `<div style="display:flex;align-items:center;padding:0 24px;min-height:32px"><b style="font-weight:700;font-size:18px;color:var(--ink)">${f} ${f==='4F'?'特展室':MAPS[f].name}</b></div>
+    <div class="hs zrow" style="gap:12px;padding:0 24px 28px;margin-bottom:-28px">${ks.map(k=>{ const e=EXHIBITIONS[k];
+      return `<div class="zcard" role="button" tabindex="0" onclick="exFromMap('${k}')" onkeydown="if(event.key==='Enter')exFromMap('${k}')" aria-label="${e.n}，看展覽介紹"><img src="${A(e.card||e.hero)}" alt=""><div class="t"><span>${ROOMS4[k]?ROOMS4[k].name:'常設展廳'}・${e.items.length} 個導覽點</span><b>${e.n.split('：')[0]}</b></div></div>`; }).join('')}</div>`; }
 function fxTabs(f){ const ks=floorExs(f); if(!ks.length) return '';   /* 只有一檔展覽的樓層也顯示同一排（單一分頁＝展名標籤），2F、4F 版面一致、高度一樣 */
   const b=(k,t)=>{ const on=(S.fx||null)===k; return `<button role="tab" aria-selected="${on}" class="${on?'on':''}" onclick="fxSel(${k?`'${k}'`:'S.fx'})">${t}</button>`; };
   const n=pinCount(f), tog=listTog(n);   /* 展開／收合清單放在分頁列右邊，省一整排高度 */
@@ -2429,7 +2435,7 @@ function fxHead(k,inEx){   /* inEx＝從展覽頁進來的展覽地圖：已經�
 function fxFocus(){ const w=document.querySelector('#app > .scr .mapwrap'); if(!w) return; if(S.exOnly) return exFocus(w); if(S.floor!=='4F') return; const v=mapView(), W=w.clientWidth, H=mapVisH(w), top=fvOn()&&S.mapAll?120:104;
   const ar=(S.fx&&ROOMS4[S.fx]?[S.fx]:Object.keys(ROOMS4)).flatMap(k=>ROOMS4[k].area.split(' ').map(q=>q.split(',').map(Number)).concat(exPins(k).filter(id=>PINS['4F'][id]).flatMap(id=>{ const [x,y]=PINS['4F'][id]; return [[x-70,y-70],[x+70,y+70]]; })));   /* 範圍含走廊延伸展區的點位 */   /* 全部＝兩間特展室合起來的範圍 */
   let x0,y0,x1,y1; { const p=ar; x0=Math.min(...p.map(q=>q[0])); x1=Math.max(...p.map(q=>q[0])); y0=Math.min(...p.map(q=>q[1])); y1=Math.max(...p.map(q=>q[1])); }
-  const ah=Math.max(120,H-top), sc=Math.min((S.fx?W-152:W-40)/(x1-x0), ah*.8/(y1-y0)), to={s:sc, x:W/2-(x0+x1)/2*sc, y:top+ah/2-(y0+y1)/2*sc};
+  const rl=fvOn()&&!S.fx?84:0, rr=0, ah=Math.max(120,H-top), sc=Math.min((S.fx?W-152:W-40-rl-rr)/(x1-x0), ah*.8/(y1-y0)), to={s:sc, x:(W+rl-rr)/2-(x0+x1)/2*sc, y:top+ah/2-(y0+y1)/2*sc};   /* 2026-11-19：整層檢視左邊讓出樓層按鈕的寬度，入口標籤不被壓到 */
   if(S._fxAnim&&!REDUCED){ S._fxAnim=false; return animView(to); } S._fxAnim=false; Object.assign(v,to); placePins(); }
 /* 2026-11-12 留言：4F 切換展覽分頁時，地圖平順移動＋縮放到另一間特展室（0.45 秒），不是瞬間跳過去 */
 function animView(to){ const v=mapView(), from={...v}, t0=performance.now(), D=PAN_MS, ez=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; let done=false;
@@ -2897,7 +2903,7 @@ function pinCard(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||f
       <span style="position:relative;flex:0 0 112px;height:112px;border-radius:12px;overflow:hidden"><img src="${A(x.img)}" alt="" style="width:100%;height:100%;object-fit:cover">
         ${x.maint?'<span class="mbadge">維護中</span>':''}</span>
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;padding-top:2px">
-        <span style="font-size:12px;color:var(--text2)">${rk?`第 ${rtNo(rk,id)} 站${x.no?'・導覽 #'+x.no:''}`:x.no?'#'+x.no:''}</span>
+        <span style="font-size:12px;color:var(--text2)">${rk?`第 ${rtNo(rk,id)} 站${x.no?'・導覽 #'+x.no:''}`:(x.no?'#'+x.no:'')+(fvOn()&&EXHIBITIONS[ex]?`${x.no?'・':''}${EXHIBITIONS[ex].n.split('：')[0]}`:'')}</span>   <!-- 2026-11-19 留言：全館地圖上的點位卡標出屬於哪一檔，開始導覽就是接著聽那一整檔 -->
         <b style="font-weight:700;font-size:17px;line-height:1.3;color:var(--ink)">${x.n}</b>
         ${caps}
         ${x.maint?`<span style="font-size:11px;color:#8D0E0E">${x.maint}</span>`:''}</div></div>`}
@@ -2913,7 +2919,8 @@ function rtSwitch(k,id){ const l=rtStops(k), i=l.indexOf(id); if(i<0||l.length<2
   const ch=(d,lab)=>`<button class="rtsw-b" ${l[i+d]?`onclick="rtStep(${d})"`:'disabled'} aria-label="${lab}${l[i+d]?'：'+it(l[i+d]).n:''}">${d<0?MI('M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',20,'currentColor'):''}${lab}${d>0?MI('M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z',20,'currentColor'):''}</button>`;
   return `<div class="rtsw">${ch(-1,'上一站')}<span>${i+1}／${l.length}</span>${ch(1,'下一站')}</div>`; }
 function rtStep(d){ const k=S.mapRoute, l=rtStops(k), n=l[l.indexOf(S.mapSel)+d]; if(!n) return; S.mapSel=n; const p=PINS[S.floor][n]; if(p) mapFocus(p[0],p[1]); render(); }
-function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F')[0]; S.room4=S.fx; S.mv=S.mv||{}; S.mv['4F']=fitV(ROOMS4[S.fx].fit); S._fxFocus=true; }   /* 4F 沒有「全部」：進來預設選第一檔特展 */
+function scrMap(){ if(fvOn()&&S.fx) S.fx=null;   /* 2026-11-19 留言：全館地圖的樓層不再分展覽頁籤，2F／4F 一律看整層 */
+  if(fv4All()){ if(S._mv4!=='all'){ S.mv=S.mv||{}; delete S.mv['4F']; S._mv4='all'; S._fxFocus=true; } } else if(S.floor==='4F') S._mv4='room';   /* 從單一特展室的視角回到整層時重新框整層 */
   const f=S.floor, M=MAPS[f]?mapOf(f):null, exKey=floorEx(), e=EXHIBITIONS[exKey], v=M?mapView():null, nx=mapNextId();
   const RT=(S.walk&&S.walk.k)||(S.mapRoute&&ROUTES[S.mapRoute]?S.mapRoute:null);   /* 2026-11-18：主題路線的地圖，面板講站點，不講常設展的導覽點 */
   const fst=M&&!nx&&!S.way&&!S.nav&&!S.navPending&&!S.arrived&&!S.tour&&!S.mapOnly&&!S.mapSel&&!S.herePick&&!S.signPick&&!S.mapAll&&!S.mapFloors&&!(S.firstSeen||{})[exKey]&&!(S.player&&S.player.ctx.type==='ex'&&S.player.ctx.key===exKey)?firstOf(exKey):null;   /* 2026-11-18：這檔已經在導覽中就不再提示「第一則・點一下開始」，讓位給「導覽中」 */   /* 第一次進這個展覽的地圖：第一件發亮＋提示，點任何一件展品後就不再出現 */
@@ -2926,7 +2933,7 @@ function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F'
         ${M.area?`<polygon points="${M.area}" fill="rgba(46,92,110,.08)" stroke="#2E5C6E" stroke-width="3" stroke-dasharray="10 8" vector-effect="non-scaling-stroke"/>`:''}</svg></div>
     <div class="mpins">
       ${S.nav||S.arrived||S.tour||S.herePick||S.mapOnly||f==='site'?'':f==='4F'?Object.entries(ROOMS4).filter(([k])=>!S.exOnly||!ROOMS4[S.exOnly]||k===S.exOnly).map(([k,r])=>{ const [x,y]=EX4_ENT[k], en=S.lang==='en';   /* 第 1 輪測試修正（T8）：每間特展室一個可點的「特展入口」，寫展名，點了下方面板換成這檔特展 */
-          return anchor(x,y,'exent'+((fvOn()?S.fx===k:k===exKey)?' on':''),`<i>${MI(PL_IC.door,15,k===exKey?'#2E5C6E':'#fff')}</i><span><b>${EXHIBITIONS[k].n.split('：')[0]}</b><small>${r.name}・${en?'Entrance':'特展入口'}</small></span><em>${MI('M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z',16,k===exKey?'#fff':'#2E5C6E')}</em>`,`role="button" tabindex="0" aria-label="${EXHIBITIONS[k].n}，${r.name}特展入口，點一下看特展資訊" onclick="event.stopPropagation();${fvOn()?`fxSel('${k}')`:`ex4Open('${k}')`}"`); }).join(''):anchor(M.label[0],M.label[1],'mchip',`${e.n.split('：')[0]}・${M.name}`,'aria-hidden="true"')}   <!-- 2026-11-11 留言：2F 常設展跟 4F 特展一樣，在全館／全區地圖上是可點的展覽標記，點了進該展覽的地圖 -->   <!-- 第 1 輪測試修正（T5）：4F 兩間特展室的展名都標出來，目前這間實色、另一間淡一點 -->
+          return anchor(x,y,'exent'+((fvOn()?S.fx===k:k===exKey)?' on':''),`<i>${MI(PL_IC.door,15,k===exKey&&!fvOn()?'#2E5C6E':'#fff')}</i><span><b>${EXHIBITIONS[k].n.split('：')[0]}</b><small>${r.name}・${en?'Entrance':'特展入口'}</small></span><em>${MI('M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z',16,k===exKey&&!fvOn()?'#fff':'#2E5C6E')}</em>`,`role="button" tabindex="0" aria-label="${EXHIBITIONS[k].n}，${r.name}特展入口，點一下看特展資訊" onclick="event.stopPropagation();${fvOn()?`exFromMap('${k}')`:`ex4Open('${k}')`}"`); }).join(''):anchor(M.label[0],M.label[1],'mchip',`${e.n.split('：')[0]}・${M.name}`,'aria-hidden="true"')}   <!-- 2026-11-11 留言：2F 常設展跟 4F 特展一樣，在全館／全區地圖上是可點的展覽標記，點了進該展覽的地圖 -->   <!-- 第 1 輪測試修正（T5）：4F 兩間特展室的展名都標出來，目前這間實色、另一間淡一點 -->
       ${M.elev&&!S.way&&!fv4All()?anchor(M.elev[0],M.elev[1],'mchip elev'+(f==='4F'?' e4':''),f==='4F'?`<b>電梯出口</b><span class="elev2"><span>← 往左：第三特展室</span><span>往右：第一特展室 →</span></span>`:`<b>電梯出口</b>${M.elevTip||''}`):''}   <!-- 第 1 輪測試修正（T5）：出電梯往左第三、往右第一特展室，兩個方向都標 -->
       ${S.nav&&navTarget()?`<svg id="mnav" class="mnav" aria-hidden="true"><polyline points="${navPts()}" fill="none" stroke="#2E5C6E" stroke-width="4" stroke-dasharray="2 8" stroke-linecap="round" stroke-linejoin="round"/>
         <circle cx="${toScr(navTarget().x,navTarget().y)[0]}" cy="${toScr(navTarget().x,navTarget().y)[1]}" r="9" fill="#C9A961" stroke="#fff" stroke-width="3"/></svg>`:''}
@@ -2942,11 +2949,11 @@ function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F'
   const rtK=!S.way&&(S.walk?S.walk.k:S.mapRoute&&ROUTES[S.mapRoute]?S.mapRoute:null), rtFloors=rtK?['4F','2F','1F'].filter(x=>PINS[x]&&rtList(rtK).some(id=>PINS[x][id])):null;   /* 2026-11-16：主題路線的地圖只放路線經過的樓層；只有一層就不顯示樓層列 */
   const exMapP=M&&S.exOnly&&EXHIBITIONS[S.exOnly]&&!S.mapRoute&&!S.mapOnly, uniP=M&&(fvOn()&&floorExs(f).length||exMapP);   /* 2026-11-12：展覽地圖跟全館地圖用同一套面板（展覽資訊頭＋開始導覽／帶我去＋可展開清單），只是不顯示分頁、不連回展覽介紹 */
   const navTitle = S.mapOnly ? it(S.mapOnly).n : f==='site' ? '全區地圖' : S.mapFloors&&!S.exOnly ? ({'1F':'1F 大廳','2F':'2F 常設展廳','4F':'4F 特展室'}[f]||f) :   /* 2026-11-11 留言：從首頁全區地圖進來換樓層，標題是樓層，不是某檔展覽 */ S.mapAll&&!S.way ? '展區地圖' : f==='4F' ? EXHIBITIONS[exKey].n : S.mapRoute&&ROUTES[S.mapRoute] ? ROUTES[S.mapRoute].n : EXHIBITIONS.perm.n;
-  const sheet = M&&S.walk&&!S.way ? walkSheet() : M&&S.way ? waySheet() : M&&S.herePick ? pickSheet() : M&&S.nav ? navSheet() : M&&S.arrived ? arrivedSheet() : M&&S.facFind&&FAC_TYPES[S.facFind]&&!S.mapSel ? '' : M&&S.tour&&S.player&&!S.mapOnly&&!S.mapSel ? guideSheet() : S.mapSel&&M ? (S.mapSel.startsWith('p:')?placeCard(S.mapSel):pinCard(S.mapSel)) : M&&(exMapP&&S.exBare||S.player&&S.mapBare===f) ? '' : M&&S.zsMin ? `<div class="zonesheet zsminw">   <!-- 第 1 輪測試修正（T5）：收合後只留一顆展開鈕，地圖看得比較大 -->${fvOn()?fxTabs(f):''}
+  const sheet = M&&S.walk&&!S.way ? walkSheet() : M&&S.way ? waySheet() : M&&S.herePick ? pickSheet() : M&&S.nav ? navSheet() : M&&S.arrived ? arrivedSheet() : M&&S.facFind&&FAC_TYPES[S.facFind]&&!S.mapSel ? '' : M&&S.tour&&S.player&&!S.mapOnly&&!S.mapSel ? guideSheet() : S.mapSel&&M ? (S.mapSel.startsWith('p:')?placeCard(S.mapSel):pinCard(S.mapSel)) : M&&(exMapP&&S.exBare||S.player&&S.mapBare===f) ? '' : M&&S.zsMin ? `<div class="zonesheet zsminw">   <!-- 第 1 輪測試修正（T5）：收合後只留一顆展開鈕，地圖看得比較大 -->${exMapP?fxTabs(f):''}
       <button class="zsmin" onclick="S.zsMin=false;render()" aria-label="展開下方面板"><span style="display:inline-flex;transform:rotate(180deg)">${MI(MD.chev,20,'#2E5C6E')}</span>展開${f==='site'?'說明':RT?`站點清單・${cardIds.length} 站`:`導覽點清單・${cardIds.length} 個`}</button></div>` : `<div class="zonesheet${fvOn()||exMapP?' zsfv':''}">
       ${M&&cardIds.length&&!uniP&&f!=='4F'&&!RT?`<button class="zstog" onclick="S.zsFull=!S.zsFull;render()" aria-expanded="${!!S.zsFull}" aria-label="${S.zsFull?'收合展品清單':'展開展品清單'}"><span style="display:inline-flex${S.zsFull?'':';transform:rotate(180deg)'}">${MI(MD.chev,18,'#2E5C6E')}</span>${S.zsFull?'收合清單':RT?`展開站點清單・${cardIds.length} 站`:`展開導覽點清單・${cardIds.length} 個`}</button>`:''}   <!-- 2026-11-12 方案 1：兩段式面板——預設矮版（分頁＋展覽資訊＋按鈕），按「展開展品清單」才出現卡片；文字按鈕可點，不靠拖曳（WCAG 2.5.7） -->
-      ${uniP?`${exMapP?fxHead(S.exOnly,cardIds.length):`${fxTabs(f)}${S.fx||floorExs(f).length===1?fxHead(S.fx||floorExs(f)[0]):`<div style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;min-height:32px"><div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">${f} ${M.name}</b><span style="font-size:11px;color:var(--text2)">${cardIds.length} 件展品・${floorExs(f).length} 檔展覽</span></div></div>`}`}
-      ${S.zsFull?`<div class="hs zrow" style="gap:12px;padding:12px 24px 28px;margin-bottom:-28px">${cardIds.map(id=>`<div class="zcard" data-id="${id}" onclick="pinTap('${id}')"><img src="${A(it(id).img)}" alt=""><div class="t"><span>${RT?`第 ${rtNo(RT,id)} 站`:it(id).no?'#'+it(id).no:''}</span><b>${it(id).n}</b></div></div>`).join('')}</div>`:''}
+      ${uniP?`${exMapP?fxHead(S.exOnly,cardIds.length):fxCards(f)}
+      ${S.zsFull&&exMapP?`<div class="hs zrow" style="gap:12px;padding:12px 24px 28px;margin-bottom:-28px">${cardIds.map(id=>`<div class="zcard" data-id="${id}" onclick="pinTap('${id}')"><img src="${A(it(id).img)}" alt=""><div class="t"><span>${RT?`第 ${rtNo(RT,id)} 站`:it(id).no?'#'+it(id).no:''}</span><b>${it(id).n}</b></div></div>`).join('')}</div>`:''}
     </div>`:''}${uniP?'':`${RT&&M?'':`   <!-- 2026-11-19 留言：主題路線地圖不放路線標題與帶我去，只放可左右滑的站點小卡 -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;min-height:32px">
         ${f==='4F'?ex4Info(exKey)   /* 第 1 輪測試修正（T8）：4F 面板＝目前選的特展資訊＋開始導覽；原本的切換 chip 和「開始導覽這個特展」整併進來，切換改點地圖上的特展入口 */
@@ -2961,7 +2968,7 @@ function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F'
   const mbg=M&&M.bg||'#F0F0F0';   /* 地圖區與整頁底色跟平面圖一致，圖外看起來是同一張延伸的地圖 */
   const pk=S.herePick&&M, wy=S.way&&M;   /* 標位置／帶我去模式：畫面只做一件事，其他元件都收起來 */
   const wt={a:'① 選起點：你在哪裡',b:'② 選目的地：要去哪裡',route:'③ 路線建議'};
-  return `<div class="scr${S.player&&!S.mapSheet&&!S.mapOnly&&!pk&&!wy?' withmini':''}${S.mapOnly&&!wy?' maponly':''}${S.mapAll&&!S.mapOnly?' maptop':''}${S.facFind&&!wy&&FAC_TYPES[S.facFind]?' facmode':''}${pk?' pickmode':''}${wy?' waymode way-'+S.way.step:''}" style="background:${mbg}${wy?`;--wh:${wayH(S.way)}px`:''}">
+  return `<div class="scr${S.player&&!S.mapSheet&&!S.mapOnly&&!pk&&!wy?' withmini':''}${S.mapOnly&&!wy?' maponly':''}${S.mapAll&&!S.mapOnly?' maptop':''}${fv4All()?' fv4':''}${S.facFind&&!wy&&FAC_TYPES[S.facFind]?' facmode':''}${pk?' pickmode':''}${wy?' waymode way-'+S.way.step:''}" style="background:${mbg}${wy?`;--wh:${wayH(S.way)}px`:''}">
     <div class="mapwrap${S.herePick?' picking':''}" style="background:${mbg}" onclick="mapTap(event)">${mapLayer}${pk?`<div class="pickpin" aria-hidden="true"><span>拖動地圖，對準你站的地方</span><i></i></div>`:''}</div>
     ${wy?`<div class="pickhead${S._wayIn?' phin':''}" role="banner"><div><b>帶我去</b><small>${wt[S.way.step]}</small></div><button onclick="wayClose()" aria-label="關閉帶我去">${MI(MD.close,22,'#fff')}</button></div>`:''}
     ${pk?`<div class="pickhead" role="banner"><div><b>標出你的位置</b><small>標好就幫你畫路線</small></div><button onclick="endNav()" aria-label="取消，不帶路">${MI(MD.close,22,'#fff')}</button></div>`:''}
