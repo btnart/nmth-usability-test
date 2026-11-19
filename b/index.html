@@ -1284,13 +1284,7 @@ function scrHome(){
     <div class="divider"></div>
     <div class="secthead" id="secFaq"><div class="r"><b>${L('常見問題')}</b><em>faq</em></div></div>
     <div style="padding:0 24px 30px;display:flex;flex-direction:column;gap:8px">
-      ${[['幾點開門？哪天休館？','09:00–17:00，週一休館'],['館內有東西吃嗎？','只有一間咖啡廳'],['有 Wi-Fi 嗎？','有，使用 iTaiwan']].map(([q,a])=>`
-        <button onclick="go('faq')" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(15,25,30,.08);padding:14px">
-          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
-            <b style="font-weight:500;font-size:15px;color:var(--ink)">${L(q)}</b>
-            <span style="font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${L(a)}</span></span>
-          <span style="flex:0 0 24px;color:var(--gray5)" aria-hidden="true">${MI('M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z',20,'currentColor')}</span></button>`).join('')}
-      <button class="tealbtn soft" onclick="go('faq')" style="align-self:center;margin-top:6px;border-color:transparent">${L('看全部常見問題')} ${MI('M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z',18,'#2E5C6E')}</button>
+      ${faqList('h')}   <!-- 2026-11-20 留言：常見問題直接在首頁展開看答案，不再跳頁 -->
     </div>
     <div style="background:var(--cream);padding:26px 0 20px;display:flex;flex-direction:column;align-items:center;gap:6px">
       ${logo}<p style="font-weight:500;font-size:11px;color:var(--text)">${L('國立臺灣歷史博物館')}</p>
@@ -3423,8 +3417,7 @@ function scrLeave(){
 }
 /* ---------- 常見問題（旅程痛點：到館前、在館內的疑問，只寫已確認的事實） ---------- */
 function mailbox(){ toast('將開啟臺史博官網館長信箱'); }
-function scrFaq(){
-  const qa=[['幾點開門？哪天休館？','開放時間 09:00–17:00，<b>週一休館</b>。'],
+const FAQ_QA=[['幾點開門？哪天休館？','開放時間 09:00–17:00，<b>週一休館</b>。'],
     ['館內有東西吃嗎？','館內只有一間咖啡廳。想吃正餐可以看「離館與交通」裡的周邊美食。<br><button onclick="go(\'leave\')">看周邊美食 →</button>'],
     ['館內有 ATM 嗎？','館內<b>沒有 ATM</b>，需要現金請先準備好。'],
     ['有 Wi-Fi 嗎？','有，使用 iTaiwan。連線約 30 分鐘會自動登出，建議出發前先把導覽內容離線預載，館內不用網路也能聽。<br><button onclick="S.sheet=\'offline\';render()">去離線預載 →</button>'],
@@ -3432,7 +3425,10 @@ function scrFaq(){
     ['廁所在哪裡？','打開地圖，點「廁所」就能帶你過去。<br><button onclick="openMapAll()">打開地圖 →</button>'],
     ['聽不到或不方便說話，怎麼溝通？','服務臺與志工備有筆談服務，可以直接寫字溝通。'],
     ['離館要走哪個門？','離館請走 <b>6 號門</b>，入館的 8 號門只能進、不能出。<br><button onclick="go(\'leave\')">看離館與交通 →</button>'],
-    ['要搭計程車在哪裡上車？','館區沒有固定叫車區，請到<b>洽公停車場</b>上車。']];
+    ['要搭計程車在哪裡上車？','館區沒有固定叫車區，請到<b>洽公停車場</b>上車。']];   /* 2026-11-20 留言：首頁與常見問題頁共用同一份 */
+/* 首頁、常見問題頁共用的手風琴；開合狀態記在 S.faqOpen，重新 render 不會收起 */
+const faqList=(pre)=>FAQ_QA.map(([q,a],n)=>`<details class="faq"${(S.faqOpen||{})[pre+n]?' open':''} ontoggle="(S.faqOpen=S.faqOpen||{})['${pre+n}']=this.open"><summary>${L(q)}</summary><div class="a">${a}</div></details>`).join('');
+function scrFaq(){
   return `<div class="scr" style="background:var(--cream)"><div class="scroll">
     <div style="background:#fff;display:flex;align-items:center;gap:12px;padding:16px 20px 12px 16px">
       <button onclick="back()" aria-label="返回" style="transform:rotate(180deg)">${img('ic-back-arrow.svg',16,16)}</button>
@@ -3444,7 +3440,7 @@ function scrFaq(){
           <span style="width:40px;height:40px;border-radius:12px;background:var(--tealL);display:grid;place-items:center;flex:0 0 40px">${MI(d,20,'#2E5C6E')}</span>
           <div><b style="display:block;font-weight:700;font-size:15px;color:var(--ink);margin-bottom:3px">${t}</b><p style="font-size:13px;line-height:1.55;color:var(--text2)">${x}</p></div></div>`).join('')}</div>
       <div class="goldhead" style="padding:4px 0"><i></i><b>常見問題</b></div>
-      ${qa.map(([q,a])=>`<details class="faq"><summary>${q}</summary><div class="a">${a}</div></details>`).join('')}
+      ${faqList('p')}
       <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 0 16px;text-align:center">   <!-- 2026-11-11 留言：還有問題置中、按鈕置中；上下各留 36px（含外層間距） -->
         <b style="font-weight:700;font-size:16px;color:var(--ink)">還有問題？</b>
         <button class="tealbtn soft" style="min-width:180px;min-height:44px;padding:0 28px" onclick="go('feedback')">意見回饋</button></div></div>
