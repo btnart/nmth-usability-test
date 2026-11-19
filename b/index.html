@@ -1733,18 +1733,7 @@ function scrEx(){
 /* ---------- 主題路線 ---------- */
 function openRoute(k){ S.plan={k, n:ROUTES[k].list.length, rt:true}; S.sheet='plan'; render(); }   /* 2026-11-17：主題路線跟展覽卡片做出區隔——先問打算花多少時間，再排出站點 */
 function openRouteDirect(k){ S.route=k; openMap('2F','perm',k); }   /* 2026-11-18：路線介紹頁已移除，直接開這條路線的地圖導覽 */
-function afterItems(){ const items=[['線上展覽｜斯土斯民 360°','ex-permanent.jpg'],['影音｜策展人帶你看','zone-card-1.jpg'],['教育資源｜學習單下載','rec-1.jpg']];
-  return items.map(([t,f])=>`<button onclick="toast('${t.split('｜')[0]}：開啟外部內容')" style="background:#fff;border-radius:12px;box-shadow:0 8px 24px -4px rgba(0,0,0,.14);padding:10px 14px 10px 10px;display:flex;gap:12px;align-items:center;text-align:left">
-      <img src="${A(f)}" alt="" style="width:64px;height:64px;border-radius:8px;object-fit:cover">
-      <span style="flex:1;font-weight:500;font-size:13px;color:var(--text)">${t}</span>${img('ic-arrow-right-dark2.svg',16,16)}</button>`).join(''); }
-function afterSheet(){
-  return `<div class="dim" onclick="S.sheet=null;render()"></div>
-  <div class="sheet" role="dialog" aria-labelledby="afH" style="background:var(--cream);border-radius:16px;padding:16px 16px 28px;display:flex;flex-direction:column;gap:12px">
-    ${closeX('S.sheet=null;render()')}
-    <h2 id="afH" style="font-weight:700;font-size:16px;line-height:normal;color:var(--ink);padding:12px 44px 0 8px">路線完成！繼續探索</h2>
-    ${afterItems()}
-  </div>`;
-}
+/* 2026-11-20 留言：主題路線的「完成路線／路線完成！繼續探索」拿掉——最後一站跟展覽一樣，下一則停用、播完就停 */
 /* ---------- 播放器 ---------- */
 /* 語音／手語是兩個獨立版本：一般觀眾的導覽佇列只放有語音版的；開了「預設手語」才把手語限定的也排進來 */
 function ctxList(ctx){ if(ctx.type==='pre') return PRE; if(ctx.type==='route') return rtGuide(ctx.key);   /* 2026-11-18：路線只播有導覽的站 */
@@ -1822,18 +1811,15 @@ function scrStop(){ const k=S.stopRoute, l=rtList(k), id=S.stopId, i=l.indexOf(i
     <div style="position:absolute;left:16px;right:16px;bottom:24px;z-index:6;display:flex;gap:10px">
       <button class="tealbtn soft" style="flex:1" onclick="back()">回路線地圖</button>
       ${i<l.length-1?`<button class="tealbtn" style="flex:1" onclick="S.walk&&walkGo(1);back()">下一站</button>`:''}</div></div>`; }
-function routeDone(){ const k=S.player.ctx.key; S.player.playing=false; (S.routeDone=S.routeDone||new Set()).add(k); S.route=k; openMap('2F','perm',k); S.sheet='after'; render(); }
 /* 2026-11-18：前後切換的量詞。路線走「站」；從展品列表點進來的單件展品走「件」（ctx.objs），不是導覽的「則」——使用者回報從現正展出瀏覽展品時，
    畫面講「第幾則／下一則」像是在跑導覽，但這條線只是在翻展品介紹 */
 const sUnit=c=>c&&c.objs?'件':'則';   /* 2026-11-18：路線播的是「有導覽的站」的導覽，前後切換也講「則」 */
-/* 已經在第一則／最後一則：按鈕停用。路線的最後一站不算，按下一站會進「完成路線」 */
-const atEdge=d=>{ const p=S.player; if(!p) return true; const list=ctxList(p.ctx), i=p.ctx.type==='route'?p.ctx.idx:list.indexOf(p.id); return d<0?i<=0:(p.ctx.type!=='route'&&i>=list.length-1); };
-const lastStop=()=>{ const p=S.player; return !!p&&p.ctx.type==='route'&&p.ctx.idx>=ctxList(p.ctx).length-1; };
+/* 已經在第一則／最後一則：按鈕停用（路線也一樣） */
+const atEdge=d=>{ const p=S.player; if(!p) return true; const list=ctxList(p.ctx), i=p.ctx.type==='route'?p.ctx.idx:list.indexOf(p.id); return d<0?i<=0:i>=list.length-1; };
 function step(d){ if(atEdge(d)) return; const p=S.player, list=ctxList(p.ctx);
-  if(p.ctx.type==='route'){ const j=p.ctx.idx+d; if(j<0) return; if(j>=list.length) return routeDone();
+  if(p.ctx.type==='route'){ const j=p.ctx.idx+d; if(j<0||j>=list.length) return;
     const was=p.id; p.id=list[j]; p.ctx.idx=j; p.pos=0; p.playing=!isTxt(p.id,p.ctx); S.ci=0; applyVersion(p, verFor(p)); onStopChange(was); render(); return; }   /* 停在原本的分頁 */
   let i = list.indexOf(p.id);
-  if(d>0 && p.ctx.type==='route' && i===list.length-1) return routeDone();   /* 走完最後一站 → 參觀後延伸 */
   i=Math.max(0,Math.min(list.length-1,i+d));
   playIdx(i); }   /* 2026-11-16：原本這裡自己抄一份換站邏輯，漏了「有導覽就切回導覽分頁」、onStopChange 的類型提示，
                      而且把文字點位也設成 playing=true。改成直接走 playIdx，兩條路徑不再分歧 */
@@ -2108,7 +2094,7 @@ function pstepRow(){ const p=S.player; if(!p) return ''; const ctx=p.ctx, U=sUni
   if(ctxList(ctx).length<=1) return '';
   /* 2026-11-18：改用設計系統既有的次要按鈕（淺藍底、無外框），全站只有這裡是外框樣式太突兀 */
   const nb=(dd)=>{ const off=atEdge(dd); return `<button class="tealbtn soft" onclick="step(${dd})" ${off?'disabled aria-disabled="true"':''} style="gap:6px;min-height:40px;padding:0 16px;font-size:13px;border-color:transparent;box-shadow:0 2px 8px rgba(15,25,30,.12);${off?'opacity:.45;cursor:default':''}">
-      ${dd<0?`<span style="display:block;transform:rotate(180deg)">${img('ic-next.svg',18,18)}</span> 上一${U}`:`${lastStop()?'完成路線':'下一'+U} ${img('ic-next.svg',18,18)}`}</button>`; };
+      ${dd<0?`<span style="display:block;transform:rotate(180deg)">${img('ic-next.svg',18,18)}</span> 上一${U}`:`下一${U} ${img('ic-next.svg',18,18)}`}</button>`; };
   const l=ctxList(ctx), i=ctx.type==='route'?ctx.idx:l.indexOf(p.id);   /* 2026-11-18：前後鍵中間放進度，知道走到第幾則 */
   const pos=i>=0?`<span class="pspos" role="status">${i+1}／${l.length} ${U}</span>`:'';
   return `<div class="pstep" id="pstep">${nb(-1)}${pos}${nb(1)}</div>`; }
@@ -3776,7 +3762,6 @@ function render(resetScroll, anim){
   if(S.sheet==='a11y') html+=`<div class="scr" style="background:transparent;z-index:45">${a11ySheet()}</div>`;
   if(S.sheet==='offline') html+=`<div class="scr" style="background:transparent;z-index:45">${offlineSheet()}</div>`;
   if(S.sheet==='lang') html+=`<div class="scr" style="background:transparent;z-index:45">${langSheet()}</div>`;
-  if(S.sheet==='after') html+=`<div class="scr" style="background:transparent;z-index:45">${afterSheet()}</div>`;
   if(S.sheet==='note') html+=`<div class="scr" style="background:transparent;z-index:45">${noteSheet()}</div>`;
   if(S.sheet==='acct') html+=`<div class="scr" style="background:transparent;z-index:45">${acctSheet()}</div>`;
   if(S.sheet==='delc') html+=`<div class="scr" style="background:transparent;z-index:45">${delSheet()}</div>`;
@@ -3859,7 +3844,6 @@ function render(resetScroll, anim){
 /* 模擬播放：每秒依倍速推進；播完自動下一則 */
 setInterval(()=>{ const p=S.player; if(!p||!p.playing) return;
   if(p.sign&&SGV.dataset.src===sgSrc(it(p.id))) p.pos=SGV.ended?it(p.id).d:Math.min(it(p.id).d,SGV.currentTime); else p.pos+=p.speed; if(p.pos>=it(p.id).d){ p.pos=it(p.id).d; p.playing=false;
-    if(p.ctx.type==='route' && p.ctx.idx===rtGuide(p.ctx.key).length-1) return routeDone();
     if((S.screen==='player'||(S.screen==='map'&&S.tour&&!S.nav&&!S.herePick&&!S.way))&&!S.sheet) render(); else tickDOM(); return; }   /* 地圖上的現場導覽面板也要從「正在聽」換成「剛聽完」 */
   tickDOM(); }, 1000);
 /* 輪播自動換圖：只在播放分頁、沒開逐字稿與手語時 */
