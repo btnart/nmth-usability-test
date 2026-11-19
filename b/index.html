@@ -154,6 +154,8 @@ button.mapbar{padding:0 16px}
 .mnav{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none!important}
 .mzoom{position:absolute;right:20px;bottom:var(--zb,96px);transition:bottom var(--pan-dur) var(--pan-ez);z-index:7;display:flex;flex-direction:column;background:#fff;border-radius:12px;box-shadow:0 8px 12px -4px rgba(0,0,0,.14);overflow:hidden}
 .mzoom button{width:36px;height:36px;display:grid;place-items:center}   /* 2026-11-11：縮放鍵縮小（44→36px） */ .mzoom button+button{border-top:1px solid var(--border)}
+.rtsw{display:flex;align-items:center;justify-content:space-between;margin:12px 16px 0;padding-top:8px;border-top:1px solid var(--line)} .rtsw span{font-size:12px;color:var(--text2)}
+.rtsw-b{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 8px;font-size:14px;font-weight:500;color:var(--teal7)} .rtsw-b:disabled{color:var(--line);cursor:default}
 .pincard{filter:none;box-shadow:0 -6px 24px rgba(15,25,30,.18),0 -1px 4px rgba(15,25,30,.08)}   /* 2026-11-19 留言：點位卡要看得出是浮在地圖上的底部面板 */
 .mfac{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:15px;background:#fff;border:1.5px solid var(--teal7);display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:pointer;z-index:1}
 .mfac::before{content:'';position:absolute;inset:-7px} .mfac.on{background:var(--teal7);transform:translate(-50%,-50%) scale(1.15);z-index:3}
@@ -2882,7 +2884,7 @@ function pinCard(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||f
      所以非手語線的展品即使有手語影片，也是走文字——卡片就寫文字導覽，不放手語膠囊、不放播放圖示。時間只在真的有音檔／影片或 tonly 的閱讀估計時才標。 */
   const rk=x.rstop?(S.walk?S.walk.k:S.mapRoute):null, noG=!!rk&&!x.guide;   /* 2026-11-18：主題路線的站：有導覽才有「開始導覽」，沒有就只留帶我去 */
   const pc=rk?{type:'route',key:rk}:S.player&&S.player.ctx&&S.player.ctx.type==='ex'?S.player.ctx:{type:'ex',key:exOf(id)}, kd=gKind(x,pc), asSign=kd==='手語', asAudio=kd==='語音', asText=kd==='文字';   /* 2026-11-18：點位卡照目前這條導覽線 */
-  const caps=noG?`<span class="pccaps"><span class="pccap">沒有導覽・可帶路</span></span>`:`<span class="pccaps">${asText&&!x.tonly?'':`<span class="pccap">${MI(EXC_IC.clock,14,'#5F5F5F')}${mmss(x.d)}</span>`}${asSign?`<span class="pccap sg">${SIGN_IC}手語影片</span>`:asText?`<span class="pccap">文字導覽</span>`:''}</span>`;   /* 從展覽頁進的地圖：沒有清單可以回，卡片右上改關閉 ✕；只留「開始導覽」「帶我去」 */
+  const caps=noG?'':`<span class="pccaps">${asText&&!x.tonly?'':`<span class="pccap">${MI(EXC_IC.clock,14,'#5F5F5F')}${mmss(x.d)}</span>`}${asSign?`<span class="pccap sg">${SIGN_IC}手語影片</span>`:asText?`<span class="pccap">文字導覽</span>`:''}</span>`;   /* 從展覽頁進的地圖：沒有清單可以回，卡片右上改關閉 ✕；只留「開始導覽」「帶我去」 */
   const tall=false;   /* 2026-11-18：拿掉「上方大圖」版型，點位卡一律左圖右文；同一個點位不論從清單或地圖點進來都同一個樣子 */   /* 2026-11-12 留言：面板沿用清單高度時，照片改成上方大圖撐滿，不留一大片空白 */
   return `<div class="zonesheet pincard${tall?' pctall':''}" role="dialog" aria-label="展品 ${x.no} ${x.n}" style="${S._zsDefH&&!bare?`min-height:${S._zsDefH}px`:''}">
     ${bare?closeX('pinBack()','關閉展品卡片'):S.mapOnly?'':`<div style="padding:0 12px 4px;margin-top:-6px"><button class="pcback" onclick="pinBack()" aria-label="返回${rk?'站點':'展品'}清單">${MI('M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',22,'#2E5C6E')}${rk?'站點':'展品'}清單</button></div>`}
@@ -2904,7 +2906,13 @@ function pinCard(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||f
         :S.player&&S.player.id===id?`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="go('player')">${asText?'回到介紹':`<span class="eq${S.player.playing?' go':''}" aria-hidden="true"><i></i><i></i><i></i></span>${S.player.playing?'正在播放':'已暫停・回到播放器'}`}</button>`   /* 2026-11-11 留言：點到正在播的展品，按鈕顯示播放中狀態，按了回播放器 */
         :noG?''
         :`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="play('${id}',${rk?`{type:'route',key:'${rk}'}`:`{type:'ex',key:'${ex}'}`})">${asText?'':MI('M8 5v14l11-7z',18,'#fff')}${asText||bare?'開始導覽':'播放導覽'}</button>`}
-      <button class="${noG?'tealbtn':'waybtn'}" style="min-height:44px${noG?';flex:1':''}" onclick="startNav('${id}')" aria-label="帶我去這件展品">${MI(MD.nav,16,noG?'#fff':'#2E5C6E')}帶我去</button></div></div>`; }
+      <button class="${noG?'tealbtn':'waybtn'}" style="min-height:44px${noG?';flex:1':''}" onclick="startNav('${id}')" aria-label="帶我去這件展品">${MI(MD.nav,16,noG?'#fff':'#2E5C6E')}帶我去</button></div>${rk&&!S.mapOnly?rtSwitch(rk,id):''}</div>`; }
+/* 2026-11-19 留言：主題路線的站點卡可以直接切上一站／下一站，不用關掉卡片再點小卡 */
+function rtStops(k){ return rtList(k).filter(id=>PINS[S.floor]&&PINS[S.floor][id]); }
+function rtSwitch(k,id){ const l=rtStops(k), i=l.indexOf(id); if(i<0||l.length<2) return '';
+  const ch=(d,lab)=>`<button class="rtsw-b" ${l[i+d]?`onclick="rtStep(${d})"`:'disabled'} aria-label="${lab}${l[i+d]?'：'+it(l[i+d]).n:''}">${d<0?MI('M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',20,'currentColor'):''}${lab}${d>0?MI('M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z',20,'currentColor'):''}</button>`;
+  return `<div class="rtsw">${ch(-1,'上一站')}<span>${i+1}／${l.length}</span>${ch(1,'下一站')}</div>`; }
+function rtStep(d){ const k=S.mapRoute, l=rtStops(k), n=l[l.indexOf(S.mapSel)+d]; if(!n) return; S.mapSel=n; const p=PINS[S.floor][n]; if(p) mapFocus(p[0],p[1]); render(); }
 function scrMap(){ if(fvOn()&&S.floor==='4F'&&!ROOMS4[S.fx]){ S.fx=floorExs('4F')[0]; S.room4=S.fx; S.mv=S.mv||{}; S.mv['4F']=fitV(ROOMS4[S.fx].fit); S._fxFocus=true; }   /* 4F 沒有「全部」：進來預設選第一檔特展 */
   const f=S.floor, M=MAPS[f]?mapOf(f):null, exKey=floorEx(), e=EXHIBITIONS[exKey], v=M?mapView():null, nx=mapNextId();
   const RT=(S.walk&&S.walk.k)||(S.mapRoute&&ROUTES[S.mapRoute]?S.mapRoute:null);   /* 2026-11-18：主題路線的地圖，面板講站點，不講常設展的導覽點 */
