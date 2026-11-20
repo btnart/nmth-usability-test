@@ -2974,8 +2974,8 @@ function ppFocus(id){ requestAnimationFrame(()=>{ const P=PINS[S.floor]&&PINS[S.
   animView({s, x:W/2-P[0]*s, y:cy-P[1]*s}); }); }
 function ppPlay(id){ ppExpand(id); }   /* 2026-11-20 留言：在半高面板按播放＝展開成完整導覽內頁並開始播（跨清單仍先問） */
 function ppToggle(){ const p=S.player; if(!p) return; if(p.playing){ p.playing=false; return render(); } p.playing=true; ppExpand(p.id); }   /* 暫停留在面板；按播放就展開 */
-function ppExpand(id){ if(S.player&&S.player.id===id){ S.mapSel=null; return go('player'); } S._stayMap=false; S.mapSel=null; play(id,ppCtx(id)); }
-let ppY=null; function ppTS(e){ ppY=e.touches[0].clientY; } function ppTE(e,id){ if(ppY==null) return; const dy=e.changedTouches[0].clientY-ppY; ppY=null; if(dy<-50) ppExpand(id); else if(dy>70) pinBack(); }
+function ppExpand(id){ if(S.screen!=='map') return; if(S.player&&S.player.id===id){ S.mapSel=null; return go('player'); } S._stayMap=false; S.mapSel=null; play(id,ppCtx(id)); }
+let ppY=null; function ppTS(e){ ppY=e.touches[0].clientY; } function ppTE(e,id){ if(ppY==null) return; const dy=e.changedTouches[0].clientY-ppY; ppY=null; if(dy<-50||dy>70){ if(e.cancelable) e.preventDefault(); } if(dy<-50) ppExpand(id); else if(dy>70) pinBack(); }   /* 2026-11-20：滑完不要再補一次點擊（原本會展開兩次，標題被藏住沒回來） */
 function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):null;
   if(S.mapOnly||(rk0&&!x.guide)) return pinCardBasic(id);
   const c=ppCtx(id), ex=c.type==='ex'?c.key:exOf(id), kd=gKind(x,c), tx=kd==='文字', sg=kd==='手語', live=!!S.player&&S.player.id===id, P=S.player;
@@ -3922,7 +3922,8 @@ function render(resetScroll, anim){
       app.appendChild(el);
       el.animate([{transform:'translate(0,0) scale(1)',color:f.c,opacity:1},{transform:`translate(${tTit.x-(f.wrap?f.ex:f.x)}px,${tTit.y-(f.wrap?f.ey:f.y)}px) scale(${k})`,color:tTit.c,opacity:f.wrap?.6:1}],{duration:dur,easing:PAN_EZ,fill:'forwards'}).onfinish=()=>el.remove();
       setTimeout(()=>el.remove(),dur+300); }
-    setTimeout(()=>reveal.forEach(e=>e.style.visibility=''),dur); }
+    setTimeout(()=>reveal.forEach(e=>e.style.visibility=''),dur);
+    setTimeout(()=>app.querySelectorAll(':scope > .scr #pcard b, :scope > .scr #pcard img, :scope > .scr #pimg, :scope > .scr .pname, :scope > .scr .sgvid, :scope > .scr .mini .th img, :scope > .scr .mini .tt span').forEach(e=>{ if(e.style.visibility==='hidden') e.style.visibility=''; }),dur+80); }   /* 保險：飛行途中畫面若重畫過，新畫面的標題／縮圖一定恢復顯示 */
   if(ghost && (toMini || fromMini)){   /* 播放器整頁縮進迷你播放器／從迷你播放器放大回整頁 */
     const scr=app.querySelector('.scr'), box=app.querySelector(':scope > .scr .mini .box');
     if(toMini){ app.appendChild(ghost); ghost.style.zIndex=50;
