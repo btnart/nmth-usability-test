@@ -1908,6 +1908,7 @@ function bindProg(){ const pr=document.getElementById('prog'); if(pr){
 /* 換分頁時底部播放卡馬上跟著換：導覽內容展開播放控制、展品介紹收合（不等下一次整頁重繪），高度用動畫過渡 */
 function pcMarquee(){ document.querySelectorAll('#app #pcard .pctt>span').forEach(sp=>{ sp.classList.remove('mq'); sp.style.removeProperty('--mqx'); sp.style.removeProperty('--mqd'); if(REDUCED) return;
   const over=sp.scrollWidth-sp.clientWidth; if(over>4){ sp.style.setProperty('--mqx',-over+'px'); sp.style.setProperty('--mqd',Math.max(5,over/28+4)+'s'); sp.classList.add('mq'); } }); }
+function pcTap(e){ if(e.target.closest('button,a,input,.prog,[role="slider"],[role="radio"]')) return; if(ptabs().includes('detail')&&S.pTab!=='detail') switchPTab('detail'); }
 function swapPCard(){ const pc=document.getElementById('pcard'); if(!pc) return; const h0=pc.offsetHeight;
   pc.parentNode.innerHTML=pstepRow()+playerCard(); const nc=document.getElementById('pcard'); bindProg(); pcMarquee(); const h1=nc.offsetHeight;
   if(!REDUCED&&h0!==h1) nc.animate([{height:h0+'px',overflow:'hidden'},{height:h1+'px',overflow:'hidden'}],{duration:240,easing:'cubic-bezier(.2,.8,.2,1)'}); }
@@ -2168,7 +2169,7 @@ function playerCard(){
   const sub = ctx.type==='route' ? `第 ${rtNo(ctx.key,p.id)} 站${x.no?'・#'+x.no:''}` : (x.no?'#'+x.no:'');   /* 2026-11-18：標題下方一律顯示導覽編號，不分展覽總說／單元／子單元／展品 */
   const restart = MI('M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z',28,'#3C3C3C');
   /* 同一個模組：展品資訊列、上一則／下一則永遠在；只有語音的導覽內容才多出進度與播放鍵 */
-  return `<div class="pcard" id="pcard">
+  return `<div class="pcard" id="pcard" onclick="pcTap(event)">   <!-- 2026-11-21 留言：點播放面板空白處切到「介紹」 -->
     <div style="display:flex;gap:12px;align-items:center">
       <img src="${p.sign&&!x.tonly?sgPoster(x):A(x.img)}" alt="" style="width:48px;height:48px;border-radius:10px;object-fit:cover;flex:0 0 48px${p.sign&&!x.tonly?';object-position:72% 40%':''}">   <!-- 2026-11-20 留言：手語導覽的播放卡縮圖用影片截圖（同迷你播放器） -->
       <div style="flex:1;min-width:0"><b class="pctt"><span>${x.n}</span></b>   <!-- 2026-11-20 留言：標題太長用跑馬燈（見 pcMarquee） -->
