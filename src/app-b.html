@@ -158,7 +158,7 @@ button.mapbar{padding:0 16px}
 .mzoom button{width:36px;height:36px;display:grid;place-items:center}   /* 2026-11-11：縮放鍵縮小（44→36px） */ .mzoom button+button{border-top:1px solid var(--border)}
 .rtsw{display:flex;align-items:center;justify-content:space-between;margin:12px 16px 0;padding-top:8px;border-top:1px solid var(--line)} .rtsw span{font-size:12px;color:var(--text2)}
 .rtsw-b{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 8px;font-size:14px;font-weight:500;color:var(--teal7)} .rtsw-b:disabled{color:var(--line);cursor:default}
-.zonesheet.pplay{max-height:50%;display:flex;flex-direction:column;overflow:hidden;padding:0 0 12px}   /* 2026-11-20：半高導覽面板，最高半個螢幕 */
+.zonesheet.pplay{max-height:50%;display:flex;flex-direction:column;overflow:hidden;padding:0 0 12px} .withmini .zonesheet.pplay{max-height:calc(50% + 92px);padding-bottom:96px}   /* 2026-11-20 留言：導覽中點點位，面板從迷你播放器後面長出來（播放器留在最上層），看得到的部分仍不超過半個螢幕 */   /* 2026-11-20：半高導覽面板，最高半個螢幕 */
 .pphd{flex:0 0 auto;padding:0 12px 0 24px;touch-action:none}
 .ppgrab{display:block;width:100%;height:20px;margin:0 -12px 0 -24px;width:calc(100% + 36px)} .ppgrab span{display:block;width:36px;height:4px;border-radius:2px;background:#D1D1D1;margin:8px auto 0}
 .pprow{display:flex;gap:12px;align-items:flex-start} .ppimg{flex:0 0 56px;height:56px;border-radius:10px;overflow:hidden} .ppimg img{width:100%;height:100%;object-fit:cover}
@@ -2332,7 +2332,6 @@ function trackSheet(){ const p=S.player, x=it(p.id);
 /* ---------- 常駐播放器（離開播放頁時） ---------- */
 function miniDock(){
   const p=S.player; if(!p||(S.mapSheet&&S.screen==='map')) return '';
-  if(ppOn()) return '';   /* 2026-11-20：半高導覽面板打開時，它就是播放器，迷你播放器先收起來；收合面板才回來 */
   const x=it(p.id);
   /* 迷你播放器只放「正在播什麼、暫停、下一則」；完整進度在展開的播放器裡。主題路線多一個站數標籤 */
   const stop = p.ctx.type==='route' ? `<em class="mtag">第 ${rtNo(p.ctx.key,p.id)}${p.ctx.one?'':'／'+rtList(p.ctx.key).length} 站</em>` : '';
