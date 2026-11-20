@@ -162,7 +162,7 @@ button.mapbar{padding:0 16px}
 .rtsw-b{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 8px;font-size:14px;font-weight:500;color:var(--teal7)} .rtsw-b:disabled{color:var(--line);cursor:default}
 .zonesheet.pplay{max-height:50%;display:flex;flex-direction:column;overflow:hidden;padding:0 0 12px} .withmini .zonesheet.pplay{padding-bottom:12px}   /* 2026-11-20 留言：導覽中點點位，面板從迷你播放器後面長出來（播放器留在最上層），看得到的部分仍不超過半個螢幕 */   /* 2026-11-20：半高導覽面板，最高半個螢幕 */
 .pphd{flex:0 0 auto;padding:0 24px;touch-action:none}
-.ppbar{position:relative;height:24px;margin:0 -12px 2px} .ppway{flex:0 0 44px;width:44px;height:44px;min-height:44px;align-self:center;padding:0;border-radius:22px;justify-content:center;gap:0} .ppgrab{position:absolute;left:0;right:0;top:0;height:28px} .ppgrab span{display:block;width:36px;height:4px;border-radius:2px;background:#D1D1D1;margin:8px auto 0} .ppacts{position:absolute;right:0;top:4px;display:flex;gap:2px}
+.ppbar{position:relative;height:24px;margin:0 -12px 2px} .ppway{flex:0 0 auto;align-self:center;min-height:40px;padding:0 14px} .ppgrab{position:absolute;left:0;right:0;top:0;height:28px} .ppgrab span{display:block;width:36px;height:4px;border-radius:2px;background:#D1D1D1;margin:8px auto 0} .ppacts{position:absolute;right:0;top:4px;display:flex;gap:2px}
 .pprow{display:flex;gap:14px;align-items:center} .ppimg{flex:0 0 64px;height:64px;border-radius:10px;overflow:hidden} .ppimg img{width:100%;height:100%;object-fit:cover}
 .ppt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:flex-start} .ppt b{font-weight:700;font-size:17px;line-height:1.3;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden} .ppm{font-size:12px;color:var(--text2)}
 .ppic{width:36px;height:36px;border-radius:18px;display:grid;place-items:center;background:var(--cream)} .ppmeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap} .ppno{font:500 13px Roboto,'Noto Sans TC',sans-serif;color:var(--text2)} .ppmeta .pccap{margin:0}
@@ -491,12 +491,12 @@ li.l3{margin-left:26px} .prow.l1 b{font-weight:700!important;font-size:15px!impo
 /* 轉場 */
 .ghost{position:absolute;inset:0;pointer-events:none}
 .ghost.g-push{z-index:0;animation:gUnder .34s cubic-bezier(.2,.8,.2,1) forwards}
-.ghost.g-up{z-index:0;animation:gHold .36s forwards}
+.ghost.g-up{z-index:0;animation:gHold var(--pan-dur) forwards}
 .ghost.g-fade{z-index:1;animation:gFade .3s forwards}
 .ghost.g-pop{z-index:50;animation:gOutR .3s cubic-bezier(.4,0,.6,1) forwards;box-shadow:-8px 0 24px rgba(0,0,0,.14)}
-.ghost.g-down{z-index:50;animation:gOutD .32s cubic-bezier(.4,0,.6,1) forwards}
+.ghost.g-down{z-index:50;animation:gOutD var(--pan-dur) var(--pan-ez) forwards}   /* 2026-11-20 留言：導覽內頁展開／收合跟其他面板同一組速度 */
 .scr.in-push{z-index:2;animation:inR .34s cubic-bezier(.2,.8,.2,1);box-shadow:-8px 0 24px rgba(0,0,0,.14)}
-.scr.in-up{z-index:2;animation:inU .36s cubic-bezier(.2,.8,.2,1)}
+.scr.in-up{z-index:2;animation:inU var(--pan-dur) var(--pan-ez)}
 .scr.in-back{animation:inBack .3s cubic-bezier(.2,.8,.2,1)}
 @keyframes inR{from{transform:translateX(100%)}to{transform:none}}
 @keyframes inU{from{transform:translateY(100%)}to{transform:none}}
@@ -2970,7 +2970,7 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
   const cap=sg?`<span class="pccap sg">${SIGN_IC}手語影片</span>`:tx?'':`<span class="pccap">${MI(MD.head,14,'#5F5F5F')}語音導覽${x.no?` #${x.no}`:''}</span>`;   /* 2026-11-20 留言：不寫時長；語音編號放進膠囊 */
   const txt=(x.txt||'').split('\n').filter(Boolean).map(t=>`<p>${t}</p>`).join('')||`<p style="color:var(--text2)">${x.n}</p>`;
   const pct=live?Math.min(100,P.pos/x.d*100):0;
-  const way=`<button class="waybtn ppway" onclick="startNav('${id}')" aria-label="帶我去 ${x.n}">${MI(MD.nav,20,'#2E5C6E')}</button>`;   /* 2026-11-20 留言：只留圖示 */
+  const way=`<button class="waybtn ppway" onclick="startNav('${id}')" aria-label="帶我去 ${x.n}">${MI(MD.nav,16,'#2E5C6E')}帶我去</button>`;   /* 2026-11-20 留言：文字加回來 */
   const ctl=tx?''   /* 2026-11-20 留言：文字導覽在面板裡就能捲完全文，不另放「看全文」 */
     :sg?`<button class="tealbtn" style="flex:1;min-height:44px" onclick="ppExpand('${id}')">${MI('M8 5v14l11-7z',18,'#fff')}看手語影片</button>`
     :live?`<button class="pb" onclick="ppToggle()" aria-label="${P.playing?'暫停':'播放'}">${MI(P.playing?MD.pause:'M8 5v14l11-7z',24,'#fff')}</button>
@@ -3887,7 +3887,7 @@ function render(resetScroll, anim){
   syncSheet(); requestAnimationFrame(placeFab); requestAnimationFrame(syncMarquee); if(anim) setTimeout(placeFab,460);   /* 轉場結束、迷你播放器回到畫面裡之後再對一次 */ camSync(); fitLangTags();   /* 2026-11-17：placeFab 要讀版面位置，留在 render 裡會逼瀏覽器當場排整頁——延到下一幀畫面之前再算（仍在新畫面第一次出現前，不會閃） */
   const toMini = anim==='down' && ghost ? rel(app.querySelector(':scope > .scr .mini .box')) : null;
   const ins=m=>`inset(${m.t}px ${m.r}px ${m.b}px ${m.l}px round 20px)`, EASE='cubic-bezier(.32,.72,0,1)';
-  if(fly && ghost && (toMini||fromMini)){ const dur=toMini?460:480;
+  if(fly && ghost && (toMini||fromMini)){ const dur=PAN_MS;
     const vis_=sels=>{ for(const q of sels){ const e=[...app.querySelectorAll(':scope > .scr '+q)].find(x=>box_(x)); if(e) return e; } return null; };   /* 2026-11-20：目標取「畫面上看得到的那一個」——語音的導覽分頁主圖在播放卡上，不在被橫移出畫面的介紹分頁裡 */
     const tImgEl = toMini ? app.querySelector(':scope > .scr .mini .th img') : vis_(['#pimg','.sgvid','#pcard img','.pcard img']);
     const tTitEl = toMini ? app.querySelector(':scope > .scr .mini .tt span') : vis_(['.pname','.sgttl p','#pcard b','.pcard b','.pscroll h1']);
@@ -3898,24 +3898,24 @@ function render(resetScroll, anim){
       const el=document.createElement('div'); el.setAttribute('aria-hidden','true');
       Object.assign(el.style,{position:'absolute',zIndex:80,pointerEvents:'none',background:`url("${fly.src}") center/cover`,boxShadow:'0 6px 18px rgba(0,0,0,.18)'});
       app.appendChild(el); const r1=toMini?8:16, f=fly.img;
-      el.animate([{left:f.x+'px',top:f.y+'px',width:f.w+'px',height:f.h+'px',borderRadius:fly.r0+'px'},{left:tImg.x+'px',top:tImg.y+'px',width:tImg.w+'px',height:tImg.h+'px',borderRadius:r1+'px'}],{duration:dur,easing:EASE,fill:'forwards'}).onfinish=()=>el.remove();
+      el.animate([{left:f.x+'px',top:f.y+'px',width:f.w+'px',height:f.h+'px',borderRadius:fly.r0+'px'},{left:tImg.x+'px',top:tImg.y+'px',width:tImg.w+'px',height:tImg.h+'px',borderRadius:r1+'px'}],{duration:dur,easing:PAN_EZ,fill:'forwards'}).onfinish=()=>el.remove();
       setTimeout(()=>el.remove(),dur+300); }
     if(fly.title&&tTit){ ghost.querySelectorAll(hideG.slice(toMini?2:1).join(',')).forEach(e=>e.style.visibility='hidden'); tTitEl.style.visibility='hidden'; reveal.push(tTitEl);
       const f=fly.title, k=tTit.fs/f.fs, el=document.createElement('span'); el.textContent=f.t; el.setAttribute('aria-hidden','true');
       Object.assign(el.style,{position:'absolute',left:f.x+'px',top:f.y+'px',zIndex:81,pointerEvents:'none',whiteSpace:'nowrap',fontSize:f.fs+'px',fontWeight:f.fw,color:f.c,lineHeight:f.h+'px',transformOrigin:'0 0'});
       app.appendChild(el);
-      el.animate([{transform:'translate(0,0) scale(1)',color:f.c},{transform:`translate(${tTit.x-f.x}px,${tTit.y-f.y}px) scale(${k})`,color:tTit.c}],{duration:dur,easing:EASE,fill:'forwards'}).onfinish=()=>el.remove();
+      el.animate([{transform:'translate(0,0) scale(1)',color:f.c},{transform:`translate(${tTit.x-f.x}px,${tTit.y-f.y}px) scale(${k})`,color:tTit.c}],{duration:dur,easing:PAN_EZ,fill:'forwards'}).onfinish=()=>el.remove();
       setTimeout(()=>el.remove(),dur+300); }
     setTimeout(()=>reveal.forEach(e=>e.style.visibility=''),dur); }
   if(ghost && (toMini || fromMini)){   /* 播放器整頁縮進迷你播放器／從迷你播放器放大回整頁 */
     const scr=app.querySelector('.scr'), box=app.querySelector(':scope > .scr .mini .box');
     if(toMini){ app.appendChild(ghost); ghost.style.zIndex=50;
-      ghost.animate([{clipPath:'inset(0px 0px 0px 0px round 28px)',opacity:1},{clipPath:ins(toMini),opacity:1,offset:.8},{clipPath:ins(toMini),opacity:0}],{duration:460,easing:EASE,fill:'forwards'}).onfinish=()=>ghost.remove();
-      const inner=ghost.firstElementChild; if(inner) inner.animate([{transform:'scale(1)'},{transform:'scale(.92)'}],{duration:460,easing:EASE,fill:'forwards'});
-      if(box) box.animate([{opacity:0},{opacity:0,offset:.6},{opacity:1}],{duration:460});
+      ghost.animate([{clipPath:'inset(0px 0px 0px 0px round 28px)',opacity:1},{clipPath:ins(toMini),opacity:1,offset:.8},{clipPath:ins(toMini),opacity:0}],{duration:PAN_MS,easing:PAN_EZ,fill:'forwards'}).onfinish=()=>ghost.remove();
+      const inner=ghost.firstElementChild; if(inner) inner.animate([{transform:'scale(1)'},{transform:'scale(.92)'}],{duration:PAN_MS,easing:PAN_EZ,fill:'forwards'});
+      if(box) box.animate([{opacity:0},{opacity:0,offset:.6},{opacity:1}],{duration:PAN_MS});
     } else { app.insertBefore(ghost, app.firstChild);
-      scr.style.zIndex=2; scr.animate([{clipPath:ins(fromMini),opacity:.4},{clipPath:ins(fromMini),opacity:1,offset:.12},{clipPath:'inset(0px 0px 0px 0px round 0px)',opacity:1}],{duration:480,easing:EASE}).onfinish=()=>{ ghost.remove(); scr.style.zIndex=''; };
-      const inner=scr.firstElementChild; if(inner) inner.animate([{transform:'scale(.94)'},{transform:'scale(1)'}],{duration:480,easing:EASE}); }
+      scr.style.zIndex=2; scr.animate([{clipPath:ins(fromMini),opacity:.4},{clipPath:ins(fromMini),opacity:1,offset:.12},{clipPath:'inset(0px 0px 0px 0px round 0px)',opacity:1}],{duration:PAN_MS,easing:PAN_EZ}).onfinish=()=>{ ghost.remove(); scr.style.zIndex=''; };
+      const inner=scr.firstElementChild; if(inner) inner.animate([{transform:'scale(.94)'},{transform:'scale(1)'}],{duration:PAN_MS,easing:PAN_EZ}); }
     setTimeout(()=>ghost.remove(),900);
   } else if(ghost){ const scr=app.querySelector('.scr');
     /* 2026-11-16 留言：換頁時迷你播放器固定不動，只有後面的頁面切換——轉場期間把新頁的迷你播放器拉到最上層、原位不動，舊頁的藏起來 */
