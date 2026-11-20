@@ -107,9 +107,9 @@ button.mapbar{padding:0 16px}
 .pmore button{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:12px;font-size:15px;color:var(--ink);text-align:left} .pmore button:active{background:var(--cream)} .pmore .aa{width:20px;display:inline-flex;align-items:baseline;justify-content:center;font-weight:700;color:#3C3C3C}   /* 2026-11-18：播放器右上「更多」選單（收藏、筆記、文字大小） */
 .mpins{position:absolute;inset:0;pointer-events:none} .mpins>*{pointer-events:auto}
 .mpin{--pc:var(--teal7);position:absolute;transform:translate(-50%,-100%);min-width:32px;height:32px;padding:0 4px;border-radius:16px;background:var(--pc);color:#fff;
-  font:700 13px Roboto,'Noto Sans TC',sans-serif;filter:drop-shadow(0 3px 5px rgba(15,25,30,.28));display:grid;place-items:center;margin-top:-13px;transition:background .2s,transform .2s}
+  font:700 13px Roboto,'Noto Sans TC',sans-serif;filter:drop-shadow(0 3px 5px rgba(15,25,30,.28));display:grid;place-items:center;margin-top:-10px;transition:background .2s,transform .2s}
 /* 2026-11-20 留言（第二版）：點位一律品牌底色＋白色圖示——沒音檔＝白點、聚集＝疊層圖示、有音檔＝耳機；選取＝金底；導覽中＝金底＋外光暈 */
-.mpin::after{content:'';position:absolute;left:50%;top:calc(100% - 6px);width:18px;height:19px;margin-left:-9px;background:var(--pc);clip-path:path('M0 0 H18 C13 5 10.4 11 9 19 C7.6 11 5 5 0 0 Z');pointer-events:none}   /* 2026-11-20 留言：照參考圖——圓頭＋往下收尖的尾巴，尾巴跟圓頭疊在一起，中間不留縫；陰影改 drop-shadow 連尾巴一起投影 */
+.mpin::after{content:'';position:absolute;left:50%;top:calc(100% - 5px);width:16px;height:15px;margin-left:-8px;background:var(--pc);clip-path:polygon(0 0,100% 0,50% 100%);pointer-events:none}   /* 2026-11-20 留言：尾巴改回直邊三角形；上緣疊進圓頭 5px，同色同層，圓頭跟尾巴之間不會有縫；陰影用 drop-shadow 連尾巴一起投影 */
 .mpin.playing{display:flex;align-items:center;justify-content:center;gap:5px;padding:0 10px} .peq{display:inline-flex;gap:2px;align-items:flex-end;height:12px} .peq b{width:3px;height:6px;background:var(--ink);border-radius:1px} .peq.go b{animation:eq .9s ease-in-out infinite} .peq.go b:nth-child(2){animation-delay:.2s} .peq.go b:nth-child(3){animation-delay:.4s} .mpin.playing>i{background:var(--teal7);color:#fff}   /* 2026-11-11 留言：正在播的點位——金底放大＋跳動音波＋「播放中」 */
 .mpin.on{color:var(--ink);transform:translate(-50%,-100%) scale(1.15);z-index:2} .mpin.on{--pc:var(--gold)}
 .mpin.now{color:var(--ink);z-index:3;animation:nowGlow 1.8s ease-out infinite} .mpin.now{--pc:var(--gold)}
@@ -120,12 +120,12 @@ button.mapbar{padding:0 16px}
 .mpin.maint{--pc:#6B6B6B}
 .mpin.nxt{--pc:var(--teal7)}
 .mpin.next{}   /* 2026-11-18：「下一站」不再用金色（金色只留給選中／導覽中），只靠上方的「下一站」提示 */
-.mclu{--pc:var(--teal7);position:absolute;transform:translate(-50%,-100%);margin-top:-13px;width:32px;height:32px;padding:0;border-radius:16px;background:var(--pc);color:#fff;justify-content:center;filter:drop-shadow(0 3px 5px rgba(15,25,30,.28));
+.mclu{--pc:var(--teal7);position:absolute;transform:translate(-50%,-100%);margin-top:-10px;width:32px;height:32px;padding:0;border-radius:16px;background:var(--pc);color:#fff;justify-content:center;filter:drop-shadow(0 3px 5px rgba(15,25,30,.28));
   font:700 12px Roboto,'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:6px;white-space:nowrap}
 .mclu{gap:0}   /* 2026-11-13 留言：聚集點改成一顆完整的膠囊（疊層圖示＋「N 件」），跟展品編號的數字分得開，箭頭也接在膠囊下緣 */
 .mclu .ci{display:block;flex:0 0 16px} .mclu .cn{font:700 13px Roboto,'Noto Sans TC',sans-serif;letter-spacing:.2px}
 .mclu .cs{letter-spacing:.2px;font-weight:500;opacity:.85;padding-left:5px;border-left:1px solid rgba(255,255,255,.4)}   /* 直接列出是哪幾件，不用放大就知道 */
-.mclu::after{content:'';position:absolute;left:50%;top:calc(100% - 6px);width:18px;height:19px;margin-left:-9px;background:var(--pc);clip-path:path('M0 0 H18 C13 5 10.4 11 9 19 C7.6 11 5 5 0 0 Z');pointer-events:none}
+.mclu::after{content:'';position:absolute;left:50%;top:calc(100% - 5px);width:16px;height:15px;margin-left:-8px;background:var(--pc);clip-path:polygon(0 0,100% 0,50% 100%);pointer-events:none}
 .navsheet>div>:first-child,.sheet h2{padding-right:44px}   /* 標題讓出右上角關閉鈕的位置 */
 .pcx{z-index:2}
 /* 標位置：地標選項做成可點的卡片，字母跟地圖上的標記對得起來 */
@@ -159,12 +159,12 @@ button.mapbar{padding:0 16px}
 .mzoom button{width:36px;height:36px;display:grid;place-items:center}   /* 2026-11-11：縮放鍵縮小（44→36px） */ .mzoom button+button{border-top:1px solid var(--border)}
 .rtsw{display:flex;align-items:center;justify-content:space-between;margin:12px 16px 0;padding-top:8px;border-top:1px solid var(--line)} .rtsw span{font-size:12px;color:var(--text2)}
 .rtsw-b{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 8px;font-size:14px;font-weight:500;color:var(--teal7)} .rtsw-b:disabled{color:var(--line);cursor:default}
-.zonesheet.pplay{max-height:50%;display:flex;flex-direction:column;overflow:hidden;padding:0 0 12px} .withmini .zonesheet.pplay{max-height:calc(50% + 92px);padding-bottom:96px}   /* 2026-11-20 留言：導覽中點點位，面板從迷你播放器後面長出來（播放器留在最上層），看得到的部分仍不超過半個螢幕 */   /* 2026-11-20：半高導覽面板，最高半個螢幕 */
-.pphd{flex:0 0 auto;padding:0 12px 0 24px;touch-action:none}
-.ppgrab{display:block;width:100%;height:20px;margin:0 -12px 0 -24px;width:calc(100% + 36px)} .ppgrab span{display:block;width:36px;height:4px;border-radius:2px;background:#D1D1D1;margin:8px auto 0}
-.pprow{display:flex;gap:12px;align-items:flex-start} .ppimg{flex:0 0 56px;height:56px;border-radius:10px;overflow:hidden} .ppimg img{width:100%;height:100%;object-fit:cover}
+.zonesheet.pplay{max-height:50%;display:flex;flex-direction:column;overflow:hidden;padding:0 0 12px} .withmini .zonesheet.pplay{padding-bottom:12px}   /* 2026-11-20 留言：導覽中點點位，面板從迷你播放器後面長出來（播放器留在最上層），看得到的部分仍不超過半個螢幕 */   /* 2026-11-20：半高導覽面板，最高半個螢幕 */
+.pphd{flex:0 0 auto;padding:0 24px;touch-action:none}
+.ppbar{position:relative;height:40px;margin:0 -12px 2px} .ppgrab{position:absolute;left:0;right:0;top:0;height:28px} .ppgrab span{display:block;width:36px;height:4px;border-radius:2px;background:#D1D1D1;margin:8px auto 0} .ppacts{position:absolute;right:0;top:4px;display:flex;gap:2px}
+.pprow{display:flex;gap:14px;align-items:center} .ppimg{flex:0 0 64px;height:64px;border-radius:10px;overflow:hidden} .ppimg img{width:100%;height:100%;object-fit:cover}
 .ppt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:flex-start} .ppt b{font-weight:700;font-size:17px;line-height:1.3;color:var(--ink)} .ppm{font-size:12px;color:var(--text2)}
-.ppic{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;margin-top:4px}
+.ppic{width:36px;height:36px;border-radius:18px;display:grid;place-items:center;background:var(--cream)} .ppmeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap} .ppno{font:500 13px Roboto,'Noto Sans TC',sans-serif;color:var(--text2)} .ppmeta .pccap{margin:0}
 .pptx{flex:1 1 auto;min-height:48px;overflow-y:auto;padding:10px 24px 4px;font-size:15px;line-height:1.75;color:var(--text);-webkit-mask-image:linear-gradient(#000 80%,transparent);mask-image:linear-gradient(#000 80%,transparent)} .pptx p+p{margin-top:8px}
 .ppctl{flex:0 0 auto;display:flex;gap:10px;align-items:center;padding:10px 24px 0} .ppctl .pb{flex:0 0 48px;width:48px;height:48px;border-radius:24px;background:var(--teal7);display:grid;place-items:center}
 .ppprog{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px} .ppprog .tr{height:4px;border-radius:2px;background:var(--line);position:relative;overflow:hidden} .ppprog .tr i{position:absolute;left:0;top:0;bottom:0;background:var(--teal7);border-radius:2px}
@@ -1827,7 +1827,7 @@ function scrStop(){ const k=S.stopRoute, l=rtList(k), id=S.stopId, i=l.indexOf(i
     <div style="height:260px;position:relative;overflow:hidden"><img src="${A(x.img)}" alt="" style="width:100%;height:100%;object-fit:cover">
       <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.5),rgba(0,0,0,0) 35%)"></div></div>
     <div style="padding:20px 24px 120px;display:flex;flex-direction:column;gap:12px">
-      <span style="font-size:12px;color:var(--teal7);font-weight:500">${ROUTES[k].n}・第 ${i+1}／${l.length} 站・文字導覽</span>
+      <span style="font-size:12px;color:var(--teal7);font-weight:500">${ROUTES[k].n}・第 ${i+1}／${l.length} 站</span>
       <h1 style="font-weight:700;font-size:22px;line-height:1.3;color:var(--ink)">${x.n}</h1>
       <span style="font-size:12px;color:var(--text2)">${x.no?'#'+x.no+'・':''}${x.zone}</span>
       <p style="font-size:15px;line-height:1.7;letter-spacing:.3px;text-align:justify;color:var(--text)">${x.txt}</p>
@@ -2081,7 +2081,7 @@ function zoneMates(){ return '';   /* 2026-11-11 留言：拿掉「同展區其�
     ${l.map(id=>{ const y=it(id); return `<button onclick="${p.ctx.type==='ex'?`playInCtx('${id}')`:`startGuide('${id}',{type:'ex',key:'${k}'})`}" style="background:#fff;border-radius:14px;box-shadow:0 8px 24px -4px rgba(0,0,0,.14);padding:10px 14px 10px 10px;display:flex;gap:12px;align-items:center;text-align:left;min-height:64px">
       <img src="${A(y.img)}" alt="" style="width:48px;height:48px;border-radius:10px;object-fit:cover;flex:0 0 48px">
       <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><b style="font-weight:500;font-size:14px;line-height:1.4;color:var(--ink)">${y.n}</b>
-        <span style="font-size:12px;color:var(--text2)">${y.no?'#'+y.no+'・':''}${y.tonly?'文字導覽':y.voice===false?'手語・'+mmss(y.d):'語音・'+mmss(y.d)}</span></span>${MI('M8 5v14l11-7z',22,'#2E5C6E')}</button>`; }).join('')}</div>`; }
+        <span style="font-size:12px;color:var(--text2)">${[y.no?'#'+y.no:'', y.tonly?'':y.voice===false?'手語・'+mmss(y.d):'語音・'+mmss(y.d)].filter(Boolean).join('・')}</span></span>${MI('M8 5v14l11-7z',22,'#2E5C6E')}</button>`; }).join('')}</div>`; }
 function detailPane(){
   const p=S.player, x=it(p.id);
   const recs=[['同主題','熱蘭遮城與東亞貿易','rec-1.jpg','w3'],['同展區','2F 山海之間的共存與競逐','rec-2.jpg','w4'],['同時代','十七世紀的臺灣住民','rec-3.jpg','w2']];
@@ -2112,7 +2112,7 @@ function listPane(c){   /* 2026-11-20：c＝從展覽頁打開時給的清單（
       return list.map((id,i)=>{ const x=it(id), now=i===cur, done=!now&&(p.ctx.type==='route'?i<cur:heard.has(id));
       const lv=x.lv==null?3:x.lv, unit=lv<=1, obj=lv>=3, tx=isTxt(id,p.ctx);
       const state=now?(tx?'閱讀中':'播放中'):done?(tx?'已讀':'已聽完'):'';
-      const kind=gKind(x,p.ctx)==='手語'?'手語 '+mmss(x.d):isTxt(id,p.ctx)?'文字導覽':'語音 '+mmss(x.d);   /* 2026-11-18：照線 */   /* 2026-11-18：非手語線的那幾則雖然有手語影片，這裡一律照文字導覽講 */
+      const kind=gKind(x,p.ctx)==='手語'?'手語 '+mmss(x.d):isTxt(id,p.ctx)?'':'語音 '+mmss(x.d);   /* 2026-11-20 留言：文字導覽不再標「文字導覽」 */   /* 2026-11-18：照線 */   /* 2026-11-18：非手語線的那幾則雖然有手語影片，這裡一律照文字導覽講 */
       const sub=[x.no?'#'+x.no:'', state, kind, x.maint?'維護中':''].filter(Boolean).join('・');
       /* 2026-11-18：整張卡片本來就能按，右側不再放播放鍵（導覽形式不一定是語音），改成中性的箭頭 */
       /* 2026-11-18：三層要一眼分得出來——單元灰底大卡、子單元白卡＋左側藍條、展品白卡＋縮圖 */
@@ -2142,7 +2142,7 @@ function playerCard(){
       <img src="${A(x.img)}" alt="" style="width:48px;height:48px;border-radius:10px;object-fit:cover;flex:0 0 48px">
       <div style="flex:1;min-width:0"><b style="display:block;font-weight:500;font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.n}</b>
         <span style="font-size:12px;color:var(--text2)">${sub}</span></div>
-      ${hasPin(p.id)?`<button onclick="openMapSheet('${x.fl==='4F'?'4F':'2F'}','${ctx.type==='ex'?ctx.key:exOf(p.id)}','${p.id}')" aria-label="在地圖上看位置" style="width:40px;height:40px;display:grid;place-items:center">${MI(MD.map,22,'#2E5C6E')}</button>`:''}
+      ${hasPin(p.id)?`<button onclick="openMapSheet('${x.fl==='4F'?'4F':'2F'}','${ctx.type==='ex'?ctx.key:exOf(p.id)}','${p.id}')" aria-label="帶我去：在地圖上看位置" style="width:40px;height:40px;display:grid;place-items:center">${MI(MD.nav,22,'#2E5C6E')}</button>`:''}
       <button onclick="openPlist()" aria-label="導覽列表" style="width:40px;height:40px;display:grid;place-items:center">${img('cap-ic3a.svg',22,22,'style="transform:scaleY(-1) rotate(180deg)"')}</button></div>
     ${voice?`<div data-pvar>
       <div class="prog" id="prog" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="${d}" aria-valuenow="${Math.round(p.pos)}" aria-valuetext="${mmss(p.pos)} / ${mmss(d)}" style="margin-top:12px">
@@ -2333,6 +2333,7 @@ function trackSheet(){ const p=S.player, x=it(p.id);
 /* ---------- 常駐播放器（離開播放頁時） ---------- */
 function miniDock(){
   const p=S.player; if(!p||(S.mapSheet&&S.screen==='map')) return '';
+  if(ppOn()) return '';   /* 2026-11-20 留言（改回）：點位面板打開時蓋住迷你播放器，兩個不同時出現；收合面板才回來 */
   const x=it(p.id);
   /* 迷你播放器只放「正在播什麼、暫停、下一則」；完整進度在展開的播放器裡。主題路線多一個站數標籤 */
   const stop = p.ctx.type==='route' ? `<em class="mtag">第 ${rtNo(p.ctx.key,p.id)}${p.ctx.one?'':'／'+rtList(p.ctx.key).length} 站</em>` : '';
@@ -2963,7 +2964,7 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
   if(S.mapOnly||(rk0&&!x.guide)) return pinCardBasic(id);
   const c=ppCtx(id), ex=c.type==='ex'?c.key:exOf(id), kd=gKind(x,c), tx=kd==='文字', sg=kd==='手語', live=!!S.player&&S.player.id===id, P=S.player;
   const L=ppList(id), i=L.indexOf(id), U=rk0?'站':'則';
-  const meta=[rk0?`第 ${rtNo(rk0,id)} 站`:'', x.no?'#'+x.no:'', fvOn()&&EXHIBITIONS[ex]?EXHIBITIONS[ex].n.split('：')[0]:''].filter(Boolean).join('・');
+  const meta=[rk0?`第 ${rtNo(rk0,id)} 站`:'', fvOn()&&EXHIBITIONS[ex]?EXHIBITIONS[ex].n.split('：')[0]:''].filter(Boolean).join('・');
   const cap=sg?`<span class="pccap sg">${SIGN_IC}手語影片 ${mmss(x.d)}</span>`:tx?'':`<span class="pccap">${MI(MD.head,14,'#5F5F5F')}語音 ${mmss(x.d)}</span>`;
   const txt=(x.txt||'').split('\n').filter(Boolean).map(t=>`<p>${t}</p>`).join('')||`<p style="color:var(--text2)">${x.n}</p>`;
   const pct=live?Math.min(100,P.pos/x.d*100):0;
@@ -2975,12 +2976,12 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
     :`<button class="pb" onclick="ppPlay('${id}')" aria-label="播放 ${x.n}">${MI('M8 5v14l11-7z',24,'#fff')}</button><div class="ppprog"><div class="tr"><i style="width:0"></i></div><div class="tt"><span>0:00</span><span>${mmss(x.d)}</span></div></div>`;
   const nav=rk0?rtSwitch(rk0,id):L.length>1?`<div class="rtsw">${[[-1,'上一'+U],[1,'下一'+U]].map(([d,lab])=>`<button class="rtsw-b" ${L[i+d]?`onclick="ppStep(${d})"`:'disabled'} aria-label="${lab}${L[i+d]?'：'+it(L[i+d]).n:''}">${d<0?MI('M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',20,'currentColor'):''}${lab}${d>0?MI('M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z',20,'currentColor'):''}</button>`).join(`<span>${i+1}／${L.length}</span>`)}</div>`:'';
   return `<div class="zonesheet pincard pplay" role="dialog" aria-label="${x.n}">
-    <div class="pphd" ontouchstart="ppTS(event)" ontouchend="ppTE(event,'${id}')">
-      <button class="ppgrab" onclick="ppExpand('${id}')" aria-label="展開成完整導覽內頁"><span></span></button>
+    <div class="pphd" ontouchstart="ppTS(event)" ontouchend="ppTE(event,'${id}')">   <!-- 2026-11-20 留言：操作列（拉桿、展開、關閉）獨立一排在最上面，跟下方的資料分開；編號跟語音膠囊同一排 -->
+      <div class="ppbar"><button class="ppgrab" onclick="ppExpand('${id}')" aria-label="展開成完整導覽內頁"><span></span></button>
+        <div class="ppacts"><button class="ppic" onclick="ppExpand('${id}')" aria-label="展開成完整導覽內頁">${MI('M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z',22,'#3C3C3C')}</button>
+        <button class="ppic" onclick="pinBack()" aria-label="收合">${MI(MD.close,20,'#3C3C3C')}</button></div></div>
       <div class="pprow"><span class="ppimg"><img src="${A(x.img)}" alt=""></span>
-        <div class="ppt">${meta?`<span class="ppm">${meta}</span>`:''}<b>${x.n}</b>${cap}</div>
-        <button class="ppic" onclick="ppExpand('${id}')" aria-label="展開成完整導覽內頁">${MI('M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z',24,'#3C3C3C')}</button>
-        <button class="ppic" onclick="pinBack()" aria-label="收合">${MI(MD.close,22,'#3C3C3C')}</button></div></div>
+        <div class="ppt">${meta?`<span class="ppm">${meta}</span>`:''}<b>${x.n}</b>${x.no||cap?`<div class="ppmeta">${x.no?`<span class="ppno">#${x.no}</span>`:''}${cap}</div>`:''}</div></div></div>
     <div class="pptx">${txt}</div>
     <div class="ppctl">${ctl}${way}</div>
     ${nav}</div>`; }
@@ -3028,7 +3029,7 @@ function scrMap(){ if(fvOn()&&S.fx) S.fx=null;   /* 2026-11-19 留言：全館�
   const RT=(S.walk&&S.walk.k)||(S.mapRoute&&ROUTES[S.mapRoute]?S.mapRoute:null);   /* 2026-11-18：主題路線的地圖，面板講站點，不講常設展的導覽點 */
   const fst=M&&!nx&&!S.way&&!S.nav&&!S.navPending&&!S.arrived&&!S.tour&&!S.mapOnly&&!S.mapSel&&!S.herePick&&!S.signPick&&!S.mapAll&&!S.mapFloors&&!(S.firstSeen||{})[exKey]&&!(S.player&&S.player.ctx.type==='ex'&&S.player.ctx.key===exKey)?firstOf(exKey):null;   /* 2026-11-18：這檔已經在導覽中就不再提示「第一則・點一下開始」，讓位給「導覽中」 */   /* 第一次進這個展覽的地圖：第一件發亮＋提示，點任何一件展品後就不再出現 */
   const pinAll=M&&!(S.way&&S.way.step==='route')?(S.mapOnly&&!S.way?[S.mapOnly]:((S.walk||(S.mapRoute&&ROUTES[S.mapRoute]))?rtList(S.walk?S.walk.k:S.mapRoute).filter(id=>PINS[f][id]):Object.keys(PINS[f]).filter(id=>!it(id).rstop&&(f!=='2F'||exPins('perm').includes(id)))).filter(id=>(f!=='4F'||fv4All()||exPins(exKey).includes(id))&&(!S.exOnly||exPins(S.exOnly).includes(id))&&(!S.signPick||it(id).sign)).filter(id=>!(S.way&&[S.way.a,S.way.b].some(p=>p&&p.id===id&&p.fl===f)))):[];   /* 4F 只標目前這間特展室的展品；2026-11-11 留言：選成 A／B 的展品藏掉原本的點位，跟設施一樣 */
-  const vOK=!!M&&!S.walk&&!(S.mapRoute&&ROUTES[S.mapRoute])&&!S.mapOnly&&!S.way&&pinAll.some(pinVoice), pinIds=vOK&&S.pinVoice?pinAll.filter(pinVoice):pinAll;   /* 2026-11-20 留言：地圖可以只看有語音導覽的點位 */
+  const vOK=!!M&&!S.walk&&!(S.mapRoute&&ROUTES[S.mapRoute])&&!S.mapOnly&&!S.way&&pinAll.some(pinVoice)&&!pinAll.every(pinVoice), pinIds=vOK&&S.pinVoice?pinAll.filter(pinVoice):pinAll;   /* 2026-11-20 留言：地圖可以只看有語音導覽的點位 */
   const anchor=(x,y,cls,inner,extra='')=>{ const [sx,sy]=toScr(x,y); return `<div class="${cls}" data-mx="${x}" data-my="${y}" style="left:${sx}px;top:${sy}px" ${extra}>${inner}</div>`; };
   const mapLayer = M ? `<div id="mlayer" class="mlayer" style="width:${M.w}px;height:${M.h}px;transform:translate(${v.x}px,${v.y}px) scale(${v.s})">
       <img src="${A(M.src)}" alt="${f} ${M.name}平面圖" width="${M.w}" height="${M.h}" draggable="false">
@@ -3814,13 +3815,13 @@ function render(resetScroll, anim){
   const menuOut=oldMenu&&S.sheet!=='menu'&&!S.menuUnder&&!REDUCED&&!(anim==='push'&&S.reopen&&S.reopen.sheet==='menu')?oldMenu.cloneNode(true):null;   /* 從選單打開內頁：選單留在底下，內頁直接疊上來 */
   if(menuOut){ menuOut.classList.remove('menuov'); menuOut.removeAttribute('id'); menuOut.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id')); menuOut.style.pointerEvents='none'; menuOut.style.zIndex='55'; }
   const shP=window.__shSig, shN=shSig(); window.__shSig=shN; S._wayIn=!REDUCED&&shN.k==='way'&&(!shP||shP.k!=='way');   /* 剛進入帶我去：標頭由上往下滑入（只在進入那一刻） */ const shSame=!REDUCED&&shP&&shP.scr===shN.scr&&!anim&&shP.k!==shN.k;
-  const zsMorph=shSame&&!shN.ov&&['def','full','min','sel'].includes(shP.k)&&['def','full','min','sel'].includes(shN.k), zsOld=zsMorph?app.querySelector(':scope > .scr .zonesheet'):null, zsOldH=zsOld?zsOld.offsetHeight:0;   /* 2026-11-11 留言：收合／展開是同一張面板變高變矮，不是先收掉再彈出 */
+  const zsMorph=shSame&&!shN.ov&&['def','full','min','sel'].includes(shP.k)&&['def','full','min','sel'].includes(shN.k), zsOld=zsMorph?app.querySelector(':scope > .scr .zonesheet'):null, zsOldH=zsOld?zsOld.offsetHeight:0, zsOldGhost=(()=>{ if(!zsOld||shP.k!=='sel') return null; const a=app.getBoundingClientRect(), r=zsOld.getBoundingClientRect(), c=zsOld.cloneNode(true); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id')); Object.assign(c.style,{position:'absolute',left:(r.left-a.left)+'px',top:(r.top-a.top)+'px',width:r.width+'px',height:r.height+'px',bottom:'auto',zIndex:30,pointerEvents:'none',maxHeight:'none'}); return c; })();   /* 2026-11-11 留言：收合／展開是同一張面板變高變矮，不是先收掉再彈出 */
   let shOut=null; if(shSame&&!zsMorph&&shPanel(shP.k,shN.k)){ const els=shP.ov?[...app.querySelectorAll('.dim,.sheet,.lgmodal')]:[...app.querySelectorAll(':scope > .scr .zonesheet')];
     if(els.length){ shOut=document.createElement('div'); shOut.className='shghost'; els.forEach(e=>{ const c=e.cloneNode(true); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id')); shOut.appendChild(c); }); } }
   let ghost=null;
   /* 展開播放器：記下迷你播放器的位置，新畫面從那裡長出來 */
   const rel=el=>{ if(!el) return null; const a=app.getBoundingClientRect(), r=el.getBoundingClientRect(); return {t:r.top-a.top, l:r.left-a.left, b:a.bottom-r.bottom, r:a.right-r.right}; };
-  const fromMini = anim==='up' && !REDUCED ? rel(app.querySelector(':scope > .scr .mini .box')) : null;
+  const fromMini = anim==='up' && !REDUCED ? rel(app.querySelector(':scope > .scr .pplay')||app.querySelector(':scope > .scr .mini .box')) : null;   /* 半高面板展開：新畫面從面板的位置長上去 */
   /* 收合／展開時，主圖和標題各自飛到對方的位置（跟切換逐字稿一樣是同一個東西在移動） */
   const box_=el=>{ if(!el) return null; const a=app.getBoundingClientRect(), r=el.getBoundingClientRect();
     if(r.width<2||r.right<a.left+2||r.left>a.right-2||r.bottom<a.top||r.top>a.bottom) return null; return {x:r.left-a.left,y:r.top-a.top,w:r.width,h:r.height}; };
@@ -3829,7 +3830,7 @@ function render(resetScroll, anim){
   const fly = (!REDUCED && (anim==='down'||anim==='up')) ? (anim==='down' ? (()=>{ const pi=app.querySelector('#pimg'), sg=app.querySelector('.sgvid');
       const im=pi?pi.querySelectorAll('img')[S.ci||0]:null;
       return { img:box_(pi||sg), src:im?im.src:(S.player?A(it(S.player.id).img):''), r0:16, title:txt_(app.querySelector('.pname')||app.querySelector('.sgttl p')) }; })()
-    : (()=>{ const th=app.querySelector(':scope > .scr .mini .th img'); return { img:box_(th), src:th?th.src:'', r0:8, title:txt_(app.querySelector(':scope > .scr .mini .tt span')) }; })()) : null;
+    : (()=>{ const pp=app.querySelector(':scope > .scr .pplay'), th=pp?pp.querySelector('.ppimg img'):app.querySelector(':scope > .scr .mini .th img'); return { img:box_(th), src:th?th.src:'', r0:pp?10:8, title:txt_(pp?pp.querySelector('.ppt b'):app.querySelector(':scope > .scr .mini .tt span')) }; })()) : null;   /* 2026-11-20 留言：從地圖的半高面板展開時，縮圖和標題從面板上的位置飛到完整內頁的位置 */
   if(anim && !REDUCED && app.firstElementChild){   /* 舊畫面留著做轉場，轉完就移除 */
     ghost=document.createElement('div'); ghost.className='ghost g-'+anim;
     while(app.firstChild) ghost.appendChild(app.firstChild);
@@ -3866,7 +3867,10 @@ function render(resetScroll, anim){
     if(oldMenu&&!nm&&!S.sheet){ const hb=app.querySelector('[aria-label="主選單"]'); if(hb&&!anim) hb.focus({preventScroll:true}); }
     if(nm&&!oldMenu&&!REDUCED&&anim!=='pop') nm.animate([{transform:'translateX(100%)'},{transform:'translateX(0)'}],{duration:PAN_MS,easing:EZ});
     if(menuOut){ app.appendChild(menuOut); menuOut.animate([{transform:'translateX(0)'},{transform:'translateX(100%)'}],{duration:PAN_MS,easing:EZ,fill:'forwards'}).onfinish=()=>menuOut.remove(); setTimeout(()=>menuOut.remove(),PAN_MS+150); } }   /* 第 1 輪測試修正（T1）：英日韓翻譯 */
-  if(zsMorph){ const z=app.querySelector(':scope > .scr .zonesheet'); if(z&&zsOldH){ const h=z.offsetHeight; z.style.overflow='hidden'; z.dataset.fh=h;   /* 浮動鈕用最後的高度定位，跟著一起滑 */
+  if(zsMorph){ const z=app.querySelector(':scope > .scr .zonesheet');
+    if(z&&!zsOldH&&shN.k==='sel'){ z.animate([{transform:'translateY(100%)'},{transform:'none'}],{duration:PAN_MS,easing:PAN_EZ}); }   /* 2026-11-20 留言：地圖原本沒有面板時，點點位的面板跟其他面板一樣用 450ms 由下滑上來（原本直接跳出來） */
+    if(zsOldGhost&&!z){ app.appendChild(zsOldGhost); zsOldGhost.animate([{transform:'none'},{transform:'translateY(100%)'}],{duration:PAN_MS,easing:PAN_EZ,fill:'forwards'}).onfinish=()=>zsOldGhost.remove(); }   /* 收合到沒有面板：同速度往下滑出 */
+    if(z&&zsOldH){ const h=z.offsetHeight; z.style.overflow='hidden'; z.dataset.fh=h;   /* 浮動鈕用最後的高度定位，跟著一起滑 */
       z.animate([{height:zsOldH+'px'},{height:h+'px'}],{duration:PAN_MS,easing:PAN_EZ}).onfinish=()=>{ z.style.overflow=''; delete z.dataset.fh; };
       const listOnly=['def','full'].includes(shP.k)&&['def','full'].includes(shN.k);   /* 2026-11-12 留言：清單展開／收合只動高度和卡片列，上面的分頁、展覽資訊不重播淡入，不會閃 */
       (listOnly?[...z.querySelectorAll('.zrow')]:[...z.children]).forEach(c=>c.animate([{opacity:0},{opacity:0,offset:.35},{opacity:1}],{duration:PAN_MS,easing:'ease-out'})); } }
@@ -3883,8 +3887,9 @@ function render(resetScroll, anim){
   const toMini = anim==='down' && ghost ? rel(app.querySelector(':scope > .scr .mini .box')) : null;
   const ins=m=>`inset(${m.t}px ${m.r}px ${m.b}px ${m.l}px round 20px)`, EASE='cubic-bezier(.32,.72,0,1)';
   if(fly && ghost && (toMini||fromMini)){ const dur=toMini?460:480;
-    const tImgEl = toMini ? app.querySelector(':scope > .scr .mini .th img') : (app.querySelector('#pimg')||app.querySelector('.sgvid'));
-    const tTitEl = toMini ? app.querySelector(':scope > .scr .mini .tt span') : (app.querySelector('.pname')||app.querySelector('.sgttl p'));
+    const vis_=sels=>{ for(const q of sels){ const e=[...app.querySelectorAll(':scope > .scr '+q)].find(x=>box_(x)); if(e) return e; } return null; };   /* 2026-11-20：目標取「畫面上看得到的那一個」——語音的導覽分頁主圖在播放卡上，不在被橫移出畫面的介紹分頁裡 */
+    const tImgEl = toMini ? app.querySelector(':scope > .scr .mini .th img') : vis_(['#pimg','.sgvid','#pcard img','.pcard img']);
+    const tTitEl = toMini ? app.querySelector(':scope > .scr .mini .tt span') : vis_(['.pname','.sgttl p','#pcard b','.pcard b','.pscroll h1']);
     const tImg=box_(tImgEl), tTit=txt_(tTitEl);
     const hideG = toMini ? ['.pimg','.sgvid','.pname','.sgttl p'] : ['.mini .th img','.mini .tt span'];
     const reveal=[];
