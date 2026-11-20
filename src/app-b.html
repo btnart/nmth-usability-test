@@ -106,23 +106,23 @@ button.mapbar{padding:0 16px}
 .pmorebg{position:fixed;inset:0;z-index:40} .pmore{position:absolute;right:0;top:48px;z-index:41;min-width:184px;background:#fff;border-radius:16px;box-shadow:0 12px 32px -8px rgba(15,25,30,.35),0 2px 8px rgba(15,25,30,.12);padding:6px;display:flex;flex-direction:column;animation:hintin .18s ease-out both}
 .pmore button{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:12px;font-size:15px;color:var(--ink);text-align:left} .pmore button:active{background:var(--cream)} .pmore .aa{width:20px;display:inline-flex;align-items:baseline;justify-content:center;font-weight:700;color:#3C3C3C}   /* 2026-11-18：播放器右上「更多」選單（收藏、筆記、文字大小） */
 .mpins{position:absolute;inset:0;pointer-events:none} .mpins>*{pointer-events:auto}
-.mpin{--pc:var(--teal7);position:absolute;transform:translate(-50%,-100%);min-width:32px;height:32px;padding:0 4px;border-radius:16px;background:#fff;color:var(--pc);
+.mpin{--pc:var(--teal7);position:absolute;transform:translate(-50%,-100%);min-width:32px;height:32px;padding:0 4px;border-radius:16px;background:var(--pc);color:#fff;
   font:700 13px Roboto,'Noto Sans TC',sans-serif;filter:drop-shadow(0 3px 5px rgba(15,25,30,.28));display:grid;place-items:center;margin-top:-13px;transition:background .2s,transform .2s}
-.mpin::before,.mclu::before{content:'';position:absolute;inset:0;border-radius:inherit;border:4px solid var(--pc);pointer-events:none}   /* 2026-11-20 留言：圓頭改成細色框＋大白心（整體大小不變），圖示放在白心裡；聚集點位同一款 */
+/* 2026-11-20 留言（第二版）：點位一律品牌底色＋白色圖示——沒音檔＝白點、聚集＝疊層圖示、有音檔＝耳機；選取＝金底；導覽中＝金底＋外光暈 */
 .mpin::after{content:'';position:absolute;left:50%;top:calc(100% - 6px);width:18px;height:19px;margin-left:-9px;background:var(--pc);clip-path:path('M0 0 H18 C13 5 10.4 11 9 19 C7.6 11 5 5 0 0 Z');pointer-events:none}   /* 2026-11-20 留言：照參考圖——圓頭＋往下收尖的尾巴，尾巴跟圓頭疊在一起，中間不留縫；陰影改 drop-shadow 連尾巴一起投影 */
 .mpin.playing{display:flex;align-items:center;justify-content:center;gap:5px;padding:0 10px} .peq{display:inline-flex;gap:2px;align-items:flex-end;height:12px} .peq b{width:3px;height:6px;background:var(--ink);border-radius:1px} .peq.go b{animation:eq .9s ease-in-out infinite} .peq.go b:nth-child(2){animation-delay:.2s} .peq.go b:nth-child(3){animation-delay:.4s} .mpin.playing>i{background:var(--teal7);color:#fff}   /* 2026-11-11 留言：正在播的點位——金底放大＋跳動音波＋「播放中」 */
 .mpin.on{color:var(--ink);transform:translate(-50%,-100%) scale(1.15);z-index:2} .mpin.on{--pc:var(--gold)}
 .mpin.now{color:var(--ink);z-index:3;animation:nowGlow 1.8s ease-out infinite} .mpin.now{--pc:var(--gold)}
 @keyframes nowGlow{0%{box-shadow:0 0 0 0 rgba(201,169,97,.8),0 4px 10px rgba(15,25,30,.25)}70%{box-shadow:0 0 0 14px rgba(201,169,97,0),0 4px 10px rgba(15,25,30,.25)}100%{box-shadow:0 0 0 0 rgba(201,169,97,0),0 4px 10px rgba(15,25,30,.25)}}
 @media (prefers-reduced-motion:reduce){ .mpin.now{animation:none;box-shadow:0 0 0 4px rgba(201,169,97,.45),0 4px 10px rgba(15,25,30,.25)} }   /* 2026-11-18：導覽中的點位外圈一直往外擴散的光暈，跟「選中」（金色放大、靜態）分開 */
-.mpin.tonly{--pc:#9A9A9A;color:#5F5F5F}   /* 走路線：只有文字導覽的站＝白底灰框 */
+.mpin.tonly{--pc:#9A9A9A}   /* 走路線：只有文字導覽的站＝白底灰框 */
 .mpin.neu,.mpin.vo{width:32px;padding:0} .pdot{width:10px;height:10px;border-radius:50%;background:currentColor} .mpin .ico{display:block}   /* 2026-11-20：中性圖釘／語音耳機 */
 .mpin.maint{--pc:#6B6B6B}
 .mpin.nxt{--pc:var(--teal7)}
 .mpin.next{}   /* 2026-11-18：「下一站」不再用金色（金色只留給選中／導覽中），只靠上方的「下一站」提示 */
-.mclu{--pc:var(--teal7);position:absolute;transform:translate(-50%,-100%);margin-top:-13px;height:32px;padding:0 10px 0 4px;border-radius:16px;background:#fff;color:var(--pc);filter:drop-shadow(0 3px 5px rgba(15,25,30,.28));
+.mclu{--pc:var(--teal7);position:absolute;transform:translate(-50%,-100%);margin-top:-13px;width:32px;height:32px;padding:0;border-radius:16px;background:var(--pc);color:#fff;justify-content:center;filter:drop-shadow(0 3px 5px rgba(15,25,30,.28));
   font:700 12px Roboto,'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:6px;white-space:nowrap}
-.mclu{padding:0 11px 0 9px;gap:4px}   /* 2026-11-13 留言：聚集點改成一顆完整的膠囊（疊層圖示＋「N 件」），跟展品編號的數字分得開，箭頭也接在膠囊下緣 */
+.mclu{gap:0}   /* 2026-11-13 留言：聚集點改成一顆完整的膠囊（疊層圖示＋「N 件」），跟展品編號的數字分得開，箭頭也接在膠囊下緣 */
 .mclu .ci{display:block;flex:0 0 16px} .mclu .cn{font:700 13px Roboto,'Noto Sans TC',sans-serif;letter-spacing:.2px}
 .mclu .cs{letter-spacing:.2px;font-weight:500;opacity:.85;padding-left:5px;border-left:1px solid rgba(255,255,255,.4)}   /* 直接列出是哪幾件，不用放大就知道 */
 .mclu::after{content:'';position:absolute;left:50%;top:calc(100% - 6px);width:18px;height:19px;margin-left:-9px;background:var(--pc);clip-path:path('M0 0 H18 C13 5 10.4 11 9 19 C7.6 11 5 5 0 0 Z');pointer-events:none}
@@ -2620,7 +2620,7 @@ function clusterPins(){ const root=document.querySelector('#app > .scr .mpins');
     const names=g.map(q=>(q.p.getAttribute('aria-label')||q.p.textContent||'').trim()).join('、'), nos=g.map(q=>q.p.classList.contains('mpin')?q.p.textContent.trim():null);
     const b=document.createElement('button'); b.className='mclu'; b.dataset.k=g.map(q=>q.mx+','+q.my).join(';'); b.style.left=cx+'px'; b.style.top=cy+'px'; b.setAttribute('aria-label',`${g.length} 個點位：${names}，點一下放大`);
     const short='';   /* 2026-11-18：聚合泡泡一律只寫數字，各張地圖同一個樣子（原本點位 ≤20 時會多列編號） */   /* 點位多時泡泡只寫件數，避免互相疊住 */
-    b.innerHTML=`${MI('M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z',16,'currentColor').replace('class="ico"','class="ico ci"')}<span class="cn">${g.length}</span>${short?`<span class="cs">${short}</span>`:''}`;   /* 11-13 另一個對話改的膠囊樣式（疊層圖示＋N 件）合併進來 */
+    b.innerHTML=MI('M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z',16,'currentColor').replace('class="ico"','class="ico ci"');   /* 2026-11-20 留言：聚集點位只放疊層圖示（件數留在讀屏文字） */   /* 11-13 另一個對話改的膠囊樣式（疊層圖示＋N 件）合併進來 */
     const xs=g.map(q=>q.mx), ys=g.map(q=>q.my), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
     b.onclick=ev=>{ ev.stopPropagation(); const w=document.querySelector('.mapwrap'), cur=mapView().s, W=w?w.clientWidth:375, H=w?mapVisH(w):600;
       const fit=Math.min((W-96)/Math.max(x1-x0,1), (H*.5)/Math.max(y1-y0,1)), sep=1/Math.max(dmin,.001)*1.2;   /* 拉近到整組都還在畫面裡（fit），但不超過剛好分得開的倍率（sep） */
@@ -3044,8 +3044,8 @@ function scrMap(){ if(fvOn()&&S.fx) S.fx=null;   /* 2026-11-19 留言：全館�
       ${S.navFl&&f!==S.navFl&&S.nav?anchor(ELEV[f][0],ELEV[f][1],'mchip goal',`⚑ 先到電梯，搭到 ${S.navFl}`):''}
       ${!(S.navFl&&f!==S.navFl)&&(S.nav||S.navPending)==='entry'&&navTarget('entry')?anchor(navTarget('entry').x,navTarget('entry').y,'mchip goal','⚑ 目的地：展區入口'):''}
       ${pinIds.map(id=>{ const [x,y]=PINS[f][id], wk=(S.walk||S.mapRoute&&ROUTES[S.mapRoute])?rtList(S.walk?S.walk.k:S.mapRoute).indexOf(id):-1, on=(S.walk&&wk===S.walk.i)||S.mapSel===id||S.nav===id||S.navPending===id, tnow=S.player&&!S.nav&&S.player.id===id, tnx=S.tour&&S.player&&!S.nav&&tourNextId()===id;
-        return `<button class="mpin${wk<0?(pinVoice(id)?' vo':' neu'):''}${on?' on':''}${tnow?' now':''}${tnx?' nxt':''}${nx===id||(S.arrived&&firstOf(S.arrived)===id)?' next':''}${fst===id?' first':''}${it(id).maint?' maint':''}${tnow&&!isTxt(id,S.player.ctx)?' playing':''}" data-mx="${x}" data-my="${y}" style="left:${toScr(x,y)[0]}px;top:${toScr(x,y)[1]}px"
-          onclick="event.stopPropagation();pinTap('${id}')" aria-label="${wk>=0?'第 '+(wk+1)+' 站・'+it(id).n+(it(id).rstop?(it(id).guide?'（有導覽）':'（沒有導覽）'):'（'+gKind(it(id),S.player&&S.player.ctx)+'導覽）'):it(id).n+(pinVoice(id)?'（語音導覽）':'')}${nx===id?'（下一站）':fst===id?'（第一件展品）':''}" aria-pressed="${on}">${fst===id?(it(id).tonly?'<i class="tip">第一則導覽<small>點一下開始讀</small></i>':'<i class="tip">第一件展品<small>點一下開始聽</small></i>'):nx===id?'<i>下一站</i>':S.arrived&&firstOf(S.arrived)===id?'<i>第一件</i>':tnow?'<i>導覽中</i>':tnx?'<i>下一件</i>':''}${tnow&&!isTxt(id,S.player.ctx)?`<span class="peq${S.player.playing?' go':''}" aria-hidden="true"><b></b><b></b><b></b></span>`:''}${wk>=0?wk+1:pinVoice(id)?MI(MD.head,16,'currentColor'):'<span class="pdot" aria-hidden="true"></span>'}</button>`; }).join('')}
+        return `<button class="mpin${wk<0?(pinVoice(id)?' vo':' neu'):''}${on?' on':''}${tnow?' now':''}${tnx?' nxt':''}${nx===id||(S.arrived&&firstOf(S.arrived)===id)?' next':''}${fst===id?' first':''}${it(id).maint?' maint':''}" data-mx="${x}" data-my="${y}" style="left:${toScr(x,y)[0]}px;top:${toScr(x,y)[1]}px"
+          onclick="event.stopPropagation();pinTap('${id}')" aria-label="${wk>=0?'第 '+(wk+1)+' 站・'+it(id).n+(it(id).rstop?(it(id).guide?'（有導覽）':'（沒有導覽）'):'（'+gKind(it(id),S.player&&S.player.ctx)+'導覽）'):it(id).n+(pinVoice(id)?'（語音導覽）':'')}${nx===id?'（下一站）':fst===id?'（第一件展品）':''}" aria-pressed="${on}">${fst===id?(it(id).tonly?'<i class="tip">第一則導覽<small>點一下開始讀</small></i>':'<i class="tip">第一件展品<small>點一下開始聽</small></i>'):nx===id?'<i>下一站</i>':S.arrived&&firstOf(S.arrived)===id?'<i>第一件</i>':tnx?'<i>下一件</i>':''}${wk>=0?wk+1:pinVoice(id)?MI(MD.head,16,'currentColor'):'<span class="pdot" aria-hidden="true"></span>'}</button>`; }).join('')}
       ${S.herePick?(LANDMARKS[f]||[]).map(([n,x,y],i)=>anchor(x,y,'mlm',`<span class="lmn">${String.fromCharCode(65+i)}</span>${n}`,`role="button" tabindex="0" aria-label="我在${n}" onclick="event.stopPropagation();setHere(${x},${y})"`)).join(''):''}
       ${S.way?wayLayer(f,anchor)+facLayer(f):facLayer(f)}</div>`   /* 2026-11-18：帶我去的地圖一定要看得到設施，所以路線層之外再疊設施層 */
     : `<div style="position:absolute;inset:0;display:grid;place-items:center;color:var(--text2);font-size:13px">1F 平面圖待館方提供</div>`;
