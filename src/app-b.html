@@ -166,7 +166,7 @@ button.mapbar{padding:0 16px}
 .pprow{display:flex;gap:14px;align-items:center} .ppimg{flex:0 0 64px;height:64px;border-radius:10px;overflow:hidden} .ppimg img{width:100%;height:100%;object-fit:cover}
 .ppt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:flex-start} .ppt b{font-weight:700;font-size:17px;line-height:1.3;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden} .ppm{font-size:12px;color:var(--text2)}
 .ppic{width:36px;height:36px;border-radius:18px;display:grid;place-items:center;background:var(--cream)} .ppmeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap} .ppno{font:500 13px Roboto,'Noto Sans TC',sans-serif;color:var(--text2)} .ppmeta .pccap{margin:0}
-.pptx{flex:1 1 auto;min-height:48px;overflow-y:auto;padding:10px 24px 4px;font-size:15px;line-height:1.75;color:var(--text);-webkit-mask-image:linear-gradient(#000 80%,transparent);mask-image:linear-gradient(#000 80%,transparent)} .pptx p+p{margin-top:8px}
+.pptx{flex:1 1 auto;min-height:48px;overflow-y:auto;padding:10px 24px 4px;font-size:15px;line-height:1.75;color:var(--text);-webkit-mask-image:linear-gradient(#000 80%,transparent);mask-image:linear-gradient(#000 80%,transparent)} .pptx p+p{margin-top:8px} .pptx.end{-webkit-mask-image:none;mask-image:none}
 .ppctl{flex:0 0 auto;display:flex;gap:10px;align-items:center;padding:10px 24px 0} .ppctl .pb{flex:0 0 40px;width:40px;height:40px;border-radius:20px;background:var(--teal7);display:grid;place-items:center} .ppctl .pb .ico{width:20px;height:20px}   /* 2026-11-20 留言：半高面板的播放鈕小一點（48→40） */
 .ppprog{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px} .ppprog .tr{height:4px;border-radius:2px;background:var(--line);position:relative;overflow:hidden} .ppprog .tr i{position:absolute;left:0;top:0;bottom:0;background:var(--teal7);border-radius:2px}
 .ppprog .tt{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);font-family:Roboto,'Noto Sans TC',sans-serif}
@@ -2973,7 +2973,9 @@ function ppFocus(id){ requestAnimationFrame(()=>{ const P=PINS[S.floor]&&PINS[S.
 function ppPlay(id){ ppExpand(id); }   /* 2026-11-20 留言：在半高面板按播放＝展開成完整導覽內頁並開始播（跨清單仍先問） */
 function ppToggle(){ const p=S.player; if(!p) return; if(p.playing){ p.playing=false; return render(); } p.playing=true; ppExpand(p.id); }   /* 暫停留在面板；按播放就展開 */
 function ppExpand(id){ if(S.screen!=='map') return; if(S.player&&S.player.id===id){ S.mapSel=null; return go('player'); } S._stayMap=false; S.mapSel=null; play(id,ppCtx(id)); }
-let ppY=null; function ppTS(e){ ppY=e.touches[0].clientY; } function ppTE(e,id){ if(ppY==null) return; const dy=e.changedTouches[0].clientY-ppY; ppY=null; if(dy<-50||dy>70){ if(e.cancelable) e.preventDefault(); } if(dy<-50) ppExpand(id); else if(dy>70) pinBack(); }   /* 2026-11-20：滑完不要再補一次點擊（原本會展開兩次，標題被藏住沒回來） */
+let ppY=null; /* 2026-11-20 留言：內文捲到底（或本來就不用捲）時拿掉底部漸層遮罩，最後一句才看得清楚 */
+function ppMask(el){ if(el) el.classList.toggle('end', el.scrollTop+el.clientHeight>=el.scrollHeight-2); }
+function ppTS(e){ ppY=e.touches[0].clientY; } function ppTE(e,id){ if(ppY==null) return; const dy=e.changedTouches[0].clientY-ppY; ppY=null; if(dy<-50||dy>70){ if(e.cancelable) e.preventDefault(); } if(dy<-50) ppExpand(id); else if(dy>70) pinBack(); }   /* 2026-11-20：滑完不要再補一次點擊（原本會展開兩次，標題被藏住沒回來） */
 function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):null;
   if(S.mapOnly||(rk0&&!x.guide)) return pinCardBasic(id);
   const c=ppCtx(id), ex=c.type==='ex'?c.key:exOf(id), kd=gKind(x,c), tx=kd==='文字', sg=kd==='手語', live=!!S.player&&S.player.id===id, P=S.player;
@@ -2995,7 +2997,7 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
       <div class="pprow"><span class="ppimg"><img src="${A(x.img)}" alt=""></span>
         <div class="ppt">${meta||cap?`<div class="ppmeta">${cap}${meta?`<span class="ppm">${meta}</span>`:''}</div>`:''}<b>${x.n}</b></div>   <!-- 2026-11-20 留言：膠囊放在標題上面，標題最多兩行 -->
         ${way}</div></div>   <!-- 2026-11-20 留言：帶我去跟縮圖、標題同一排 -->
-    <div class="pptx">${txt}</div>
+    <div class="pptx" onscroll="ppMask(this)">${txt}</div>
     ${ctl?`<div class="ppctl">${ctl}</div>`:''}
     ${nav}</div>`; }
 function pinCardBasic(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||floorEx();   /* 4F「全部」時用展品自己所屬的展覽 */
@@ -3946,7 +3948,7 @@ function render(resetScroll, anim){
   const sc2=app.querySelector(':scope > .scr .scroll'); if(sc2) sc2.scrollTop=top;
   if(hx) [...app.querySelectorAll(':scope > .scr .cardrow, :scope > .scr .hs')].forEach((e,i)=>{ if(hx[i]) e.scrollLeft=hx[i]; });
   if(S.screen==='landing') setTimeout(()=>{ S.landIn=true; },1200);
-  sgMount(); audSync(); miniMarquee(); if(S.sheet==='signfs') sfFit();
+  sgMount(); audSync(); miniMarquee(); document.querySelectorAll('#app .pptx').forEach(ppMask); if(S.sheet==='signfs') sfFit();
   if(S.screen==='home'){ homeScroll(); S.heroPlayed=true; }   /* 說明牌式進場只在第一次進首頁播放 */ if(S.screen==='ex') exNavMount(); if(S.screen==='player') playerMount(); if(S.screen==='map') mapMount();
   const pr=document.getElementById('prog');
   if(pr) pr.onpointerdown=ev=>{ const r=pr.getBoundingClientRect(); const f=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width)); S.player.pos=f*it(S.player.id).d; render(); };
