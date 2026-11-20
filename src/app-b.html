@@ -2360,7 +2360,6 @@ function miniDock(){
         <div class="info" onclick="go('player')" style="cursor:pointer">
           <div class="tt"><span>${x.n}</span></div>
           <div class="mm">${stop}<span translate="no">${x.no?'#'+x.no:''}${x.no&&i>=0?'・':''}${i>=0?(i+1)+' / '+l.length:''}</span></div></div>
-        <button class="nx" onclick="event.stopPropagation();step(1)" aria-label="${atEdge(1)?'已經是最後一'+sUnit(p.ctx):'下一'+sUnit(p.ctx)}" ${atEdge(1)?'disabled':''}>${MI(MD.next,24,'#2E5C6E')}</button>
         <button class="cx" onclick="event.stopPropagation();S.player=null;render()" aria-label="關閉">${MI(MD.close,20,'#5F5F5F')}</button></div></div></div>`; }
   const l=ctxList(p.ctx), i=l.indexOf(p.id);
   /* 2026-11-16 留言：右側按鈕原本擠在進度條那一行很難按——改用文字導覽那套排版，
@@ -2373,7 +2372,6 @@ function miniDock(){
           <div class="tt"><span>${x.n}</span></div>
           <div class="mm">${stop}${x.no?`<span translate="no">#${x.no}</span><span>・</span>`:''}<span id="miniLeft" translate="no">-${mmss(x.d-p.pos)}</span>${i>=0?`<span>・</span><span translate="no">${i+1} / ${l.length}</span>`:''}</div></div>
         <button class="pb" onclick="event.stopPropagation();S.player.playing=!S.player.playing;render()" aria-label="${p.playing?'暫停':'播放'}">${MI(p.playing?MD.pause:'M8 5v14l11-7z',24,'#fff')}</button>
-        <button class="nx" onclick="event.stopPropagation();step(1)" aria-label="${atEdge(1)?'已經是最後一'+sUnit(p.ctx):'下一'+sUnit(p.ctx)}" ${atEdge(1)?'disabled':''}>${MI(MD.next,24,'#2E5C6E')}</button>
         <button class="cx" onclick="event.stopPropagation();S.player=null;render()" aria-label="關閉">${MI(MD.close,20,'#5F5F5F')}</button></div></div></div>`;
 }
 /* ---------- 展區地圖 ---------- */
