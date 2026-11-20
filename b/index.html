@@ -2960,7 +2960,7 @@ function closeMapSheet(){ back(); }
 function openMapHome(){ S._hold=true; openMap('site','perm'); S.mapFloors=true; S.fx=null; S._hold=false; render(true,'push'); }   /* 首頁進的全區地圖：內頁（有返回鍵），可換樓層，標題跟著樓層 */
 function openMapAll(){ const from=S.screen; S._top=true; S._hold=true; openMap('site','perm'); S.mapAll=true; S.fx=null;   /* 2026-11-11 留言：展區地圖一律先開全區，跟首頁縮圖一致 */ S._hold=false; render(true, from==='map'?null:from==='landing'?'fade':'fade'); }   /* 狀態一次設好只畫一次，標頭與浮動鈕不會在進場時跳動 */   /* 全館地圖＝頂層頁 */
 /* 播放器「在地圖上看位置」：只看這一件展品的位置，不放其他點位、不放迷你播放器，只能帶我去或回去繼續聽，避免點來點去搞混 */
-function mapNextId(){ if(S.walk) return null; const k=S.mapRoute; if(!k||!ROUTES[k]) return null; const h=S.heard[k]||new Set(); return rtList(k).find(id=>!h.has(id)&&PINS[S.floor][id])||null; }
+function mapNextId(){ return null;   /* 2026-11-20 留言：主題路線地圖拿掉「下一站」標籤，順序編號已經說明先後 */ if(S.walk) return null; const k=S.mapRoute; if(!k||!ROUTES[k]) return null; const h=S.heard[k]||new Set(); return rtList(k).find(id=>!h.has(id)&&PINS[S.floor][id])||null; }
 /* ── 2026-11-20 留言：地圖點位的底部面板改成「精簡版導覽內頁」（半高）──────────────────────────
    導覽內頁三種高度：完整（播放器頁）／半高（這裡：文字、上下則、播放面板，最高 1/2 螢幕）／迷你播放器。
    往上拉或按展開＝進完整導覽內頁；往下拉或按關閉＝收合（有在播就回到迷你播放器）。
