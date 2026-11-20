@@ -1687,7 +1687,7 @@ function scrEx(){
   const LN=lineOf(k,S.exLine), SGN=!!LN&&LN.key==='sign', noGuide=!LN||!LN.ids.length;   /* 2026-11-18：整頁照「導覽線」畫——從無障礙專區進來是手語線，其他入口都是主線 */
   const tabDefs = [['intro','展覽介紹'],...(noGuide?[]:[['works','導覽列表']]),['rev','評論']];   // 2026-10-29 拿掉常設展的「主題」分頁（主題路線在首頁另有入口）
   const tabs = `<div class="tabs2">${tabDefs.map(([t,l])=>`
-      <button data-sec="${t}" aria-current="${S.exTab===t}" class="${S.exTab===t?'on':''}" onclick="exJump('${t}')">${l}</button>`).join('')}</div>`;
+      <button data-sec="${t}" aria-current="${S.exTab===t}" class="${S.exTab===t?'on':''}" onclick="${t==='works'?"S.sheet='exlist';render()":`exJump('${t}')`}">${l}</button>`).join('')}</div>`;   /* 2026-11-20：導覽列表改開底部面板 */
   const tp = `tabpane ${S.tabDir||''}`;
   /* 2026-11-12 留言：主圖改內縮——先是圓角卡片，捲動後才撐成滿版（同首頁）；比較後定案留內縮版 */
   const enName=S.lang==='zh'?(T_EN[e.n]||EN[e.n]||''):'';
@@ -1727,7 +1727,8 @@ function scrEx(){
       </div>
     ${noGuide?'':`<div id="exSecWk" style="padding:16px 0">
       <div style="padding:0 24px"><div style="display:flex;align-items:center;justify-content:space-between;min-height:48px">
-        <b style="font-weight:500;font-size:20px;line-height:1.2;letter-spacing:.5px;color:var(--text)">導覽列表</b></div>
+        <b style="font-weight:500;font-size:20px;line-height:1.2;letter-spacing:.5px;color:var(--text)">導覽列表</b>
+        <button onclick="S.sheet='exlist';render()" style="display:flex;gap:4px;align-items:center;min-height:44px;font-size:13px;font-weight:500;color:var(--teal7)">全部 ${ids.length} 則 ${img('ic-arrow-right-teal.svg',14,14)}</button></div>
         <div style="height:1px;background:var(--border)"></div></div>
       <div class="hs" style="gap:12px;padding:12px 24px 24px">${ids.map(id=>[it(id).n,it(id).img,id]).map(([n,f,id])=>`
         <button class="zcard" onclick="play('${id}',{type:'ex',key:'${k}'${SGN?',sg:true':''}})" style="text-align:left">
@@ -1830,9 +1831,9 @@ function step(d){ if(atEdge(d)) return; const p=S.player, list=ctxList(p.ctx);
   i=Math.max(0,Math.min(list.length-1,i+d));
   playIdx(i); }   /* 2026-11-16：原本這裡自己抄一份換站邏輯，漏了「有導覽就切回導覽分頁」、onStopChange 的類型提示，
                      而且把文字點位也設成 playing=true。改成直接走 playIdx，兩條路徑不再分歧 */
-function guideProgress(){
-  const p=S.player; if(!p) return '';
-  if(p.ctx.type==='route'){ const rl=ctxList(p.ctx), ST=rl.length, n=p.ctx.idx+1, nx=rl[p.ctx.idx+1];
+function guideProgress(c){
+  const p=c?{ctx:c}:S.player; if(!p) return '';
+  if(!c&&p.ctx.type==='route'){ const rl=ctxList(p.ctx), ST=rl.length, n=p.ctx.idx+1, nx=rl[p.ctx.idx+1];
     return `<div class="gp"><div class="row"><span class="n">${n}／${ST} 則</span>
       <span class="s">${nx?'下一則：'+it(nx).n:'最後一則'}</span></div><div class="tr"><i style="width:${n/ST*100}%"></i></div></div>`; }
   const list=ctxList(p.ctx), hs=S.heard[p.ctx.key]||new Set(), total=list.length, heard=list.filter(id=>hs.has(id)).length;   /* 跟導覽列表同一份資料，數字對得上 */
@@ -2082,12 +2083,13 @@ function detailPane(){
     ${zoneMates()}
     <div style="height:24px"></div>   <!-- 2026-11-11 留言：拿掉「延伸探索」 --></div>`;
 }
-function listPane(){
-  const p=S.player, list=ctxList(p.ctx), cur=p.ctx.type==='route'?p.ctx.idx:list.indexOf(p.id), heard=S.heard[p.ctx.key]||new Set();
+function listPane(c){   /* 2026-11-20：c＝從展覽頁打開時給的清單（沒在播或播的是別份清單時只列出來，點了才開始） */
+  const P=S.player, live=!!P&&(!c||listKey(P.ctx)===listKey(c)), p=live?P:{ctx:c, id:null}, list=ctxList(p.ctx), cur=!live?-1:p.ctx.type==='route'?p.ctx.idx:list.indexOf(p.id), heard=S.heard[p.ctx.key]||new Set();
+  const ctxJ=JSON.stringify(p.ctx).replace(/"/g,"'");
   return `<div class="pscroll">
     <div style="padding:4px 0 12px"><h2 style="font-weight:700;font-size:20px;color:var(--ink)">導覽列表</h2>
       <p style="margin-top:4px;padding-right:44px;font-size:14px;line-height:1.5;color:var(--text2)">${ctxName(p.ctx)}</p>   <!-- 2026-11-12 留言：標出是哪一個展覽（或主題路線）的導覽內容 -->
-      <div style="margin-top:12px">${guideProgress()}</div></div>
+      <div style="margin-top:12px">${guideProgress(live?null:p.ctx)}</div></div>
     <ol class="glist">${(()=>{ const tier=p.ctx.type!=='route'&&list.some(id=>it(id).lv!=null&&it(id).lv<=1);   /* 2026-11-18：只有分層的清單（常設展）才內縮；主題路線與一般展覽是平的，不縮 */
       return list.map((id,i)=>{ const x=it(id), now=i===cur, done=!now&&(p.ctx.type==='route'?i<cur:heard.has(id));
       const lv=x.lv==null?3:x.lv, unit=lv<=1, obj=lv>=3, tx=isTxt(id,p.ctx);
@@ -2096,7 +2098,7 @@ function listPane(){
       const sub=[x.no?'#'+x.no:'', state, kind, x.maint?'維護中':''].filter(Boolean).join('・');
       /* 2026-11-18：整張卡片本來就能按，右側不再放播放鍵（導覽形式不一定是語音），改成中性的箭頭 */
       /* 2026-11-18：三層要一眼分得出來——單元灰底大卡、子單元白卡＋左側藍條、展品白卡＋縮圖 */
-      return `<li${unit||!tier?'':' class="lv'+lv+'"'}><button onclick="playIdx(${i})" aria-current="${now}" class="grow ${unit?'unit':obj?'item':'sub'}${now?' now':''}">
+      return `<li${unit||!tier?'':' class="lv'+lv+'"'}><button onclick="${live?`playIdx(${i})`:`S.sheet=null;play('${id}',${ctxJ})`}" aria-current="${now}" class="grow ${unit?'unit':obj?'item':'sub'}${now?' now':''}">
         ${p.ctx.type==='route'?`<span class="gn" aria-hidden="true">${rtNo(p.ctx.key,id)}</span>`:''}${obj?`<img src="${A(x.img)}" alt="">`:''}
         <span class="gt"><b>${x.n}</b><span class="gs">${sub}</span></span>
         <span class="gp" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></span></button></li>`; }).join(''); })()}</ol></div>`;
@@ -2144,6 +2146,11 @@ function openPlist(){ S.sheet='plist'; render();
     const top=cur.getBoundingClientRect().top-sc.getBoundingClientRect().top+sc.scrollTop;
     sc.scrollTop=Math.max(0, top-(sc.clientHeight-cur.offsetHeight)/2); };
   go_(); setTimeout(go_,0); }
+/* 2026-11-20 留言：展覽主頁的「導覽列表」也用播放器那個由下往上、非滿版的面板 */
+function exListSheet(){ const k=S.ex; if(!k||!EXHIBITIONS[k]) return ''; const c={type:'ex',key:k}; if(S.exLine==='sign') c.sg=true;
+  return `<div class="dim" onclick="S.sheet=null;render()"></div>
+  <div class="sheet" role="dialog" aria-label="導覽列表" style="top:10%;max-height:none;display:flex;flex-direction:column;padding:12px 8px 0">${closeX('S.sheet=null;render()')}
+    <div class="grab" style="margin-bottom:8px"></div><div style="flex:1;min-height:0">${listPane(c)}</div></div>`; }
 function plistSheet(){ return `<div class="dim" onclick="S.sheet=null;render()"></div>
   <div class="sheet" role="dialog" aria-label="導覽列表" style="top:10%;max-height:none;display:flex;flex-direction:column;padding:12px 8px 0">${closeX('S.sheet=null;render()')}
     <div class="grab" style="margin-bottom:8px"></div><div style="flex:1;min-height:0">${listPane()}</div></div>`; }
@@ -3786,6 +3793,7 @@ function render(resetScroll, anim){
   const lb=langBanner(); if(lb) html+=`<div style="position:absolute;left:0;right:0;top:${S.screen==='home'?67:64}px;z-index:7">${lb}</div>`;
   if(FROM_PLAT) html+=`<div class="platbar"><button onclick="toast('返回智慧服務平臺')">← 返回智慧服務平臺</button></div>`;   /* ?from=platform 從館方智慧服務平臺進來：頂端固定一條返回列 */
   html+=scanFab();
+  if(S.sheet==='exlist') html+=`<div class="scr" style="background:transparent;z-index:45">${exListSheet()}</div>`;
   if(S.sheet==='fbm') html+=`<div class="scr" style="background:transparent;z-index:45">${fbModal()}</div>`;
   if(S.sheet==='howto') html+=`<div class="scr" style="background:transparent;z-index:45">${howtoSheet()}</div>`;
   app.innerHTML=html; i18nStart(); if(S.lang!=='zh') i18nNode(app);
