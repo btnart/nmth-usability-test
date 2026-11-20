@@ -1726,8 +1726,8 @@ function scrEx(){
   if(loc) rows.push(row(MI(EXC_IC.pin,18,'#2E5C6E'),loc,`<button class="tealbtn soft exmaplink" onclick="openExMap('${k}','${e.fl==='4F'?'4F':'2F'}')">地圖${MI('M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z',18,'#2E5C6E')}</button>`));   /* 2026-11-12 留言：拿掉前綴地圖 icon，改尾端箭頭，看得出可以點 */
   const BTN='width:100%;height:48px;padding:0 12px;gap:8px;border-radius:24px;font-size:16px;white-space:nowrap';
   /* 主按鈕：這條線正在導覽中就回播放器，否則從這條線第一則開始；文案不放圖示（2026-11-?? 留言） */
-  const onLine=guiding('ex',k)&&!S.player.ctx.objs&&!!S.player.ctx.sg===SGN;
-  const mainBtn=`<button class="tealbtn${e.theme===2?' t2':''}" style="${BTN}" onclick="${onLine?"go('player')":`startExGuide('${k}',${SGN})`}">${onLine?`<span class="eq go" aria-hidden="true"><i></i><i></i><i></i></span>${SGN?'手語導覽中':'正在導覽中'}`:(SGN?'開始手語導覽':'開始導覽')}</button>`;
+  const onLine=guiding('ex',k)&&!S.player.ctx.objs&&!!S.player.ctx.sg===SGN;   /* 2026-11-20 留言：這檔已經在導覽中＝主按鈕停用（迷你播放器就是入口），往下捲也不在底部再跳出這顆 */
+  const mainBtn=`<button class="tealbtn${e.theme===2?' t2':''}" style="${BTN}${onLine?';opacity:.45;cursor:default':''}" ${onLine?'disabled aria-disabled="true"':`onclick="startExGuide('${k}',${SGN})"`}>${onLine?`<span class="eq go" aria-hidden="true"><i></i><i></i><i></i></span>${SGN?'手語導覽中':'正在導覽中'}`:(SGN?'開始手語導覽':'開始導覽')}</button>`;
   const cta=noGuide?'':`<div style="display:grid;grid-template-columns:1fr;gap:10px">${mainBtn}</div>`;
   return `<div class="scr"><div class="scroll">
     ${hero}
@@ -1751,7 +1751,7 @@ function scrEx(){
           <div class="t"><span>${it(id).no?'#'+it(id).no:''}</span><b>${n}</b></div></button>`).join('')}</div></div>`}
     ${exReviews(k)}</div>
     <div id="exSpacer" data-base="${S.player?104:96}" style="height:${S.player?104:96}px"></div>
-  </div>${exHeader(e,true)}<div class="excta${S.player?' wm':''}" id="exCtaFix" aria-hidden="true" inert>${cta}</div>${miniDock()}</div>`;
+  </div>${exHeader(e,true)}${onLine?'':`<div class="excta${S.player?' wm':''}" id="exCtaFix" aria-hidden="true" inert>${cta}</div>`}${miniDock()}</div>`;
 }
 /* ---------- 主題路線 ---------- */
 function openRoute(k){ S.plan={k, n:ROUTES[k].list.length, rt:true}; S.sheet='plan'; render(); }   /* 2026-11-17：主題路線跟展覽卡片做出區隔——先問打算花多少時間，再排出站點 */
