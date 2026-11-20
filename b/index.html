@@ -783,9 +783,9 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 /* ── 2026-11-20 留言：地圖點位統一視覺語言（像一家人）──────────────────────────────
    同一組規格：圓頭 28px、外框 2px、圖示 16px、同一個陰影。
    導覽點位／聚集＝品牌色實心＋白框＋白色圖示＋尖尾；設施＝白底＋品牌色框＋品牌色圖示（不加內圈）；帶我去 A／B＝紅／金實心＋白框。 */
-.mpin,.mclu{min-width:28px;height:28px;border-radius:14px;border:2px solid #fff;padding:0 3px;margin-top:-7px;filter:drop-shadow(0 2px 4px rgba(15,25,30,.3))}
+.mpin,.mclu{min-width:28px;height:28px;border-radius:14px;border:0;padding:0 3px;margin-top:-7px;filter:drop-shadow(0 2px 4px rgba(15,25,30,.3))}
 .mpin.neu,.mpin.vo,.mclu{width:28px;padding:0}
-.mpin::after,.mclu::after{top:calc(100% - 1px);width:12px;height:9px;margin-left:-6px}
+.mpin::after,.mclu::after{top:calc(100% - 2px);width:12px;height:9px;margin-left:-6px}   /* 2026-11-20 留言：導覽點位不加白框；尾巴上緣疊進圓頭 2px，不留縫 */
 .mpin .ico,.mclu .ico{width:14px;height:14px} .pdot{width:8px;height:8px}
 .mpin{font-size:12px}
 .mfac,.wpl.ico{width:28px;height:28px;border-radius:14px;border:2px solid var(--teal7);background:#fff;box-shadow:none;filter:drop-shadow(0 2px 4px rgba(15,25,30,.3))}
