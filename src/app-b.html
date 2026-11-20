@@ -54,6 +54,7 @@ img{display:block}
 .nav .c{flex:1;min-width:0;text-align:center;font-weight:500;font-size:18px;line-height:1.4;letter-spacing:.45px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nav.dark .c{color:#fff}
+.maphead .nav .c .flsub{display:block;font-size:12px;font-weight:500;line-height:1.3;letter-spacing:.3px;color:var(--text2);overflow:hidden;text-overflow:ellipsis}
 .maphead .nav .l,.maphead .nav .r{flex:1 1 0;width:auto;min-width:0} .maphead .nav .c{flex:0 1 auto;max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}   /* 2026-11-11 留言：地圖標題置中——左右兩側等寬，標題永遠在正中間 */
 .tealbtn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 24px;border-radius:20px;
   background:var(--teal5);border:.75px solid var(--teal7);box-shadow:0 1px 3px rgba(25,25,25,.4);color:#fff;font-weight:500;font-size:14px;line-height:normal;overflow:hidden}
@@ -3103,10 +3104,9 @@ function scrMap(){ if(fvOn()&&S.fx) S.fx=null;   /* 2026-11-19 留言：全館�
     ${M?`<div class="mzoom"><button onclick="mapZoom(1.3)" aria-label="放大地圖">${MI('M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z',18,'#3C3C3C')}</button><button onclick="mapZoom(1/1.3)" aria-label="縮小地圖">${MI('M19 13H5v-2h14v2z',18,'#3C3C3C')}</button></div>`:''}
     ${M&&f!=='site'?facBar(vOK):''}
     <div class="maphead">${S.mapSheet&&!(S.mapStack&&S.mapStack.length)?`<h2 class="mstitle">${({'1F':'1F 大廳','2F':'2F 常設展廳','4F':'4F 特展室','site':'全區地圖'})[f]||f}</h2>`:S.mapAll&&!S.mapOnly?topBar(navTitle,true):`<div class="nav dark"><div class="l"><button onclick="back()" aria-label="${S.mapSheet&&!(S.mapStack&&S.mapStack.length)?'關閉地圖':'返回上一層'}">${S.mapSheet&&!(S.mapStack&&S.mapStack.length)?MI(MD.close,24,'#fff'):img('ic-back-white2.svg',24,24)}</button></div>
-      <div class="c">${navTitle}</div><div class="r">${navIcons(true)}</div></div>`}</div>   <!-- 全館地圖＝頂層頁：用跟首頁同位置的標頭 -->
+      <div class="c">${navTitle}${(S.exOnly&&!wy||rtFloors&&rtFloors.length<2)&&f!=='site'?`<small class="flsub">${f}・${(S.exOnly&&ROOMS4[S.exOnly]&&f==='4F')?ROOMS4[S.exOnly].name:({'1F':'大廳','2F':'常設展廳','4F':'特展室'})[f]||''}</small>`:''}</div><div class="r">${navIcons(true)}</div></div>`}</div>   <!-- 2026-11-20 留言：只有一層的地圖把樓層寫在標題下方（資訊，不像按鈕） -->   <!-- 全館地圖＝頂層頁：用跟首頁同位置的標頭 -->
     ${S.mapOnly?'':miniDock()}
-    ${S.exOnly&&!wy||rtFloors&&rtFloors.length<2?`<div class="floorsel"><div class="flrail flone" role="note" aria-label="目前樓層 ${f==='site'?'全區':f}"><span class="on">${f==='site'?'全區':f}</span></div></div>`   /* 2026-11-20 留言：只有一層的地圖（展覽、主題路線）也標出現在在幾樓，只是不能切換 */
-      :`<div class="floorsel"><div class="flrail" role="group" aria-label="切換樓層，目前 ${f==='site'?'全區':f}">${[['4F','特展室'],['2F','常設展廳'],['1F','大廳・服務台'],...(S.way?[]:[['site','園區・停車・交通']])].filter(([x])=>!rtFloors||rtFloors.includes(x)).map(([x,d])=>x==='3F'?`<span class="no3" role="note" title="${S.lang==='en'?'No 3F — 2F is double-height up to 4F':'沒有 3F：2F 挑高直通 4F'}" aria-label="${S.lang==='en'?'No 3F — 2F is double-height up to 4F':'沒有 3F：2F 挑高直通 4F'}">3F</span>`:`<button class="${x===f?'on':''}" ${x===f?'aria-current="true"':''} aria-label="${x==='site'?'全區':x}・${d}" onclick="flSwitch('${x}')">${x==='site'?'全區':x}</button>`).join('')}</div></div>`}   <!-- 2026-11-11 留言：樓層改成 A 版的做法，直排放在地圖左側；從展覽進來只看單一樓層時不顯示樓層列 -->
+    ${S.exOnly&&!wy||rtFloors&&rtFloors.length<2?'':`<div class="floorsel"><div class="flrail" role="group" aria-label="切換樓層，目前 ${f==='site'?'全區':f}">${[['4F','特展室'],['2F','常設展廳'],['1F','大廳・服務台'],...(S.way?[]:[['site','園區・停車・交通']])].filter(([x])=>!rtFloors||rtFloors.includes(x)).map(([x,d])=>x==='3F'?`<span class="no3" role="note" title="${S.lang==='en'?'No 3F — 2F is double-height up to 4F':'沒有 3F：2F 挑高直通 4F'}" aria-label="${S.lang==='en'?'No 3F — 2F is double-height up to 4F':'沒有 3F：2F 挑高直通 4F'}">3F</span>`:`<button class="${x===f?'on':''}" ${x===f?'aria-current="true"':''} aria-label="${x==='site'?'全區':x}・${d}" onclick="flSwitch('${x}')">${x==='site'?'全區':x}</button>`).join('')}</div></div>`}   <!-- 2026-11-11 留言：樓層改成 A 版的做法，直排放在地圖左側；從展覽進來只看單一樓層時不顯示樓層列 -->
     ${sheet}</div>`;
 }
 /* 從展覽進來的地圖（S.exOnly）只看該展覽所在樓層：樓層鈕改成不能點的標示 */
