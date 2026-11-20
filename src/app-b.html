@@ -780,6 +780,20 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .starbtn{width:44px;height:44px;font-size:30px;line-height:1;color:#D8D2C6}.starbtn.on{color:var(--gold-mid)}
 .tgl{width:44px;height:26px;border-radius:13px;background:#D8D2C6;position:relative;flex:0 0 44px;transition:background .2s}.tgl i{position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}.tgl.on{background:var(--teal7)}.tgl.on i{transform:translateX(18px)}
 .sitemap section h2{font-weight:700;font-size:16px;color:var(--ink);padding-bottom:6px;border-bottom:1px solid var(--border)}.sitemap ul{list-style:none;margin:0;padding:0}.sitemap li button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;text-align:left;font-size:15px;color:var(--text);border-bottom:1px solid var(--line)}
+/* ── 2026-11-20 留言：地圖點位統一視覺語言（像一家人）──────────────────────────────
+   同一組規格：圓頭 28px、外框 2px、圖示 16px、同一個陰影。
+   導覽點位／聚集＝品牌色實心＋白框＋白色圖示＋尖尾；設施＝白底＋品牌色框＋品牌色圖示（不加內圈）；帶我去 A／B＝紅／金實心＋白框。 */
+.mpin,.mclu{min-width:28px;height:28px;border-radius:14px;border:2px solid #fff;padding:0 3px;margin-top:-7px;filter:drop-shadow(0 2px 4px rgba(15,25,30,.3))}
+.mpin.neu,.mpin.vo,.mclu{width:28px;padding:0}
+.mpin::after,.mclu::after{top:calc(100% - 1px);width:12px;height:9px;margin-left:-6px}
+.mpin .ico,.mclu .ico{width:14px;height:14px} .pdot{width:8px;height:8px}
+.mpin{font-size:12px}
+.mfac,.wpl.ico{width:28px;height:28px;border-radius:14px;border:2px solid var(--teal7);background:#fff;box-shadow:none;filter:drop-shadow(0 2px 4px rgba(15,25,30,.3))}
+.mfac .ico,.wpl.ico .ico{width:16px;height:16px}
+.wpl.ico i{width:auto;height:auto;background:none;border-radius:0}
+.mfac.on{background:var(--teal7);border-color:#fff}
+.wsel b{width:28px;height:28px;border-radius:14px;border:2px solid #fff;font-size:13px;box-shadow:none;filter:drop-shadow(0 2px 4px rgba(15,25,30,.3))}
+.wsel.a b{box-shadow:none} .wsel span:empty{display:none}
 </style>
 
 
@@ -2071,7 +2085,7 @@ function endCard(){ const p=S.player, list=ctxList(p.ctx), i=p.ctx.type==='route
   const tw=nx&&S.tour&&PINS[S.floor]&&PINS[S.floor][nx]; if(!nx&&!tw) return p.ctx.type==='ex'?nextExCard(p.ctx.key):'';   /* 第 1 輪測試 T8：聽完一檔，提示同一層的下一檔 */   /* 第 1 輪測試修正：評分移到上方 banner，這裡只留下一則按鈕；都沒有就不佔位置 */
   return `<div class="gp" style="gap:8px">
     ${nx?`<button class="nextbtn" onclick="step(1)">下一${sUnit(p.ctx)}：${it(nx).n}${p.ctx.type==='route'?'（'+gKind(it(nx))+'）':''} ${MI('M8 5v14l11-7z',16,'#fff')}</button>`:''}
-    ${nx&&S.tour&&PINS[S.floor]&&PINS[S.floor][nx]?`<button class="nextbtn" style="background:var(--tealL);color:var(--teal7)" onclick="back();setTimeout(tourNext,500)">還沒走到？帶我去 ${it(nx).no}・約 ${pinMeters(p.id,nx)} 公尺</button>`:''}</div>`; }   /* 現場：先走到下一件再聽 */
+    ${nx&&S.tour&&PINS[S.floor]&&PINS[S.floor][nx]?`<button class="nextbtn" style="background:var(--tealL);color:var(--teal7)" onclick="back();setTimeout(tourNext,500)">還沒走到？帶我去 ${it(nx).no?it(nx).no+'・':''}約 ${pinMeters(p.id,nx)} 公尺</button>`:''}</div>`; }   /* 現場：先走到下一件再聽 */
 /* 同展區其他導覽點：同一檔展覽、同一個展區的其他展品，可直接點播（掃 QR 進來的人站在展區裡，接著聽旁邊的） */
 function zoneMates(){ return '';   /* 2026-11-11 留言：拿掉「同展區其他導覽點」 */
   const p=S.player; if(p.ctx.type==='pre') return '';   /* 參觀前先聽多半不在館內，不列展區 */
@@ -2710,12 +2724,12 @@ function mapTap(ev){ const w=S.way; if(w&&w.step==='a'){ const r=ev.currentTarge
   setHere((ev.clientX-r.left-v.x)/v.s, (ev.clientY-r.top-v.y)/v.s); toast('已標出你的位置，可以拖曳調整'); }
 /* 帶我去：進到獨立模式，① 選起點 A ② 選目的地 B ③ 看路線；目的地先帶入按下帶我去的那一項，可以改 */
 function startNav(id){ const f=S.floor, pl=id&&id.startsWith('p:')?PLACES[id.split(':')[1]][+id.split(':')[2]]:null, t=!pl&&id&&navTarget(id);
-  const b=pl?{fl:id.split(':')[1],x:pl[2],y:pl[3],name:`${id.split(':')[1].replace('site','戶外')} ${pl[1]}`,key:id}:t?{fl:f,x:t.x,y:t.y,name:id==='entry'?t.name:`${t.no}・${t.name}`,id,key:id==='entry'?'entry':'x:'+id}:null;
-  let a=hereOn()?{fl:f,x:S.here.x,y:S.here.y,name:S.tour&&S.player?`剛聽完 ${it(S.player.id).no}・${it(S.player.id).n}`:'我的位置',key:'here'}:null;   /* 現場導覽中：起點就是剛聽完的那件 */
+  const b=pl?{fl:id.split(':')[1],x:pl[2],y:pl[3],name:`${id.split(':')[1].replace('site','戶外')} ${pl[1]}`,key:id}:t?{fl:f,x:t.x,y:t.y,name:id==='entry'?t.name:`${t.no?t.no+'・':''}${t.name}`,id,key:id==='entry'?'entry':'x:'+id}:null;
+  let a=hereOn()?{fl:f,x:S.here.x,y:S.here.y,name:S.tour&&S.player?`剛聽完 ${it(S.player.id).no?it(S.player.id).no+'・':''}${it(S.player.id).n}`:'我的位置',key:'here'}:null;   /* 現場導覽中：起點就是剛聽完的那件 */
   /* 第 1 輪測試修正：從播放器／導覽中的地圖進帶我去，起點自動帶入正在聽的那一站（同一層、而且目的地不是它自己）；要改可按「更改」 */
   const pp=S.player&&PINS[f]&&PINS[f][S.player.id];
   /* 2026-11-20 留言：只在「照順序導覽中」或播放器開的地圖才自動帶起點；一般地圖、主題路線地圖背景有迷你播放器時不帶，起點一律在地圖上選（正在聽的那件不一定是人現在站的位置） */
-  if(!a&&pp&&(S.tour||S.mapOnly)&&!(b&&b.key==='x:'+S.player.id)) a={fl:f,x:pp[0],y:pp[1],name:`正在聽 ${it(S.player.id).no}・${it(S.player.id).n}`,id:S.player.id,key:'x:'+S.player.id};
+  if(!a&&pp&&(S.tour||S.mapOnly)&&!(b&&b.key==='x:'+S.player.id)) a={fl:f,x:pp[0],y:pp[1],name:`正在聽 ${it(S.player.id).no?it(S.player.id).no+'・':''}${it(S.player.id).n}`,id:S.player.id,key:'x:'+S.player.id};
   S.wayPins=false; S.way={step:a&&b?'route':a?'b':'a', a, b, bPre:!!b, from:f, mapOnly:S.mapOnly}; S.arrived=null; S.facFind=null;   /* 第 1 輪測試修正：已有起點就直接選目的地 */ S.mapSel=null; S.nav=null; S.navPending=null; S.herePick=false;
   wayFit(); render(); }
 function wayFit(){ const w=S.way, f=S.floor; S.mv=S.mv||{}; S.mv[f]=fitV(mapOf(f).fit);
@@ -2735,7 +2749,7 @@ function wayZoomRoute(){ const f=S.floor, to=wayRouteView(f); if(!to) return; co
 function wayGo(fl){ if(fl===S.floor) return; S.ftPrev=['1F','2F','4F'].indexOf(S.floor); S.floor=fl; wayFit(); }
 /* 點地圖上的設施或展品：依目前步驟設成起點或目的地 */
 function waySel(k){ const w=S.way; if(!w||w.step==='route') return; const f=S.floor; let pt;
-  if(k.startsWith('x:')){ const id=k.slice(2), p=PINS[f][id]; pt={fl:f,x:p[0],y:p[1],name:`${it(id).no}・${it(id).n}`,id,key:k}; }
+  if(k.startsWith('x:')){ const id=k.slice(2), p=PINS[f][id]; pt={fl:f,x:p[0],y:p[1],name:`${it(id).no?it(id).no+'・':''}${it(id).n}`,id,key:k}; }
   else { const [t,n,x,y]=PLACES[f][+k.split(':')[2]]; pt={fl:f,x,y,name:`${f.replace('site','戶外')} ${n}`,key:k}; }
   w[w.step]=pt; render(); }
 function wayNext(){ const w=S.way; if(w.step==='b'&&!w.a){ w.step='a'; S.mv[S.floor]=fitV(mapOf(S.floor).fit); return render(); }   /* 2026-11-11 留言：先改了目的地、還沒標起點 → 回去標起點，不會卡住 */
@@ -2795,7 +2809,7 @@ const pathM=(P,fl)=>{ let d=0; for(let i=1;i<P.length;i++) d+=Math.hypot(P[i][0]
 function wayLayer(f, anchor){ const w=S.way; if(!w) return ''; const sel=[w.a,w.b].filter(p=>p&&p.fl===f);
   const near=(x,y)=>sel.some(p=>Math.abs(p.x-x)<8&&Math.abs(p.y-y)<8);
   const pick=w.step!=='route';
-  const places=pick&&S.wayPins?(PLACES[f]||[]).map(([t,n,x,y],i)=>near(x,y)?'':anchor(x,y,'wpl ico',`<i>${MI(PL_IC[t],14,'#2E5C6E')}</i>`,`role="button" tabindex="0" aria-label="${n}" onclick="event.stopPropagation();waySel('p:${f}:${i}')"`)).join(''):'';
+  const places=pick?(PLACES[f]||[]).map(([t,n,x,y],i)=>near(x,y)?'':anchor(x,y,'wpl ico',`<i>${MI(PL_IC[t],16,'#2E5C6E')}</i>`,`role="button" tabindex="0" aria-label="${n}" onclick="event.stopPropagation();waySel('p:${f}:${i}')"`)).join(''):'';
   const P=w.step==='route'?wayPath(f):[], E=ELEV[f];
   const line=P.length?`<svg id="mnav" class="mnav" aria-hidden="true"><polyline points="${P.map(([x,y])=>toScr(x,y).join(',')).join(' ')}" fill="none" stroke="#2E5C6E" stroke-width="4" stroke-dasharray="2 8" stroke-linecap="round" stroke-linejoin="round"/></svg>`:'';
   const seq=wayFls(), si=seq.indexOf(f), FN={site:'戶外','1F':'1F','2F':'2F','4F':'4F'};
@@ -2813,7 +2827,7 @@ function waySheet(){ const w=S.way, st=w.step, ph={a:'在地圖上標出你在�
   const tap=MI('M9 11.24V7.5a2.5 2.5 0 0 1 5 0v3.74c1.21-.81 2-2.18 2-3.74a4.5 4.5 0 0 0-9 0c0 1.56.79 2.93 2 3.74zm9.84 4.63-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6a1.5 1.5 0 0 0-3 0v10.74l-3.43-.72a1.13 1.13 0 0 0-1.02 1.9l4.01 4.01c.27.27.65.44 1.06.44h6.79c.75 0 1.33-.55 1.44-1.28l.75-5.27c.1-.69-.26-1.33-.86-1.59z',14,'#6B7A80');
   if(st!=='route'){ const ok=st==='a'?!!w.a:!!w.b;
     return `<div class="zonesheet navsheet" role="dialog" aria-label="帶我去：選${st==='a'?'起點':'目的地'}">${card}
-      <p class="whint">${tap}<span>${st==='a'?`點地圖放紅色圖釘，可以拖曳調整${S.wayPins?'；也可以直接點設施或展品':'；按右上「顯示點位」可以直接點設施或展品'}`:S.wayPins?'點地圖上「發亮」的展品或設施，就會設成目的地；用左側樓層選別層':'按右上「顯示點位」，再點展品或設施設成目的地；用左側樓層選別層'}</span></p>
+      <p class="whint">${tap}<span>${st==='a'?`點地圖放紅色圖釘，可以拖曳調整；也可以直接點設施${S.wayPins?'或展品':'（要點展品請按上方「顯示導覽點位」）'}`:`點地圖上「發亮」的設施${S.wayPins?'或展品':''}，就會設成目的地${S.wayPins?'':'；要選展品請按上方「顯示導覽點位」'}；用左側樓層選別層`}</span></p>
       <div class="wbtns"><button class="tealbtn soft pickok" onclick="wayBack()">${st==='a'?'取消':'上一步'}</button><button class="tealbtn pickok" ${ok?'':'disabled'} onclick="wayNext()">${st==='a'&&!(w.bPre&&w.b)?'下一步：選目的地':st==='b'&&!w.a?'下一步：選起點':'看路線'}</button></div></div>`; }
   const a=w.a, b=w.b, FS=wayFls(), cross=FS.length>1, tot=FS.reduce((n2,f)=>n2+pathM(wayPath(f),f),0), onA=S.floor!==FS[FS.length-1], min=Math.max(1,Math.ceil(tot/60))+(FS.length-1);   /* 2026-11-18：可能有三段（樓層→1F→戶外），距離與時間照全部段數加總 */
   const FN2={site:'戶外','1F':'1F','2F':'2F','4F':'4F'}, ci=Math.max(0,FS.indexOf(S.floor));
@@ -2853,7 +2867,7 @@ function guideSheet(){ const p=S.player, x=it(p.id), nx=tourNextId();
   return `<div class="zonesheet navsheet" role="status" aria-live="polite">${closeX('S.tour=null;render()','關閉，先自己逛')}
     <div style="padding:0 24px;display:flex;flex-direction:column;gap:10px">
       <span class="navk">${isTxt(p.id,p.ctx)?'正在閱讀':p.playing?'正在聽':'剛聽完'}・${x.no} ${x.n}</span>
-      <b class="navt">${nx?`下一件：${it(nx).no}・${it(nx).n}`:'這個展區的導覽都聽完了'}</b>
+      <b class="navt">${nx?`下一件：${it(nx).no?it(nx).no+'・':''}${it(nx).n}`:'這個展區的導覽都聽完了'}</b>
       <p style="font-size:13px;color:var(--text2)">${nx?`離這裡約 ${pinMeters(p.id,nx)} 公尺，地圖上白底的點位`:'可以點地圖上的其他展品，或回展覽頁看看別的展區'}</p>
       <div style="display:flex;gap:10px;margin-top:4px">
         <button class="tealbtn soft" onclick="go('player')">展開播放器</button>
@@ -2864,7 +2878,7 @@ function arrivedSheet(){ const ex=S.arrived, f=firstOf(ex), x=f&&it(f);
       <span class="navk">已到 ${S.floor} ${mapOf(S.floor).name}入口</span>
       <div style="display:flex;gap:12px;align-items:center">
         ${x?`<img src="${A(x.img)}" alt="" style="width:64px;height:64px;border-radius:10px;object-fit:cover;flex:0 0 64px">`:''}
-        <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><b class="navt" style="margin:0">第一件：${x?`${x.no}・${x.n}`:''}</b>
+        <div style="display:flex;flex-direction:column;gap:4px;min-width:0"><b class="navt" style="margin:0">第一件：${x?`${x.no?x.no+'・':''}${x.n}`:''}</b>
           <p style="font-size:13px;color:var(--text2)">${FIRST_HINT[S.floor]||''}</p></div></div>
       ${(()=>{ const e=navTarget('entry'), p=PINS[S.floor][f], far=e&&p&&(Math.abs(e.x-p[0])+Math.abs(e.y-p[1]))*.05>15;   /* 第一件離入口遠：先帶路；近：給照片對展櫃 */
         return far?`<div style="display:flex;gap:10px;margin-top:2px">
@@ -3077,7 +3091,7 @@ function scrMap(){ if(fvOn()&&S.fx) S.fx=null;   /* 2026-11-19 留言：全館�
   return `<div class="scr${S.player&&!S.mapSheet&&!S.mapOnly&&!pk&&!wy?' withmini':''}${S.mapOnly&&!wy?' maponly':''}${S.mapAll&&!S.mapOnly?' maptop':''}${fv4All()?' fv4':''}${S.facFind&&!wy&&FAC_TYPES[S.facFind]?' facmode':''}${pk?' pickmode':''}${wy?' waymode way-'+S.way.step:''}" style="background:${mbg}${wy?`;--wh:${wayH(S.way)}px`:''}">
     <div class="mapwrap${S.herePick?' picking':''}" style="background:${mbg}" onclick="mapTap(event)">${mapLayer}${pk?`<div class="pickpin" aria-hidden="true"><span>拖動地圖，對準你站的地方</span><i></i></div>`:''}</div>
     ${wy?`<div class="pickhead${S._wayIn?' phin':''}" role="banner"><div><b>帶我去</b><small>${wt[S.way.step]}</small></div><button onclick="wayClose()" aria-label="關閉帶我去">${MI(MD.close,22,'#fff')}</button></div>
-    <button class="facchip waypin${S.wayPins?' on':''}" aria-pressed="${!!S.wayPins}" onclick="S.wayPins=!S.wayPins;render()">${MI('M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',14,S.wayPins?'#fff':'#2E5C6E')}${S.wayPins?'隱藏點位':'顯示點位'}</button>`:''}   <!-- 2026-11-20 留言：帶我去預設隱藏導覽點位（只看路線與設施），可切換顯示 -->
+    <button class="facchip waypin${S.wayPins?' on':''}" aria-pressed="${!!S.wayPins}" onclick="S.wayPins=!S.wayPins;render()">${MI('M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',14,S.wayPins?'#fff':'#2E5C6E')}${S.wayPins?'隱藏導覽點位':'顯示導覽點位'}</button>`:''}   <!-- 2026-11-20 留言：帶我去預設隱藏導覽點位；設施一直都在，開關只管導覽點位 -->
     ${pk?`<div class="pickhead" role="banner"><div><b>標出你的位置</b><small>標好就幫你畫路線</small></div><button onclick="endNav()" aria-label="取消，不帶路">${MI(MD.close,22,'#fff')}</button></div>`:''}
     ${M?`<div class="mzoom"><button onclick="mapZoom(1.3)" aria-label="放大地圖">${MI('M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z',18,'#3C3C3C')}</button><button onclick="mapZoom(1/1.3)" aria-label="縮小地圖">${MI('M19 13H5v-2h14v2z',18,'#3C3C3C')}</button></div>`:''}
     ${M&&f!=='site'?facBar(vOK):''}
