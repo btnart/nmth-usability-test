@@ -1871,7 +1871,7 @@ function guideProgress(c){
   const p=c?{ctx:c}:S.player; if(!p) return '';
   if(!c&&p.ctx.type==='route'){ const rl=ctxList(p.ctx), ST=rl.length, n=p.ctx.idx+1, nx=rl[p.ctx.idx+1];
     return `<div class="gp"><div class="row"><span class="n">${n}／${ST} 站</span>
-      <span class="s">${nx?'下一站：'+it(nx).n:'最後一站'}</span></div><div class="tr"><i style="width:${n/ST*100}%"></i></div></div>`; }
+</div><div class="tr"><i style="width:${n/ST*100}%"></i></div></div>`; }
   const list=ctxList(p.ctx), hs=S.heard[p.ctx.key]||new Set(), total=list.length, heard=list.filter(id=>hs.has(id)).length;   /* 跟導覽列表同一份資料，數字對得上 */
   /* 2026-11-18：導覽形式不一定是語音，「已讀／已聽」講不準；進度只留數字與單位，靠左 */
   return `<div class="gp"><div class="row"><span class="n">${Math.min(heard,total)}／${total} ${sUnit(p.ctx)}</span></div><div class="tr"><i style="width:${Math.min(heard,total)/total*100}%"></i></div></div>`;
