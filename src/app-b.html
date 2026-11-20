@@ -58,7 +58,8 @@ img{display:block}
 .tealbtn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 24px;border-radius:20px;
   background:var(--teal5);border:.75px solid var(--teal7);box-shadow:0 1px 3px rgba(25,25,25,.4);color:#fff;font-weight:500;font-size:14px;line-height:normal;overflow:hidden}
 .tealbtn::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 2px 0 rgba(255,255,255,.3);pointer-events:none}
-.tealbtn.icon{width:36px;height:36px;padding:0;border-radius:50%}   /* 卡片箭頭改正圓（2026-11-11 留言） */
+.tealbtn.icon{width:36px;height:36px;padding:0;border-radius:50%}
+.tealbtn:disabled,.tealbtn[aria-disabled="true"],.tealbtn.soft:disabled{background:#E3E3E3!important;color:#9A9A9A!important;border-color:transparent!important;box-shadow:none!important;opacity:1!important;cursor:default} .tealbtn:disabled::after{display:none} .tealbtn:disabled .ico{fill:#9A9A9A} .tealbtn:disabled img{filter:grayscale(1) opacity(.45)} .tealbtn:disabled .eq i{background:#9A9A9A!important;border-color:#9A9A9A!important;animation:none!important}   /* 2026-11-20 留言：停用按鈕一律灰階，不是半透明的品牌色 */   /* 卡片箭頭改正圓（2026-11-11 留言） */
 .card{background:#fff;border-radius:24px;box-shadow:0 8px 24px -4px rgba(0,0,0,.14);padding:16px;display:flex;flex-direction:column;gap:10px}
 .cardimg{height:160px;border-radius:18px;position:relative;overflow:hidden}
 .cardimg img{width:100%;height:100%;object-fit:cover}
@@ -161,7 +162,7 @@ button.mapbar{padding:0 16px}
 .rtsw-b{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 8px;font-size:14px;font-weight:500;color:var(--teal7)} .rtsw-b:disabled{color:var(--line);cursor:default}
 .zonesheet.pplay{max-height:50%;display:flex;flex-direction:column;overflow:hidden;padding:0 0 12px} .withmini .zonesheet.pplay{padding-bottom:12px}   /* 2026-11-20 留言：導覽中點點位，面板從迷你播放器後面長出來（播放器留在最上層），看得到的部分仍不超過半個螢幕 */   /* 2026-11-20：半高導覽面板，最高半個螢幕 */
 .pphd{flex:0 0 auto;padding:0 24px;touch-action:none}
-.ppbar{position:relative;height:40px;margin:0 -12px 2px} .ppgrab{position:absolute;left:0;right:0;top:0;height:28px} .ppgrab span{display:block;width:36px;height:4px;border-radius:2px;background:#D1D1D1;margin:8px auto 0} .ppacts{position:absolute;right:0;top:4px;display:flex;gap:2px}
+.ppbar{position:relative;height:24px;margin:0 -12px 2px} .ppway{flex:0 0 auto;align-self:center;min-height:40px;padding:0 14px} .ppgrab{position:absolute;left:0;right:0;top:0;height:28px} .ppgrab span{display:block;width:36px;height:4px;border-radius:2px;background:#D1D1D1;margin:8px auto 0} .ppacts{position:absolute;right:0;top:4px;display:flex;gap:2px}
 .pprow{display:flex;gap:14px;align-items:center} .ppimg{flex:0 0 64px;height:64px;border-radius:10px;overflow:hidden} .ppimg img{width:100%;height:100%;object-fit:cover}
 .ppt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:flex-start} .ppt b{font-weight:700;font-size:17px;line-height:1.3;color:var(--ink)} .ppm{font-size:12px;color:var(--text2)}
 .ppic{width:36px;height:36px;border-radius:18px;display:grid;place-items:center;background:var(--cream)} .ppmeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap} .ppno{font:500 13px Roboto,'Noto Sans TC',sans-serif;color:var(--text2)} .ppmeta .pccap{margin:0}
@@ -641,8 +642,8 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .mini .box.tx .mm{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);white-space:nowrap}
 .mini .box.tx .nx{flex:0 0 44px;width:44px;height:44px;border-radius:22px;background:var(--tealL);display:grid;place-items:center}
 .mini .box.tx .pb{flex:0 0 44px;width:44px;height:44px;border-radius:22px;background:var(--teal7);display:grid;place-items:center}   /* 2026-11-16 留言：播放是主要動作，用實心底跟「下一則」區隔 */
-.mini .box.tx .pb:disabled{opacity:.35}
-.mini .box.tx .nx:disabled{opacity:.35}
+.mini .box.tx .pb:disabled{opacity:1;background:#E3E3E3} .mini .box.tx .pb:disabled .ico{fill:#9A9A9A}
+.mini .box.tx .nx:disabled{opacity:1;background:#EFEFEF} .mini .box.tx .nx:disabled .ico{fill:#B5B5B5}   /* 2026-11-20：停用一律灰階 */
 .mini .box.tx .cx{flex:0 0 32px;width:32px;height:44px;display:grid;place-items:center}
 .mtag{flex:0 0 auto;font-style:normal;background:var(--tealL);color:var(--teal7);font-weight:500;font-size:10px;line-height:1;padding:4px 7px;border-radius:9px}
 .mini .pr b{font-weight:400;font-size:12px;line-height:1.6;letter-spacing:.72px;color:var(--ink)}
@@ -1702,7 +1703,7 @@ function scrEx(){
   const LN=lineOf(k,S.exLine), SGN=!!LN&&LN.key==='sign', noGuide=!LN||!LN.ids.length;   /* 2026-11-18：整頁照「導覽線」畫——從無障礙專區進來是手語線，其他入口都是主線 */
   const tabDefs = [['intro','展覽介紹'],...(noGuide?[]:[['works','導覽列表']]),['rev','評論']];   // 2026-10-29 拿掉常設展的「主題」分頁（主題路線在首頁另有入口）
   const tabs = `<div class="tabs2">${tabDefs.map(([t,l])=>`
-      <button data-sec="${t}" aria-current="${S.exTab===t}" class="${S.exTab===t?'on':''}" onclick="${t==='works'?"S.sheet='exlist';render()":`exJump('${t}')`}">${l}</button>`).join('')}</div>`;   /* 2026-11-20：導覽列表改開底部面板 */
+      <button data-sec="${t}" aria-current="${S.exTab===t}" class="${S.exTab===t?'on':''}" onclick="exJump('${t}')">${l}</button>`).join('')}</div>`;   /* 2026-11-20 留言（更正）：三個分頁一致，點了捲到該區塊；底部清單面板改由區塊右上的「全部 N 則」打開 */
   const tp = `tabpane ${S.tabDir||''}`;
   /* 2026-11-12 留言：主圖改內縮——先是圓角卡片，捲動後才撐成滿版（同首頁）；比較後定案留內縮版 */
   const enName=S.lang==='zh'?(T_EN[e.n]||EN[e.n]||''):'';
@@ -1727,7 +1728,7 @@ function scrEx(){
   const BTN='width:100%;height:48px;padding:0 12px;gap:8px;border-radius:24px;font-size:16px;white-space:nowrap';
   /* 主按鈕：這條線正在導覽中就回播放器，否則從這條線第一則開始；文案不放圖示（2026-11-?? 留言） */
   const onLine=guiding('ex',k)&&!S.player.ctx.objs&&!!S.player.ctx.sg===SGN;   /* 2026-11-20 留言：這檔已經在導覽中＝主按鈕停用（迷你播放器就是入口），往下捲也不在底部再跳出這顆 */
-  const mainBtn=`<button class="tealbtn${e.theme===2?' t2':''}" style="${BTN}${onLine?';opacity:.45;cursor:default':''}" ${onLine?'disabled aria-disabled="true"':`onclick="startExGuide('${k}',${SGN})"`}>${onLine?`<span class="eq go" aria-hidden="true"><i></i><i></i><i></i></span>${SGN?'手語導覽中':'正在導覽中'}`:(SGN?'開始手語導覽':'開始導覽')}</button>`;
+  const mainBtn=`<button class="tealbtn${e.theme===2?' t2':''}" style="${BTN}" ${onLine?'disabled aria-disabled="true"':`onclick="startExGuide('${k}',${SGN})"`}>${onLine?`<span class="eq go" aria-hidden="true"><i></i><i></i><i></i></span>${SGN?'手語導覽中':'正在導覽中'}`:(SGN?'開始手語導覽':'開始導覽')}</button>`;
   const cta=noGuide?'':`<div style="display:grid;grid-template-columns:1fr;gap:10px">${mainBtn}</div>`;
   return `<div class="scr"><div class="scroll">
     ${hero}
@@ -2689,7 +2690,8 @@ function mapMount(){ flFadeIn(); if(S._fxFocus){ S._fxFocus=false; setTimeout(fx
       if(!st.moved){ st.moved=true; try{w.setPointerCapture(e.pointerId);}catch(_){} } v.x=st.v.x+dx; v.y=st.v.y+dy; }
     mapClamp(); placePins(); };
   const up=e=>{ pts.delete(e.pointerId); const mv=st&&st.moved; if(mv) dragT=Date.now(); st=pts.size?snap():null; if(st) st.moved=true;
-    if(mv&&!pts.size&&S.zsFull&&!S.mapSel){ S.zsFull=false; render(); } };   /* 方案 1：拖曳地圖放手後，展開的清單自動降回矮版（只降不升） */
+    if(mv&&!pts.size&&S.zsFull&&!S.mapSel){ S.zsFull=false; render(); }
+    if(!mv&&!pts.size&&ppOn()&&e.target&&!e.target.closest('button,a,.mpin,.mclu,.mchip,.exent,.mfac,.wsel,.zonesheet,.facbar,.floorsel,.mzoom')) pinBack(); };   /* 2026-11-20：半高面板沒有關閉鈕了——點地圖空白處、往下拉、再點一次同一個點位都能收合 */   /* 方案 1：拖曳地圖放手後，展開的清單自動降回矮版（只降不升） */
   w.onpointerup=up; w.onpointercancel=up;
   w.addEventListener('click',ev=>{ if(Date.now()-dragT<300){ ev.stopPropagation(); ev.preventDefault(); } },true);   /* 拖完放手不要誤點點位 */
   w.onwheel=e=>{ e.preventDefault(); const p=rel(e); mapZoom(e.deltaY<0?1.12:1/1.12, p.x, p.y); };
@@ -2968,8 +2970,8 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
   const cap=sg?`<span class="pccap sg">${SIGN_IC}手語影片 ${mmss(x.d)}</span>`:tx?'':`<span class="pccap">${MI(MD.head,14,'#5F5F5F')}語音 ${mmss(x.d)}</span>`;
   const txt=(x.txt||'').split('\n').filter(Boolean).map(t=>`<p>${t}</p>`).join('')||`<p style="color:var(--text2)">${x.n}</p>`;
   const pct=live?Math.min(100,P.pos/x.d*100):0;
-  const way=`<button class="waybtn" style="min-height:44px" onclick="startNav('${id}')" aria-label="帶我去 ${x.n}">${MI(MD.nav,16,'#2E5C6E')}帶我去</button>`;
-  const ctl=tx?`<button class="tealbtn soft" style="flex:1;min-height:44px;border-color:transparent" onclick="ppExpand('${id}')">${rk0?'單點導覽・看全文':'看全文'}</button>`
+  const way=`<button class="waybtn ppway" onclick="startNav('${id}')" aria-label="帶我去 ${x.n}">${MI(MD.nav,16,'#2E5C6E')}帶我去</button>`;
+  const ctl=tx?''   /* 2026-11-20 留言：文字導覽在面板裡就能捲完全文，不另放「看全文」 */
     :sg?`<button class="tealbtn" style="flex:1;min-height:44px" onclick="ppExpand('${id}')">${MI('M8 5v14l11-7z',18,'#fff')}看手語影片</button>`
     :live?`<button class="pb" onclick="ppToggle()" aria-label="${P.playing?'暫停':'播放'}">${MI(P.playing?MD.pause:'M8 5v14l11-7z',24,'#fff')}</button>
       <div class="ppprog"><div class="tr"><i id="ppFill" style="width:${pct}%"></i></div><div class="tt"><span id="ppNow">${mmss(P.pos)}</span><span id="ppLeft">-${mmss(x.d-P.pos)}</span></div></div>`
@@ -2977,13 +2979,12 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
   const nav=rk0?rtSwitch(rk0,id):L.length>1?`<div class="rtsw">${[[-1,'上一'+U],[1,'下一'+U]].map(([d,lab])=>`<button class="rtsw-b" ${L[i+d]?`onclick="ppStep(${d})"`:'disabled'} aria-label="${lab}${L[i+d]?'：'+it(L[i+d]).n:''}">${d<0?MI('M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',20,'currentColor'):''}${lab}${d>0?MI('M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z',20,'currentColor'):''}</button>`).join(`<span>${i+1}／${L.length}</span>`)}</div>`:'';
   return `<div class="zonesheet pincard pplay" role="dialog" aria-label="${x.n}">
     <div class="pphd" ontouchstart="ppTS(event)" ontouchend="ppTE(event,'${id}')">   <!-- 2026-11-20 留言：操作列（拉桿、展開、關閉）獨立一排在最上面，跟下方的資料分開；編號跟語音膠囊同一排 -->
-      <div class="ppbar"><button class="ppgrab" onclick="ppExpand('${id}')" aria-label="展開成完整導覽內頁"><span></span></button>
-        <div class="ppacts"><button class="ppic" onclick="ppExpand('${id}')" aria-label="展開成完整導覽內頁">${MI('M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z',22,'#3C3C3C')}</button>
-        <button class="ppic" onclick="pinBack()" aria-label="收合">${MI(MD.close,20,'#3C3C3C')}</button></div></div>
+      <div class="ppbar"><button class="ppgrab" onclick="ppExpand('${id}')" aria-label="展開成完整導覽內頁（也可以往上拉；往下拉收合）"><span></span></button></div>   <!-- 2026-11-20 留言：拿掉展開／關閉鈕，只留拉桿：往上拉展開、往下拉收合 -->
       <div class="pprow"><span class="ppimg"><img src="${A(x.img)}" alt=""></span>
-        <div class="ppt">${meta?`<span class="ppm">${meta}</span>`:''}<b>${x.n}</b>${x.no||cap?`<div class="ppmeta">${x.no?`<span class="ppno">#${x.no}</span>`:''}${cap}</div>`:''}</div></div></div>
+        <div class="ppt">${meta?`<span class="ppm">${meta}</span>`:''}<b>${x.n}</b>${x.no||cap?`<div class="ppmeta">${x.no?`<span class="ppno">#${x.no}</span>`:''}${cap}</div>`:''}</div>
+        ${way}</div></div>   <!-- 2026-11-20 留言：帶我去跟縮圖、標題同一排 -->
     <div class="pptx">${txt}</div>
-    <div class="ppctl">${ctl}${way}</div>
+    ${ctl?`<div class="ppctl">${ctl}</div>`:''}
     ${nav}</div>`; }
 function pinCardBasic(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id))||floorEx();   /* 4F「全部」時用展品自己所屬的展覽 */
   if(S.mapOnly) return `<div style="position:absolute;left:20px;right:20px;bottom:28px;z-index:8">   <!-- 2026-11-12 留言：播放器開的地圖面板只留「帶我去」，不放底部面板（關閉面板＝回到播放器） -->
