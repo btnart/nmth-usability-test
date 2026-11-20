@@ -2478,7 +2478,7 @@ function facFit(){ const w=document.querySelector('#app > .scr .mapwrap'), t=S.f
   animView({s:sc, x:W/2-(x0+x1)/2*sc, y:top+ah/2-(y0+y1)/2*sc}); }
 /* 2026-11-19 留言：只顯示設施時，底部提示現在只看得到哪一種設施，按「返回導覽」回到原本的點位 */
 function facHint(){ const [tn,td]=FAC_TYPES[S.facFind];
-  return `<div class="fachint" role="status"><span>${MI(td,16,'#fff')}只顯示${tn}</span><button onclick="facClose()">返回導覽</button></div>`; }
+  return `<div class="fachint" role="status"><span>${MI(td,16,'#fff')}只顯示${tn}</span><button onclick="facClose()">返回</button></div>`; }
 function facClose(){ S.facFind=null; if(S.mapOnly) S.mapSel=S.mapOnly; render(); const pv=S._facPrev; S._facPrev=null; if(pv&&pv.k===S.floor+'|'+S.mapOnly+'|'+S.exOnly) setTimeout(()=>animView(pv.v),0); }   /* 2026-11-12 留言：從單件展品地圖找設施，關掉後回到這件展品的「帶我去」畫面 */
 function facBar(vOK){ return `<div class="facbar" role="group" aria-label="篩選點位與找設施">${vOK?`<button class="facchip${S.pinVoice?' on':''}" aria-pressed="${!!S.pinVoice}" onclick="S.pinVoice=!S.pinVoice;S.mapSel=null;render()">${MI(MD.head,14,S.pinVoice?'#fff':'#2E5C6E')}只看語音導覽</button><span class="facsep" aria-hidden="true"></span>`:''}${Object.entries(FAC_TYPES).map(([t,[n,d]])=>{ const on=S.facFind===t;
   return `<button class="facchip${on?' on':''}" aria-pressed="${on}" onclick="if(S.facFind==='${t}') return facClose(); S.facFind='${t}';S.mapSel=null;S._facFit=true;render()">${MI(d,14,on?'#fff':'#2E5C6E')}找${n}</button>`; }).join('')}</div>`; }
