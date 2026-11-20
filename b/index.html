@@ -1020,7 +1020,10 @@ Object.values(ROUTES).forEach(r=>{ r.list.forEach(id=>{ const x=ITEMS[id];   /* 
     Object.assign(x,{voice:false, tonly:true}); delete x.sign; delete x.sv; delete x.sp; });
   r.meta[0]=rsMeta(r.list); });
 function rtList(k){ return ((S&&S.routePlan)||{})[k] || ROUTES[k].list; }   /* 依「打算花多少時間」規劃出的站點；沒規劃過就是全部站點 */
-['zj','asia'].forEach(k=>EXHIBITIONS[k].items.forEach(id=>{ const x=ITEMS[id]; x.tracks=['中文','英文']; x.voice=true; delete x.sign; delete x.tonly; x.audio='audio-placeholder.m4a'; x.d=28; }));   /* 2026-11-20 留言：兩檔特展的六則導覽改成語音導覽，先放暫用音檔（約 28 秒），之後換館方正式版本 */   /* 2026-11-12 使用者指定：兩檔特展只有中文、英文語音（日韓介面＝只有展品介紹文字） */
+/* 2026-11-20 留言：兩檔特展的六則導覽換成雲端提供的正式音檔（萬相天后：中文、臺灣台語、英文；邊界之外：中文）。秒數是音檔實際長度 */
+const AUD_SET={zj:{中文:['zh',[42,36,41,39,36,42]],臺灣台語:['tw',[62,46,48,48,45,59]],英文:['en',[57,52,49,57,51,55]]}, asia:{中文:['zh',[33,36,31,31,31,33]]}};
+['zj','asia'].forEach(k=>EXHIBITIONS[k].items.forEach((id,i)=>{ const x=ITEMS[id], set=AUD_SET[k]; x.tracks=Object.keys(set); x.voice=true; delete x.sign; delete x.tonly;
+  x.audio={}; x.dur={}; Object.entries(set).forEach(([t,[c,ds]])=>{ x.audio[t]=`audio/${k}-${c}-${i+1}.mp3`; x.dur[t]=ds[i]; }); x.d=x.dur['中文']; }));   /* 2026-11-12 使用者指定：兩檔特展只有中文、英文語音（日韓介面＝只有展品介紹文字） */
 /* Demo A／B（2026-11-12 會議初步結論）：介面是哪個語言，就只顯示那個語言的語音；沒有同語言的語音＝只有展品介紹文字，沒有導覽內容、沒有播放器。
    手語影片＝中文手語，只在中文介面出現（langRule 的展品由 it() 依介面語言換算） */
 const LR_TRACK={zh:'中文',en:'英文',ja:'日文',ko:'韓文'};
@@ -1904,9 +1907,10 @@ SGV.setAttribute('aria-label','手語導覽影片（含中文字幕）'); SGV.di
 SGV.addEventListener('ended',()=>{ const p=S.player; if(p&&p.sign){ p.pos=it(p.id).d; } });
 /* 2026-11-20：語音導覽真的出聲——有 audio 的語音則用 <audio> 播，進度以音檔為準；沒有音檔的照舊模擬 */
 const AUD=new Audio(); AUD.preload='none';
+const audTrack=p=>{ const x=it(p.id), t=trk(x)[p.track||0]; return x.audio&&x.audio[t]?t:Object.keys(x.audio||{})[0]; };   /* 目前選的語音語言對到的音檔 */
 const audOn=()=>{ const p=S.player, x=p&&it(p.id); return !!(p&&x&&x.audio&&!p.sign&&!isTxt(p.id,p.ctx)); };
-function audSync(){ const p=S.player; if(!audOn()){ if(!AUD.paused) AUD.pause(); return; } const src=A(it(p.id).audio)+'#'+p.id;
-  if(AUD.dataset.src!==src){ AUD.dataset.src=src; AUD.src=A(it(p.id).audio); try{ AUD.currentTime=p.pos||0; }catch(e){} }
+function audSync(){ const p=S.player; if(!audOn()){ if(!AUD.paused) AUD.pause(); return; } const t=audTrack(p), x=ITEMS[p.id], file=x.audio[t], src=file+'#'+p.id;
+  if(AUD.dataset.src!==src){ AUD.dataset.src=src; AUD.src=A(file); if(x.dur&&x.dur[t]) x.d=x.dur[t]; try{ AUD.currentTime=p.pos||0; }catch(e){} }   /* 換語言＝換音檔，總長跟著換 */
   AUD.playbackRate=p.speed||1; if(Math.abs((AUD.currentTime||0)-(p.pos||0))>1.5){ try{ AUD.currentTime=p.pos||0; }catch(e){} }
   if(p.playing&&AUD.paused) AUD.play().catch(()=>{}); else if(!p.playing&&!AUD.paused) AUD.pause(); }
 const SGV_HOLD=document.createElement('div'); SGV_HOLD.style.cssText='display:none';   /* 迷你播放器時影片在這裡繼續播（看不到、只留聲音） */
