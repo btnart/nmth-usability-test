@@ -1778,7 +1778,7 @@ function openRouteDirect(k){ S.route=k; openMap('2F','perm',k); }   /* 2026-11-1
 /* 2026-11-20 留言：主題路線的「完成路線／路線完成！繼續探索」拿掉——最後一站跟展覽一樣，下一則停用、播完就停 */
 /* ---------- 播放器 ---------- */
 /* 語音／手語是兩個獨立版本：一般觀眾的導覽佇列只放有語音版的；開了「預設手語」才把手語限定的也排進來 */
-function ctxList(ctx){ if(ctx.type==='pre') return PRE; if(ctx.type==='route') return ctx.one?[ctx.one]:rtGuide(ctx.key);   /* 2026-11-18：路線只播有導覽的站；2026-11-20 留言：單點導覽（ctx.one）清單只有這一站 */
+function ctxList(ctx){ if(ctx.type==='pre') return PRE; if(ctx.type==='route') return ctx.one?[ctx.one]:rtList(ctx.key);   /* 2026-11-20 留言（二）：主題路線的導覽列表＝整條路線（含沒有導覽的站，畫面上提示），點任何站都進這份清單 */   /* 2026-11-18：路線只播有導覽的站；2026-11-20 留言：單點導覽（ctx.one）清單只有這一站 */
   if(ctx.objs) return EXHIBITIONS[ctx.key].items;   /* 從展品列表點進單件展品：在展品之間走 */
   const ln=ctxLine(ctx); if(!ln) return [];
   return (!ctx.sg&&(S.exPlan||{})[ctx.key]) || ln.ids; }   /* 2026-11-18：清單＝這條線的清單 */   /* 手語是導覽語言之一（2026-10-29 定案）：只有手語版的展品不用開「預設手語」也會排進來 */
@@ -1808,7 +1808,7 @@ function play(id, ctx, sign, tab, force){   /* tab：從展品列表點進來時
   if(!ctx) ctx={type:'ex',key:'perm'};
   if(ctx.type==='ex'&&!ctx.sg&&EXHIBITIONS[ctx.key]&&!guideIds(ctx.key).includes(id)&&(EXHIBITIONS[ctx.key].items||[]).includes(id)) ctx=Object.assign({},ctx,{objs:true});
   if(!force&&switchingList(ctx)){ S.pending={id,ctx,sign,tab}; S.sheet='switch'; render(); return; }   /* 2026-11-18：要換到另一份播放清單（別的展覽、主題路線、手語線、展品瀏覽）一律先問，不論從哪個入口點進來 */   /* 2026-11-17：從展品列表／地圖／掃碼點進單件展品時，上一則／下一則在展品之間走；「開始導覽」才走常設展的 30 則單元 */
-  if(ctx.type==='route') ctx.idx=ctx.one?0:rtGuide(ctx.key).indexOf(id);
+  if(ctx.type==='route') ctx.idx=ctx.one?0:rtList(ctx.key).indexOf(id);
   if(sign || S.signPick || ctx.sg) S.gType='sign';   /* 從手語入口進來＝選了手語 */
   const v = pickVersion(id,ctx);
   S.player={id, ctx, pos:0, playing:true, speed:S.player?S.player.speed:1, track:0}; applyVersion(S.player, v); if(S.player.sign) S.player.playing=false;   /* 手語影片先停在預覽畫面 */
@@ -1830,7 +1830,7 @@ function startWalk(k, force){ const p=S.player;
 function walkFocus(){ const id=rtList(S.walk.k)[S.walk.i], p=PINS['2F'][id]; if(p) mapFocus(p[0],p[1]); }
 function walkGo(d){ const l=rtList(S.walk.k); S.walk.i=Math.max(0,Math.min(l.length-1,S.walk.i+d)); S.walkAt[S.walk.k]=S.walk.i; walkFocus(); render(); }
 function walkOpen(){ const k=S.walk.k, i=S.walk.i, id=rtList(k)[i]; S.walkAt[k]=i;
-  if(it(id).guide) play(id,{type:'route',key:k,one:id}); }   /* 2026-11-20：單點導覽只播這一站 */   /* 2026-11-18：只有有導覽的站才播 */
+  play(id,{type:'route',key:k}); }   /* 2026-11-20 留言：進整條路線的導覽列表，停在這一站（沒有導覽的站在畫面上提示） */   /* 2026-11-18：只有有導覽的站才播 */
 function walkSheet(){ const k=S.walk.k, l=rtList(k), i=S.walk.i, x=it(l[i]);
   return `<div class="zonesheet navsheet" role="region" aria-label="走路線">${closeX('S.walk=null;render()','結束走路線')}
     <div style="padding:0 24px;display:flex;flex-direction:column;gap:10px">
@@ -1857,7 +1857,7 @@ function scrStop(){ const k=S.stopRoute, l=rtList(k), id=S.stopId, i=l.indexOf(i
       ${i<l.length-1?`<button class="tealbtn" style="flex:1" onclick="S.walk&&walkGo(1);back()">下一站</button>`:''}</div></div>`; }
 /* 2026-11-18：前後切換的量詞。路線走「站」；從展品列表點進來的單件展品走「件」（ctx.objs），不是導覽的「則」——使用者回報從現正展出瀏覽展品時，
    畫面講「第幾則／下一則」像是在跑導覽，但這條線只是在翻展品介紹 */
-const sUnit=c=>c&&c.objs?'件':'則';   /* 2026-11-18：路線播的是「有導覽的站」的導覽，前後切換也講「則」 */
+const sUnit=c=>c&&c.type==='route'?'站':c&&c.objs?'件':'則';   /* 2026-11-20：路線清單改成整條路線的站，前後切換講「站」 */   /* 2026-11-18：路線播的是「有導覽的站」的導覽，前後切換也講「則」 */
 /* 已經在第一則／最後一則：按鈕停用（路線也一樣） */
 const atEdge=d=>{ const p=S.player; if(!p) return true; const list=ctxList(p.ctx), i=p.ctx.type==='route'?p.ctx.idx:list.indexOf(p.id); return d<0?i<=0:i>=list.length-1; };
 function step(d){ if(atEdge(d)) return; const p=S.player, list=ctxList(p.ctx);
@@ -1870,8 +1870,8 @@ function step(d){ if(atEdge(d)) return; const p=S.player, list=ctxList(p.ctx);
 function guideProgress(c){
   const p=c?{ctx:c}:S.player; if(!p) return '';
   if(!c&&p.ctx.type==='route'){ const rl=ctxList(p.ctx), ST=rl.length, n=p.ctx.idx+1, nx=rl[p.ctx.idx+1];
-    return `<div class="gp"><div class="row"><span class="n">${n}／${ST} 則</span>
-      <span class="s">${nx?'下一則：'+it(nx).n:'最後一則'}</span></div><div class="tr"><i style="width:${n/ST*100}%"></i></div></div>`; }
+    return `<div class="gp"><div class="row"><span class="n">${n}／${ST} 站</span>
+      <span class="s">${nx?'下一站：'+it(nx).n:'最後一站'}</span></div><div class="tr"><i style="width:${n/ST*100}%"></i></div></div>`; }
   const list=ctxList(p.ctx), hs=S.heard[p.ctx.key]||new Set(), total=list.length, heard=list.filter(id=>hs.has(id)).length;   /* 跟導覽列表同一份資料，數字對得上 */
   /* 2026-11-18：導覽形式不一定是語音，「已讀／已聽」講不準；進度只留數字與單位，靠左 */
   return `<div class="gp"><div class="row"><span class="n">${Math.min(heard,total)}／${total} ${sUnit(p.ctx)}</span></div><div class="tr"><i style="width:${Math.min(heard,total)/total*100}%"></i></div></div>`;
@@ -2118,7 +2118,7 @@ function detailPane(){
       ${x.maint?`<p role="note" style="background:#fff7e0;border:1px solid #e3c86c;border-radius:10px;padding:8px 12px;font-size:12px;color:var(--text)"><b style="font-weight:500;color:#8a6d00">文物維護中</b>　${x.maint}</p>`:''}
       <!-- 音檔長度、語言屬於導覽內容，不放展品介紹（2026-11-03） -->
       </div>   <!-- 「在地圖上看位置」拿掉：底部播放卡已有地圖鈕（2026-11-02 留言） -->
-    <div style="padding:16px 8px;display:flex;flex-direction:column;gap:12px">${(x.nodesc?[]:x.txt?String(x.txt).split('\n'):DESC).map(t=>`<p style="font-size:${S.fs==='l'?20:17}px;line-height:1.8;letter-spacing:.3px;color:var(--text)">${t}</p>`).join('')}</div>
+    <div style="padding:16px 8px;display:flex;flex-direction:column;gap:12px">${(x.rstop&&!x.guide?['（這一站沒有導覽內容）可以按「帶我去」走過去，或切到上一站、下一站繼續。']:x.nodesc?[]:x.txt?String(x.txt).split('\n'):DESC).map(t=>`<p style="font-size:${S.fs==='l'?20:17}px;line-height:1.8;letter-spacing:.3px;color:var(--text)">${t}</p>`).join('')}</div>
     ${zoneMates()}
     <div style="height:24px"></div>   <!-- 2026-11-11 留言：拿掉「延伸探索」 --></div>`;
 }
@@ -2132,8 +2132,8 @@ function listPane(c){   /* 2026-11-20：c＝從展覽頁打開時給的清單（
     <ol class="glist">${(()=>{ const tier=p.ctx.type!=='route'&&list.some(id=>it(id).lv!=null&&it(id).lv<=1);   /* 2026-11-18：只有分層的清單（常設展）才內縮；主題路線與一般展覽是平的，不縮 */
       return list.map((id,i)=>{ const x=it(id), now=i===cur, done=!now&&(p.ctx.type==='route'?i<cur:heard.has(id));
       const lv=x.lv==null?3:x.lv, unit=lv<=1, obj=lv>=3, tx=isTxt(id,p.ctx);
-      const state=now?(tx?'閱讀中':'播放中'):done?(tx?'已讀':'已聽完'):'';
-      const kind=gKind(x,p.ctx)==='手語'?'手語 '+mmss(x.d):isTxt(id,p.ctx)?'':'語音 '+mmss(x.d);   /* 2026-11-20 留言：文字導覽不再標「文字導覽」 */   /* 2026-11-18：照線 */   /* 2026-11-18：非手語線的那幾則雖然有手語影片，這裡一律照文字導覽講 */
+      const ng=x.rstop&&!x.guide, state=ng?'':now?(tx?'閱讀中':'播放中'):done?(tx?'已讀':'已聽完'):'';   /* 沒有導覽的站不標已讀 */
+      const kind=x.rstop&&!x.guide?'沒有導覽內容':gKind(x,p.ctx)==='手語'?'手語 '+mmss(x.d):isTxt(id,p.ctx)?'':'語音 '+mmss(x.d);   /* 2026-11-20 留言：文字導覽不再標「文字導覽」 */   /* 2026-11-18：照線 */   /* 2026-11-18：非手語線的那幾則雖然有手語影片，這裡一律照文字導覽講 */
       const sub=[x.no?'#'+x.no:'', state, kind, x.maint?'維護中':''].filter(Boolean).join('・');
       /* 2026-11-18：整張卡片本來就能按，右側不再放播放鍵（導覽形式不一定是語音），改成中性的箭頭 */
       /* 2026-11-18：三層要一眼分得出來——單元灰底大卡、子單元白卡＋左側藍條、展品白卡＋縮圖 */
@@ -2858,7 +2858,7 @@ function arrive(){ const id=S.nav, ex=floorEx(); S.nav=null;
 /* 現場導覽模式：站在展品前開始聽，留在地圖、只出現迷你播放器；地圖標出正在聽與下一件，帶路從剛聽的那件出發 */
 function playHere(id){ const ex=floorEx(), v=pickVersion(id);
   const rk=S.mapRoute&&ROUTES[S.mapRoute]&&rtList(S.mapRoute).includes(id)?S.mapRoute:null;   /* 從路線頁「帶我去」來的：到了就照路線的站序聽 */
-  S.player={id, ctx:rk?{type:'route',key:rk,idx:rtGuide(rk).indexOf(id)}:{type:'ex',key:ex}, pos:0, playing:true, speed:S.player?S.player.speed:1, track:0}; applyVersion(S.player, v); S.ci=0; S.pTab='play'; markHeard();
+  S.player={id, ctx:rk?{type:'route',key:rk,idx:rtList(rk).indexOf(id)}:{type:'ex',key:ex}, pos:0, playing:true, speed:S.player?S.player.speed:1, track:0}; applyVersion(S.player, v); S.ci=0; S.pTab='play'; markHeard();
   S.tour={ex}; S.nav=null; S.navPending=null; S.herePick=false; S.here=null; S.arrived=null; S.mapSel=null;
   if(!S.earSeen&&!S.player.sign){ S.earSeen=true; S.player.playing=false; toast('請戴耳機收聽，按播放開始'); }
   const p=PINS[S.floor][id]; if(p) mapFocus(p[0],p[1],Math.max(mapView().s,.55)); render(); }   /* 放大一點，正在聽和下一件的點位不會擠在一起 */
@@ -2965,8 +2965,8 @@ function mapNextId(){ return null;   /* 2026-11-20 留言：主題路線地圖�
    導覽內頁三種高度：完整（播放器頁）／半高（這裡：文字、上下則、播放面板，最高 1/2 螢幕）／迷你播放器。
    往上拉或按展開＝進完整導覽內頁；往下拉或按關閉＝收合（有在播就回到迷你播放器）。
    點位只是預覽：正在聽別的不會被打斷，按播放才換過來（跨清單仍先問）。主題路線沒有導覽的站、播放器開的地圖照舊用簡單卡片 */
-const ppOn=()=>{ const id=S.mapSel, x=id&&!String(id).startsWith('p:')&&it(id); return S.screen==='map'&&!!x&&!S.mapOnly&&!S.way&&!S.nav&&!S.walk&&!S.herePick&&!S.arrived&&!(S.tour&&S.player)&&!(x.rstop&&!x.guide); };
-function ppCtx(id){ const x=it(id), rk=x.rstop?(S.walk?S.walk.k:S.mapRoute):null, ex=exOf(id)||floorEx(); return rk?{type:'route',key:rk,one:id}:Object.assign({type:'ex',key:ex},mapSg(ex)?{sg:true}:{}); }
+const ppOn=()=>{ const id=S.mapSel, x=id&&!String(id).startsWith('p:')&&it(id); return S.screen==='map'&&!!x&&!S.mapOnly&&!S.way&&!S.nav&&!S.walk&&!S.herePick&&!S.arrived&&!(S.tour&&S.player); };
+function ppCtx(id){ const x=it(id), rk=x.rstop?(S.walk?S.walk.k:S.mapRoute):null, ex=exOf(id)||floorEx(); return rk?{type:'route',key:rk}:Object.assign({type:'ex',key:ex},mapSg(ex)?{sg:true}:{}); }
 function ppList(id){ const c=ppCtx(id); if(c.type==='route') return rtStops(c.key); const l=ctxList(c).filter(i=>PINS[S.floor]&&PINS[S.floor][i]); return l.includes(id)?l:[id]; }
 function ppStep(d){ const c=ppCtx(S.mapSel); if(c.type==='route') return rtStep(d); const l=ppList(S.mapSel), n=l[l.indexOf(S.mapSel)+d]; if(!n) return; S.mapSel=n; render(); ppFocus(n); }
 /* 2026-11-20 留言：上一則／下一則時，地圖把切到的點位動態移到「看得到的地圖」正中間（標頭下緣到面板上緣）；
@@ -2979,7 +2979,7 @@ function ppFocus(id){ requestAnimationFrame(()=>{ const P=PINS[S.floor]&&PINS[S.
   animView({s, x:W/2-P[0]*s, y:cy-P[1]*s}); }); }
 function ppPlay(id){ ppExpand(id); }   /* 2026-11-20 留言：在半高面板按播放＝展開成完整導覽內頁並開始播（跨清單仍先問） */
 function ppToggle(){ const p=S.player; if(!p) return; if(p.playing){ p.playing=false; return render(); } p.playing=true; ppExpand(p.id); }   /* 暫停留在面板；按播放就展開 */
-function ppExpand(id){ if(S.screen!=='map') return; const x0=it(id); if(x0&&x0.rstop&&!x0.guide) return; if(S.player&&S.player.id===id){ S.mapSel=null; return go('player'); } S._stayMap=false; S.mapSel=null; play(id,ppCtx(id)); }
+function ppExpand(id){ if(S.screen!=='map') return; if(S.player&&S.player.id===id){ S.mapSel=null; return go('player'); } S._stayMap=false; S.mapSel=null; play(id,ppCtx(id)); }
 let ppY=null; /* 2026-11-20 留言：內文捲到底（或本來就不用捲）時拿掉底部漸層遮罩，最後一句才看得清楚 */
 function ppMask(el){ if(el) el.classList.toggle('end', el.scrollTop+el.clientHeight>=el.scrollHeight-2); }
 function ppTS(e){ ppY=e.touches[0].clientY; } function ppTE(e,id){ if(ppY==null) return; const dy=e.changedTouches[0].clientY-ppY; ppY=null; if(dy<-50||dy>70){ if(e.cancelable) e.preventDefault(); } if(dy<-50) ppExpand(id); else if(dy>70) pinBack(); }   /* 2026-11-20：滑完不要再補一次點擊（原本會展開兩次，標題被藏住沒回來） */
@@ -2998,7 +2998,7 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
     :`<button class="tealbtn ppplay" onclick="ppPlay('${id}')" aria-label="播放 ${x.n}">${MI('M8 5v14l11-7z',18,'#fff')}播放</button>`;   /* 2026-11-20 留言：半高面板的語音只放播放鈕，不放進度條；完整播放器在展開後 */
   const nav=rk0?rtSwitch(rk0,id):L.length>1?`<div class="rtsw">${[[-1,'上一'+U],[1,'下一'+U]].map(([d,lab])=>`<button class="rtsw-b" ${L[i+d]?`onclick="ppStep(${d})"`:'disabled'} aria-label="${lab}${L[i+d]?'：'+it(L[i+d]).n:''}">${d<0?MI('M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',20,'currentColor'):''}${lab}${d>0?MI('M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z',20,'currentColor'):''}</button>`).join(`<span>${i+1}／${L.length}</span>`)}</div>`:'';
   const ppm=!!P&&!live;   /* 2026-11-20 留言：正在聽別則時，迷你播放器留在底部，面板疊在它上面 */
-  return `<div class="zonesheet pincard pplay${ppm?' ppm':''}${noG?' ppng':''}" role="dialog" aria-label="${x.n}" ${noG?'':`onclick="if(!event.target.closest('button,a,input'))ppExpand('${id}')" style="cursor:pointer"`}>   <!-- 2026-11-20 留言：點面板任何地方（按鈕以外）都展開成完整導覽內頁 -->
+  return `<div class="zonesheet pincard pplay${ppm?' ppm':''}" role="dialog" aria-label="${x.n}" onclick="if(!event.target.closest('button,a,input'))ppExpand('${id}')" style="cursor:pointer">   <!-- 2026-11-20 留言：點面板任何地方（按鈕以外）都展開成完整導覽內頁 -->
     <div class="pphd" ontouchstart="ppTS(event)" ontouchend="ppTE(event,'${id}')">   <!-- 2026-11-20 留言：操作列（拉桿、展開、關閉）獨立一排在最上面，跟下方的資料分開；編號跟語音膠囊同一排 -->
       <div class="ppbar"><button class="ppgrab" onclick="ppExpand('${id}')" aria-label="展開成完整導覽內頁（也可以往上拉；往下拉收合）"><span></span></button></div>   <!-- 2026-11-20 留言：拿掉展開／關閉鈕，只留拉桿：往上拉展開、往下拉收合 -->
       <div class="pprow"><span class="ppimg"><img src="${A(x.img)}" alt=""></span>
@@ -3037,7 +3037,7 @@ function pinCardBasic(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id
       ${S.mapOnly?`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="back()">${asText?'回到介紹':MI('M8 5v14l11-7z',18,'#fff')+'繼續聆聽'}</button>`   /* 2026-11-16 留言：文字導覽的展品沒有播放，不放播放圖示、不寫聆聽 */
         :S.player&&S.player.id===id?`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="go('player')">${asText?'回到介紹':`<span class="eq${S.player.playing?' go':''}" aria-hidden="true"><i></i><i></i><i></i></span>${S.player.playing?'正在播放':'已暫停・回到播放器'}`}</button>`   /* 2026-11-11 留言：點到正在播的展品，按鈕顯示播放中狀態，按了回播放器 */
         :noG?''
-        :`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="play('${id}',${rk?`{type:'route',key:'${rk}',one:'${id}'}`:`{type:'ex',key:'${ex}'${mapSg(ex)?',sg:true':''}}`})">${asText?'':MI('M8 5v14l11-7z',18,'#fff')}${rk?'單點導覽':asText||bare?'開始導覽':'播放導覽'}</button>`}
+        :`<button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="play('${id}',${rk?`{type:'route',key:'${rk}'}`:`{type:'ex',key:'${ex}'${mapSg(ex)?',sg:true':''}}`})">${asText?'':MI('M8 5v14l11-7z',18,'#fff')}${rk?'單點導覽':asText||bare?'開始導覽':'播放導覽'}</button>`}
       <button class="${noG?'tealbtn':'waybtn'}" style="min-height:44px${noG?';flex:1':''}" onclick="startNav('${id}')" aria-label="帶我去這件展品">${MI(MD.nav,16,noG?'#fff':'#2E5C6E')}帶我去</button></div>${rk&&!S.mapOnly?rtSwitch(rk,id):''}</div>`; }
 /* 2026-11-19 留言：主題路線的站點卡可以直接切上一站／下一站，不用關掉卡片再點小卡 */
 function rtStops(k){ return rtList(k).filter(id=>PINS[S.floor]&&PINS[S.floor][id]); }
