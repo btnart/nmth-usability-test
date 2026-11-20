@@ -106,18 +106,18 @@ button.mapbar{padding:0 16px}
 .pmorebg{position:fixed;inset:0;z-index:40} .pmore{position:absolute;right:0;top:48px;z-index:41;min-width:184px;background:#fff;border-radius:16px;box-shadow:0 12px 32px -8px rgba(15,25,30,.35),0 2px 8px rgba(15,25,30,.12);padding:6px;display:flex;flex-direction:column;animation:hintin .18s ease-out both}
 .pmore button{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:12px;font-size:15px;color:var(--ink);text-align:left} .pmore button:active{background:var(--cream)} .pmore .aa{width:20px;display:inline-flex;align-items:baseline;justify-content:center;font-weight:700;color:#3C3C3C}   /* 2026-11-18：播放器右上「更多」選單（收藏、筆記、文字大小） */
 .mpins{position:absolute;inset:0;pointer-events:none} .mpins>*{pointer-events:auto}
-.mpin{position:absolute;transform:translate(-50%,-100%);min-width:44px;height:30px;padding:0 9px;border-radius:15px;background:var(--teal7);color:#fff;
-  font:700 13px Roboto,'Noto Sans TC',sans-serif;box-shadow:0 4px 10px rgba(15,25,30,.3);display:grid;place-items:center;margin-top:-6px;transition:background .2s,transform .2s}
-.mpin::after{content:'';position:absolute;left:50%;top:100%;margin-left:-6px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid var(--teal7)}
+.mpin{--pc:var(--teal7);position:absolute;transform:translate(-50%,-100%);min-width:32px;height:32px;padding:0 4px;border-radius:16px;background:var(--pc);color:#fff;
+  font:700 13px Roboto,'Noto Sans TC',sans-serif;filter:drop-shadow(0 3px 5px rgba(15,25,30,.28));display:grid;place-items:center;margin-top:-13px;transition:background .2s,transform .2s}
+.mpin::after{content:'';position:absolute;left:50%;top:calc(100% - 6px);width:18px;height:19px;margin-left:-9px;background:var(--pc);clip-path:path('M0 0 H18 C13 5 10.4 11 9 19 C7.6 11 5 5 0 0 Z');pointer-events:none}   /* 2026-11-20 留言：照參考圖——圓頭＋往下收尖的尾巴，尾巴跟圓頭疊在一起，中間不留縫；陰影改 drop-shadow 連尾巴一起投影 */
 .mpin.playing{display:flex;align-items:center;justify-content:center;gap:5px;padding:0 10px} .peq{display:inline-flex;gap:2px;align-items:flex-end;height:12px} .peq b{width:3px;height:6px;background:var(--ink);border-radius:1px} .peq.go b{animation:eq .9s ease-in-out infinite} .peq.go b:nth-child(2){animation-delay:.2s} .peq.go b:nth-child(3){animation-delay:.4s} .mpin.playing>i{background:var(--teal7);color:#fff}   /* 2026-11-11 留言：正在播的點位——金底放大＋跳動音波＋「播放中」 */
-.mpin.on{background:var(--gold);color:var(--ink);transform:translate(-50%,-100%) scale(1.15);z-index:2} .mpin.on::after{border-top-color:var(--gold)}
-.mpin.now{background:var(--gold);color:var(--ink);z-index:3;animation:nowGlow 1.8s ease-out infinite} .mpin.now::after{border-top-color:var(--gold)}
+.mpin.on{background:var(--gold);color:var(--ink);transform:translate(-50%,-100%) scale(1.15);z-index:2} .mpin.on{--pc:var(--gold)}
+.mpin.now{background:var(--gold);color:var(--ink);z-index:3;animation:nowGlow 1.8s ease-out infinite} .mpin.now{--pc:var(--gold)}
 @keyframes nowGlow{0%{box-shadow:0 0 0 0 rgba(201,169,97,.8),0 4px 10px rgba(15,25,30,.25)}70%{box-shadow:0 0 0 14px rgba(201,169,97,0),0 4px 10px rgba(15,25,30,.25)}100%{box-shadow:0 0 0 0 rgba(201,169,97,0),0 4px 10px rgba(15,25,30,.25)}}
 @media (prefers-reduced-motion:reduce){ .mpin.now{animation:none;box-shadow:0 0 0 4px rgba(201,169,97,.45),0 4px 10px rgba(15,25,30,.25)} }   /* 2026-11-18：導覽中的點位外圈一直往外擴散的光暈，跟「選中」（金色放大、靜態）分開 */
-.mpin.tonly{background:#fff;color:#5F5F5F;box-shadow:0 0 0 2px #9A9A9A inset,0 4px 10px rgba(15,25,30,.2)} .mpin.tonly::after{border-top-color:#9A9A9A}   /* 走路線：只有文字導覽的站＝白底灰框 */
-.mpin.neu{min-width:30px;padding:0} .mpin.vo{min-width:36px;padding:0 8px} .pdot{width:9px;height:9px;border-radius:50%;background:currentColor} .mpin .ico{display:block}   /* 2026-11-20：中性圖釘／語音耳機 */
-.mpin.maint{background:#6B6B6B} .mpin.maint::after{border-top-color:#6B6B6B}
-.mpin.nxt{background:#fff;color:var(--teal7);box-shadow:0 0 0 2px var(--teal7) inset,0 4px 10px rgba(15,25,30,.3)} .mpin.nxt::after{border-top-color:var(--teal7)}
+.mpin.tonly{background:#fff;color:#5F5F5F;box-shadow:0 0 0 2px #9A9A9A inset,0 4px 10px rgba(15,25,30,.2)} .mpin.tonly::after{background:#9A9A9A}   /* 走路線：只有文字導覽的站＝白底灰框 */
+.mpin.neu,.mpin.vo{width:32px;padding:0} .pdot{width:9px;height:9px;border-radius:50%;background:currentColor} .mpin .ico{display:block}   /* 2026-11-20：中性圖釘／語音耳機 */
+.mpin.maint{background:#6B6B6B} .mpin.maint{--pc:#6B6B6B}
+.mpin.nxt{background:#fff;color:var(--teal7);box-shadow:0 0 0 2px var(--teal7) inset,0 4px 10px rgba(15,25,30,.3)} .mpin.nxt::after{background:var(--teal7)}
 .mpin.next{}   /* 2026-11-18：「下一站」不再用金色（金色只留給選中／導覽中），只靠上方的「下一站」提示 */
 .mclu{position:absolute;transform:translate(-50%,-100%);margin-top:-6px;height:30px;padding:0 10px 0 4px;border-radius:15px;background:var(--teal7);color:#fff;
   font:700 12px Roboto,'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:6px;white-space:nowrap;box-shadow:0 4px 10px rgba(15,25,30,.3)}
@@ -137,7 +137,7 @@ button.mapbar{padding:0 16px}
 @keyframes lmpulse{0%{box-shadow:0 4px 12px rgba(15,25,30,.35),0 0 0 0 rgba(201,169,97,.7)}100%{box-shadow:0 4px 12px rgba(15,25,30,.35),0 0 0 12px rgba(201,169,97,0)}}   /* 會呼吸的光圈：看得出是要點的選項 */
 .lmopt.other{border-style:dashed} .lmn.fl{width:auto;padding:0 6px;border-radius:11px;background:var(--gold);color:var(--ink)}
 .mpin.inclu{visibility:hidden!important;pointer-events:none!important}
-.mpin.first{background:var(--gold);color:var(--ink);z-index:3;animation:fstfloat 2.4s ease-in-out infinite,fstglow 1.6s ease-out infinite} .mpin.first::after{border-top-color:var(--gold)}
+.mpin.first{background:var(--gold);color:var(--ink);z-index:3;animation:fstfloat 2.4s ease-in-out infinite,fstglow 1.6s ease-out infinite} .mpin.first{--pc:var(--gold)}
 .mpin.first i.tip{background:var(--ink);color:#fff;font-size:12px;padding:6px 10px;border-radius:8px;bottom:calc(100% + 10px);line-height:1.35;text-align:center;animation:hintin .4s ease-out both}
 .mpin.first i.tip::after{content:'';position:absolute;left:50%;top:100%;margin-left:-5px;border:5px solid transparent;border-top-color:var(--ink)}
 .mpin.first i.tip small{display:block;font-size:11px;font-weight:400;opacity:.75}
