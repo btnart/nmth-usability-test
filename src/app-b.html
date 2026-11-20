@@ -2964,7 +2964,7 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
   const c=ppCtx(id), ex=c.type==='ex'?c.key:exOf(id), kd=gKind(x,c), tx=kd==='文字', sg=kd==='手語', live=!!S.player&&S.player.id===id, P=S.player;
   const L=ppList(id), i=L.indexOf(id), U=rk0?'站':'則';
   const meta=[rk0?`第 ${rtNo(rk0,id)} 站`:'', x.no?'#'+x.no:'', fvOn()&&EXHIBITIONS[ex]?EXHIBITIONS[ex].n.split('：')[0]:''].filter(Boolean).join('・');
-  const cap=sg?`<span class="pccap sg">${SIGN_IC}手語影片 ${mmss(x.d)}</span>`:tx?`<span class="pccap">${MI(BOOK_IC,14,'#5F5F5F')}文字導覽</span>`:`<span class="pccap">${MI(MD.head,14,'#5F5F5F')}語音 ${mmss(x.d)}</span>`;
+  const cap=sg?`<span class="pccap sg">${SIGN_IC}手語影片 ${mmss(x.d)}</span>`:tx?'':`<span class="pccap">${MI(MD.head,14,'#5F5F5F')}語音 ${mmss(x.d)}</span>`;
   const txt=(x.txt||'').split('\n').filter(Boolean).map(t=>`<p>${t}</p>`).join('')||`<p style="color:var(--text2)">${x.n}</p>`;
   const pct=live?Math.min(100,P.pos/x.d*100):0;
   const way=`<button class="waybtn" style="min-height:44px" onclick="startNav('${id}')" aria-label="帶我去 ${x.n}">${MI(MD.nav,16,'#2E5C6E')}帶我去</button>`;
@@ -2993,7 +2993,7 @@ function pinCardBasic(id){ const x=it(id), ex=(typeof exOf==='function'&&exOf(id
      所以非手語線的展品即使有手語影片，也是走文字——卡片就寫文字導覽，不放手語膠囊、不放播放圖示。時間只在真的有音檔／影片或 tonly 的閱讀估計時才標。 */
   const rk=x.rstop?(S.walk?S.walk.k:S.mapRoute):null, noG=!!rk&&!x.guide;   /* 2026-11-18：主題路線的站：有導覽才有「開始導覽」，沒有就只留帶我去 */
   const pc=rk?{type:'route',key:rk}:mapSg(ex)?{type:'ex',key:ex,sg:true}:S.player&&S.player.ctx&&S.player.ctx.type==='ex'?S.player.ctx:{type:'ex',key:exOf(id)}, kd=gKind(x,pc), asSign=kd==='手語', asAudio=kd==='語音', asText=kd==='文字';   /* 2026-11-18：點位卡照目前這條導覽線 */
-  const caps=noG?'':`<span class="pccaps">${asText&&(!x.tonly||rk)?'':`<span class="pccap">${MI(EXC_IC.clock,14,'#5F5F5F')}${mmss(x.d)}</span>`}${asSign?`<span class="pccap sg">${SIGN_IC}手語影片</span>`:asText?`<span class="pccap">文字導覽</span>`:''}</span>`;   /* 從展覽頁進的地圖：沒有清單可以回，卡片右上改關閉 ✕；只留「開始導覽」「帶我去」 */
+  const caps=noG?'':`<span class="pccaps">${asText&&(!x.tonly||rk)?'':`<span class="pccap">${MI(EXC_IC.clock,14,'#5F5F5F')}${mmss(x.d)}</span>`}${asSign?`<span class="pccap sg">${SIGN_IC}手語影片</span>`:''}</span>`;   /* 從展覽頁進的地圖：沒有清單可以回，卡片右上改關閉 ✕；只留「開始導覽」「帶我去」 */
   const tall=false;   /* 2026-11-18：拿掉「上方大圖」版型，點位卡一律左圖右文；同一個點位不論從清單或地圖點進來都同一個樣子 */   /* 2026-11-12 留言：面板沿用清單高度時，照片改成上方大圖撐滿，不留一大片空白 */
   return `<div class="zonesheet pincard${tall?' pctall':''}" role="dialog" aria-label="展品 ${x.no} ${x.n}" style="${S._zsDefH&&!bare?`min-height:${S._zsDefH}px`:''}">
     ${closeX('pinBack()','關閉展品卡片')}
