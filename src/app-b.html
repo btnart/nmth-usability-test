@@ -1983,7 +1983,8 @@ function playPane(){
   const ver = p.sign ? '手語導覽・中文字幕' : `語音導覽・${trk(x)[p.track]}`;
   /* 第 1 輪測試修正：語言與手語不再藏在下拉選單，正在聽的這頁直接列出可選的版本，點一下就切換 */
   const vchip=(on,label,fn,off)=>`<button class="chipbtn${on?' on':''}" role="radio" aria-checked="${on}" ${off?'disabled aria-disabled="true"':`onclick="${fn}"`} style="height:36px;padding:0 12px;border-radius:18px;font-size:13px${off?';opacity:.45;cursor:default':''}">${on?MI(MD.check,16,'#fff'):''}${label}</button>`;
-  const verBtn = `<div role="radiogroup" aria-label="導覽語言，目前${ver}" style="display:flex;flex-direction:column;gap:6px">   <!-- 第 1 輪測試修正：拿掉上方「導覽語言・目前…」小字，選中狀態看按鈕；說明留在 aria-label -->
+  const verN=(x.voice!==false?trk(x).length:0)+(x.sign||ctxList(p.ctx).some(id=>it(id).sign)?1:0);   /* 2026-11-20 留言：只有一種語言（沒有別的可以切）就不放語言膠囊 */
+  const verBtn = verN<=1?'':`<div role="radiogroup" aria-label="導覽語言，目前${ver}" style="display:flex;flex-direction:column;gap:6px">   <!-- 第 1 輪測試修正：拿掉上方「導覽語言・目前…」小字，選中狀態看按鈕；說明留在 aria-label -->
       <div style="display:flex;flex-wrap:wrap;gap:6px">${x.voice!==false?trk(x).map((t,i)=>vchip(!p.sign&&p.track===i,t.replace('臺灣',''),`setVersion('voice',${i})`)).join(''):''}${x.sign?vchip(p.sign,'手語',`setVersion('sign')`):ctxList(p.ctx).some(id=>it(id).sign)?vchip(false,'手語（本則未提供）','',true):''}</div></div>`;   /* 整個展覽都沒有手語（特展）就不放「本則未提供」 */
   const ear = S.typeTip?`<div class="eartip" id="typeTip" role="status">${MI(MD.head,18,'#2E5C6E')}<span>${S.typeTip}</span>
     <button onclick="S.typeTip=null;this.parentNode.remove()" aria-label="關閉提示">${MI(MD.close,18,'#3C3C3C')}</button></div>` : S.earSeen||p.sign?'':`<div class="eartip" role="status">${MI(MD.head,18,'#2E5C6E')}<span>請戴耳機收聽</span>
