@@ -164,7 +164,7 @@ button.mapbar{padding:0 16px}
 .pphd{flex:0 0 auto;padding:0 24px;touch-action:none}
 .ppbar{position:relative;height:24px;margin:0 -12px 2px} .ppway{flex:0 0 auto;align-self:center;min-height:40px;padding:0 14px} .ppgrab{position:absolute;left:0;right:0;top:0;height:28px} .ppgrab span{display:block;width:36px;height:4px;border-radius:2px;background:#D1D1D1;margin:8px auto 0} .ppacts{position:absolute;right:0;top:4px;display:flex;gap:2px}
 .pprow{display:flex;gap:14px;align-items:center} .ppimg{flex:0 0 64px;height:64px;border-radius:10px;overflow:hidden} .ppimg img{width:100%;height:100%;object-fit:cover}
-.ppt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:flex-start} .ppt b{font-weight:700;font-size:17px;line-height:1.3;color:var(--ink)} .ppm{font-size:12px;color:var(--text2)}
+.ppt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:flex-start} .ppt b{font-weight:700;font-size:17px;line-height:1.3;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden} .ppm{font-size:12px;color:var(--text2)}
 .ppic{width:36px;height:36px;border-radius:18px;display:grid;place-items:center;background:var(--cream)} .ppmeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap} .ppno{font:500 13px Roboto,'Noto Sans TC',sans-serif;color:var(--text2)} .ppmeta .pccap{margin:0}
 .pptx{flex:1 1 auto;min-height:48px;overflow-y:auto;padding:10px 24px 4px;font-size:15px;line-height:1.75;color:var(--text);-webkit-mask-image:linear-gradient(#000 80%,transparent);mask-image:linear-gradient(#000 80%,transparent)} .pptx p+p{margin-top:8px}
 .ppctl{flex:0 0 auto;display:flex;gap:10px;align-items:center;padding:10px 24px 0} .ppctl .pb{flex:0 0 48px;width:48px;height:48px;border-radius:24px;background:var(--teal7);display:grid;place-items:center}
@@ -2967,7 +2967,7 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
   const c=ppCtx(id), ex=c.type==='ex'?c.key:exOf(id), kd=gKind(x,c), tx=kd==='文字', sg=kd==='手語', live=!!S.player&&S.player.id===id, P=S.player;
   const L=ppList(id), i=L.indexOf(id), U=rk0?'站':'則';
   const meta=[rk0?`第 ${rtNo(rk0,id)} 站`:'', fvOn()&&EXHIBITIONS[ex]?EXHIBITIONS[ex].n.split('：')[0]:''].filter(Boolean).join('・');
-  const cap=sg?`<span class="pccap sg">${SIGN_IC}手語影片 ${mmss(x.d)}</span>`:tx?'':`<span class="pccap">${MI(MD.head,14,'#5F5F5F')}語音 ${mmss(x.d)}</span>`;
+  const cap=sg?`<span class="pccap sg">${SIGN_IC}手語影片</span>`:tx?'':`<span class="pccap">${MI(MD.head,14,'#5F5F5F')}語音導覽${x.no?` #${x.no}`:''}</span>`;   /* 2026-11-20 留言：不寫時長；語音編號放進膠囊 */
   const txt=(x.txt||'').split('\n').filter(Boolean).map(t=>`<p>${t}</p>`).join('')||`<p style="color:var(--text2)">${x.n}</p>`;
   const pct=live?Math.min(100,P.pos/x.d*100):0;
   const way=`<button class="waybtn ppway" onclick="startNav('${id}')" aria-label="帶我去 ${x.n}">${MI(MD.nav,16,'#2E5C6E')}帶我去</button>`;
@@ -2981,7 +2981,7 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
     <div class="pphd" ontouchstart="ppTS(event)" ontouchend="ppTE(event,'${id}')">   <!-- 2026-11-20 留言：操作列（拉桿、展開、關閉）獨立一排在最上面，跟下方的資料分開；編號跟語音膠囊同一排 -->
       <div class="ppbar"><button class="ppgrab" onclick="ppExpand('${id}')" aria-label="展開成完整導覽內頁（也可以往上拉；往下拉收合）"><span></span></button></div>   <!-- 2026-11-20 留言：拿掉展開／關閉鈕，只留拉桿：往上拉展開、往下拉收合 -->
       <div class="pprow"><span class="ppimg"><img src="${A(x.img)}" alt=""></span>
-        <div class="ppt">${meta?`<span class="ppm">${meta}</span>`:''}<b>${x.n}</b>${x.no||cap?`<div class="ppmeta">${x.no?`<span class="ppno">#${x.no}</span>`:''}${cap}</div>`:''}</div>
+        <div class="ppt">${meta||cap?`<div class="ppmeta">${cap}${meta?`<span class="ppm">${meta}</span>`:''}</div>`:''}<b>${x.n}</b></div>   <!-- 2026-11-20 留言：膠囊放在標題上面，標題最多兩行 -->
         ${way}</div></div>   <!-- 2026-11-20 留言：帶我去跟縮圖、標題同一排 -->
     <div class="pptx">${txt}</div>
     ${ctl?`<div class="ppctl">${ctl}</div>`:''}
