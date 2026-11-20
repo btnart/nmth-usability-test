@@ -1897,7 +1897,11 @@ function miniMarquee(){ const sp=document.querySelector('.mini .box.tx .tt span'
   const over=sp.scrollWidth-sp.clientWidth;
   if(over>4){ sp.style.setProperty('--mqx',-over+'px'); sp.style.setProperty('--mqd',Math.max(5,over/28+4)+'s'); sp.classList.add('mq'); } }
 function bindProg(){ const pr=document.getElementById('prog'); if(pr){
-    pr.onpointerdown=ev=>{ const r=pr.getBoundingClientRect(); S.player.pos=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))*it(S.player.id).d; tickDOM(); };
+    /* 2026-11-21 留言：進度條可以拖曳——按住後跟著手指走，放開才把音檔跳到那個位置 */
+    const setP=ev=>{ const r=pr.getBoundingClientRect(); S.player.pos=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width))*it(S.player.id).d; tickDOM(); };
+    let drag=false; pr.onpointerdown=ev=>{ ev.stopPropagation(); drag=true; S._seeking=true; pr.classList.add('drag'); try{ pr.setPointerCapture(ev.pointerId); }catch(e){} setP(ev); };
+    pr.onpointermove=ev=>{ if(drag){ ev.stopPropagation(); setP(ev); } };
+    pr.onpointerup=pr.onpointercancel=ev=>{ if(!drag) return; drag=false; S._seeking=false; pr.classList.remove('drag'); audSync(); if(S.player&&S.player.sign&&SGV.dataset.src){ try{ SGV.currentTime=S.player.pos; }catch(e){} } };
     pr.onkeydown=ev=>{ const k={ArrowRight:5,ArrowUp:5,ArrowLeft:-5,ArrowDown:-5}[ev.key]; if(k){ ev.preventDefault(); const p=S.player; p.pos=Math.max(0,Math.min(it(p.id).d,p.pos+k)); tickDOM(); } }; } }
 /* 換分頁時底部播放卡馬上跟著換：導覽內容展開播放控制、展品介紹收合（不等下一次整頁重繪），高度用動畫過渡 */
 function pcMarquee(){ document.querySelectorAll('#app #pcard .pctt>span').forEach(sp=>{ sp.classList.remove('mq'); sp.style.removeProperty('--mqx'); sp.style.removeProperty('--mqd'); if(REDUCED) return;
@@ -1995,7 +1999,7 @@ function playPane(){
   /* 第 1 輪測試修正：「這則有幫助嗎？」改成跟耳機提示同款 banner；耳機提示還在時不出現，播完才出現；按了或關閉就收起 */
   const body = p.sign
     ? `<div aria-label="手語導覽影片：${x.n}" class="sgvid${p.playing?' signing':''}${S.sgCtl||!p.playing?' ctl-on':''}" onclick="sgTap()" style="flex:none;height:auto;aspect-ratio:16/9;max-height:none;background:#000">${signYT()}<button class="sgfs" onclick="event.stopPropagation();openSignFs()" aria-label="全螢幕放大觀看手語影片">${MI('M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z',24,'#fff')}</button></div>`   /* 手語影片本身有中文字幕，下方不再放逐字稿 */
-    : (it(p.id).tx||(it(p.id).txt?String(it(p.id).txt).split('\n').filter(Boolean):TRANSCRIPT)).map(t=>`<p style="font-size:${fz}px;line-height:1.7;color:var(--text);margin-bottom:14px">${t}</p>`).join('');
+    : (l=>(l.length?[`此音檔為測試音檔。${l[0]}`,...l.slice(1)]:l))(it(p.id).tx||(it(p.id).txt?String(it(p.id).txt).split('\n').filter(Boolean):TRANSCRIPT)).map(t=>`<p style="font-size:${fz}px;line-height:1.7;color:var(--text);margin-bottom:14px">${t}</p>`).join('');
   return `<div class="pscroll" style="padding-bottom:${p.sign?170:300}px">
     <div style="display:flex;flex-direction:column;gap:12px;padding:4px 4px 0">
       ${x.voice!==false?verBtn:''}${ear}${body}</div>${zoneMates()}</div>`;   /* 2026-11-13（T4）：耳機提示移到語言按鈕下方，不擋選語言 */   /* 第 1 輪測試修正：順序＝分頁 → 提示 banner（耳機／評分，同時只出現一個）→ 語言列 → 內容 */
@@ -3969,10 +3973,10 @@ function render(resetScroll, anim){
   sgMount(); audSync(); miniMarquee(); pcMarquee(); document.querySelectorAll('#app .pptx').forEach(ppMask); if(S.sheet==='signfs') sfFit();
   if(S.screen==='home'){ homeScroll(); S.heroPlayed=true; }   /* 說明牌式進場只在第一次進首頁播放 */ if(S.screen==='ex') exNavMount(); if(S.screen==='player') playerMount(); if(S.screen==='map') mapMount();
   const pr=document.getElementById('prog');
-  if(pr) pr.onpointerdown=ev=>{ const r=pr.getBoundingClientRect(); const f=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width)); S.player.pos=f*it(S.player.id).d; render(); };
+  bindProg();   /* 2026-11-21：進度條統一由 bindProg 綁（可拖曳）；原本這裡按下就整頁重畫，拖不動 */
 }
 /* 模擬播放：每秒依倍速推進；播完自動下一則 */
-setInterval(()=>{ const p=S.player; if(!p||!p.playing) return;
+setInterval(()=>{ const p=S.player; if(!p||!p.playing||S._seeking) return;
   if(p.sign&&SGV.dataset.src===sgSrc(it(p.id))) p.pos=SGV.ended?it(p.id).d:Math.min(it(p.id).d,SGV.currentTime); else if(audOn()&&AUD.src){ audSync(); p.pos=AUD.ended?it(p.id).d:Math.min(it(p.id).d,AUD.currentTime||0); } else p.pos+=p.speed; if(p.pos>=it(p.id).d){ p.pos=it(p.id).d; p.playing=false;
     if((S.screen==='player'||(S.screen==='map'&&S.tour&&!S.nav&&!S.herePick&&!S.way))&&!S.sheet) render(); else tickDOM(); return; }   /* 地圖上的現場導覽面板也要從「正在聽」換成「剛聽完」 */
   tickDOM(); }, 1000);
