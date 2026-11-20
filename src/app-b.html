@@ -2946,7 +2946,15 @@ function mapNextId(){ if(S.walk) return null; const k=S.mapRoute; if(!k||!ROUTES
 const ppOn=()=>{ const id=S.mapSel, x=id&&!String(id).startsWith('p:')&&it(id); return S.screen==='map'&&!!x&&!S.mapOnly&&!S.way&&!S.nav&&!S.walk&&!S.herePick&&!S.arrived&&!(S.tour&&S.player)&&!(x.rstop&&!x.guide); };
 function ppCtx(id){ const x=it(id), rk=x.rstop?(S.walk?S.walk.k:S.mapRoute):null, ex=exOf(id)||floorEx(); return rk?{type:'route',key:rk,one:id}:Object.assign({type:'ex',key:ex},mapSg(ex)?{sg:true}:{}); }
 function ppList(id){ const c=ppCtx(id); if(c.type==='route') return rtStops(c.key); const l=ctxList(c).filter(i=>PINS[S.floor]&&PINS[S.floor][i]); return l.includes(id)?l:[id]; }
-function ppStep(d){ const c=ppCtx(S.mapSel); if(c.type==='route') return rtStep(d); const l=ppList(S.mapSel), n=l[l.indexOf(S.mapSel)+d]; if(!n) return; S.mapSel=n; const p=PINS[S.floor][n]; if(p) mapFocus(p[0],p[1]); render(); }
+function ppStep(d){ const c=ppCtx(S.mapSel); if(c.type==='route') return rtStep(d); const l=ppList(S.mapSel), n=l[l.indexOf(S.mapSel)+d]; if(!n) return; S.mapSel=n; render(); ppFocus(n); }
+/* 2026-11-20 留言：上一則／下一則時，地圖把切到的點位動態移到「看得到的地圖」正中間（標頭下緣到面板上緣）；
+   這個點位如果跟旁邊的點位聚在一起，先拉近到分得開再移過去 */
+function ppFocus(id){ requestAnimationFrame(()=>{ const P=PINS[S.floor]&&PINS[S.floor][id], w=document.querySelector('#app > .scr .mapwrap'); if(!P||!w) return; const v=mapView(), W=w.clientWidth;
+  let need=0; w.querySelectorAll('.mpin').forEach(b=>{ const mx=+b.dataset.mx, my=+b.dataset.my; if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes(`'${id}'`)) return; const dx=Math.abs(mx-P[0]), dy=Math.abs(my-P[1]); if(!dx&&!dy) return; need=Math.max(need, Math.min(38/Math.max(dx,.01), 50/Math.max(dy,.01))); });
+  const s=Math.min(2.6, Math.max(v.s, need*1.08)), wr=w.getBoundingClientRect(), z=document.querySelector('#app > .scr .zonesheet'), bot=(z?z.getBoundingClientRect().top:wr.bottom)-wr.top, top=S.mapAll?132:112;
+  const cy=(top+bot)/2+20;   /* 點位的尖端在座標上、圓頭在上方約 20px：讓圓頭落在正中間 */
+  if(REDUCED){ Object.assign(v,{s,x:W/2-P[0]*s,y:cy-P[1]*s}); return placePins(); }
+  animView({s, x:W/2-P[0]*s, y:cy-P[1]*s}); }); }
 function ppPlay(id){ const c=ppCtx(id); S._stayMap=true; play(id,c); }
 function ppToggle(){ const p=S.player; if(!p) return; p.playing=!p.playing; render(); }
 function ppExpand(id){ if(S.player&&S.player.id===id){ S.mapSel=null; return go('player'); } S._stayMap=false; S.mapSel=null; play(id,ppCtx(id)); }
@@ -3013,7 +3021,7 @@ function rtStops(k){ return rtList(k).filter(id=>PINS[S.floor]&&PINS[S.floor][id
 function rtSwitch(k,id){ const l=rtStops(k), i=l.indexOf(id); if(i<0||l.length<2) return '';
   const ch=(d,lab)=>`<button class="rtsw-b" ${l[i+d]?`onclick="rtStep(${d})"`:'disabled'} aria-label="${lab}${l[i+d]?'：'+it(l[i+d]).n:''}">${d<0?MI('M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z',20,'currentColor'):''}${lab}${d>0?MI('M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z',20,'currentColor'):''}</button>`;
   return `<div class="rtsw">${ch(-1,'上一站')}<span>${i+1}／${l.length}</span>${ch(1,'下一站')}</div>`; }
-function rtStep(d){ const k=S.mapRoute, l=rtStops(k), n=l[l.indexOf(S.mapSel)+d]; if(!n) return; S.mapSel=n; const p=PINS[S.floor][n]; if(p) mapFocus(p[0],p[1]); render(); }
+function rtStep(d){ const k=S.mapRoute, l=rtStops(k), n=l[l.indexOf(S.mapSel)+d]; if(!n) return; S.mapSel=n; render(); ppFocus(n); }
 function scrMap(){ if(fvOn()&&S.fx) S.fx=null;   /* 2026-11-19 留言：全館地圖的樓層不再分展覽頁籤，2F／4F 一律看整層 */
   if(fv4All()){ if(S._mv4!=='all'){ S.mv=S.mv||{}; delete S.mv['4F']; S._mv4='all'; S._fxFocus=true; } } else if(S.floor==='4F') S._mv4='room';   /* 從單一特展室的視角回到整層時重新框整層 */
   const f=S.floor, M=MAPS[f]?mapOf(f):null, exKey=floorEx(), e=EXHIBITIONS[exKey], v=M?mapView():null, nx=mapNextId();
