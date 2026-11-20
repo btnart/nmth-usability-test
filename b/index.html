@@ -3842,11 +3842,11 @@ function render(resetScroll, anim){
   const box_=el=>{ if(!el) return null; const a=app.getBoundingClientRect(), r=el.getBoundingClientRect();
     if(r.width<2||r.right<a.left+2||r.left>a.right-2||r.bottom<a.top||r.top>a.bottom) return null; return {x:r.left-a.left,y:r.top-a.top,w:r.width,h:r.height}; };
   const txt_=el=>{ if(!el) return null; const g=document.createRange(); g.selectNodeContents(el); const b=box_({getBoundingClientRect:()=>g.getBoundingClientRect()}); if(!b) return null;
-    const cs=getComputedStyle(el); return {...b, fs:parseFloat(cs.fontSize), fw:cs.fontWeight, c:cs.color, t:el.textContent.trim()}; };
+    const cs=getComputedStyle(el), eb=el.getBoundingClientRect(), a=app.getBoundingClientRect(); return {...b, fs:parseFloat(cs.fontSize), fw:cs.fontWeight, c:cs.color, t:el.textContent.trim(), lh:cs.lineHeight, ew:eb.width, ex:eb.left-a.left, ey:eb.top-a.top}; };
   const fly = (!REDUCED && (anim==='down'||anim==='up')) ? (anim==='down' ? (()=>{ const pi=app.querySelector('#pimg'), sg=app.querySelector('.sgvid');
       const im=pi?pi.querySelectorAll('img')[S.ci||0]:null;
       return { img:box_(pi||sg), src:im?im.src:(S.player?A(it(S.player.id).img):''), r0:16, title:txt_(app.querySelector('.pname')||app.querySelector('.sgttl p')) }; })()
-    : (()=>{ const pp=app.querySelector(':scope > .scr .pplay'), th=pp?pp.querySelector('.ppimg img'):app.querySelector(':scope > .scr .mini .th img'); return { img:box_(th), src:th?th.src:'', r0:pp?10:8, title:txt_(pp?pp.querySelector('.ppt b'):app.querySelector(':scope > .scr .mini .tt span')) }; })()) : null;   /* 2026-11-20 留言：從地圖的半高面板展開時，縮圖和標題從面板上的位置飛到完整內頁的位置 */
+    : (()=>{ const pp=app.querySelector(':scope > .scr .pplay'), th=pp?pp.querySelector('.ppimg img'):app.querySelector(':scope > .scr .mini .th img'); return { img:box_(th), src:th?th.src:'', r0:pp?10:8, title:(t=>t&&pp?{...t, wrap:true}:t)(txt_(pp?pp.querySelector('.ppt b'):app.querySelector(':scope > .scr .mini .tt span'))) }; })()) : null;   /* 2026-11-20 留言：從地圖的半高面板展開時，縮圖和標題從面板上的位置飛到完整內頁的位置 */
   if(anim && !REDUCED && app.firstElementChild){   /* 舊畫面留著做轉場，轉完就移除 */
     ghost=document.createElement('div'); ghost.className='ghost g-'+anim;
     while(app.firstChild) ghost.appendChild(app.firstChild);
@@ -3904,8 +3904,8 @@ function render(resetScroll, anim){
   const ins=m=>`inset(${m.t}px ${m.r}px ${m.b}px ${m.l}px round 20px)`, EASE='cubic-bezier(.32,.72,0,1)';
   if(fly && ghost && (toMini||fromMini)){ const dur=PAN_MS;
     const vis_=sels=>{ for(const q of sels){ const e=[...app.querySelectorAll(':scope > .scr '+q)].find(x=>box_(x)); if(e) return e; } return null; };   /* 2026-11-20：目標取「畫面上看得到的那一個」——語音的導覽分頁主圖在播放卡上，不在被橫移出畫面的介紹分頁裡 */
-    const tImgEl = toMini ? app.querySelector(':scope > .scr .mini .th img') : vis_(['#pimg','.sgvid','#pcard img','.pcard img']);
-    const tTitEl = toMini ? app.querySelector(':scope > .scr .mini .tt span') : vis_(['.pname','.sgttl p','#pcard b','.pcard b','.pscroll h1']);
+    const tImgEl = toMini ? app.querySelector(':scope > .scr .mini .th img') : vis_(['#pcard img','.pcard img','#pimg','.sgvid']);   /* 2026-11-20 留言：展開時縮圖飛到下方播放卡的縮圖，不是介紹上方的大圖 */
+    const tTitEl = toMini ? app.querySelector(':scope > .scr .mini .tt span') : vis_(['#pcard b','.pcard b','.pname','.sgttl p','.pscroll h1']);
     const tImg=box_(tImgEl), tTit=txt_(tTitEl);
     const hideG = toMini ? ['.pimg','.sgvid','.pname','.sgttl p'] : ['.mini .th img','.mini .tt span'];
     const reveal=[];
@@ -3917,9 +3917,10 @@ function render(resetScroll, anim){
       setTimeout(()=>el.remove(),dur+300); }
     if(fly.title&&tTit){ ghost.querySelectorAll(hideG.slice(toMini?2:1).join(',')).forEach(e=>e.style.visibility='hidden'); tTitEl.style.visibility='hidden'; reveal.push(tTitEl);
       const f=fly.title, k=tTit.fs/f.fs, el=document.createElement('span'); el.textContent=f.t; el.setAttribute('aria-hidden','true');
-      Object.assign(el.style,{position:'absolute',left:f.x+'px',top:f.y+'px',zIndex:81,pointerEvents:'none',whiteSpace:'nowrap',fontSize:f.fs+'px',fontWeight:f.fw,color:f.c,lineHeight:f.h+'px',transformOrigin:'0 0'});
+      Object.assign(el.style,f.wrap?{position:'absolute',left:f.ex+'px',top:f.ey+'px',width:f.ew+'px',zIndex:81,pointerEvents:'none',whiteSpace:'normal',fontSize:f.fs+'px',fontWeight:f.fw,color:f.c,lineHeight:f.lh,display:'-webkit-box',webkitLineClamp:'2',webkitBoxOrient:'vertical',overflow:'hidden',transformOrigin:'0 0'}   /* 2026-11-20 留言：兩行的標題照原本的換行一起飛，不擠成一行（原本會掉字） */
+        :{position:'absolute',left:f.x+'px',top:f.y+'px',zIndex:81,pointerEvents:'none',whiteSpace:'nowrap',fontSize:f.fs+'px',fontWeight:f.fw,color:f.c,lineHeight:f.h+'px',transformOrigin:'0 0'});
       app.appendChild(el);
-      el.animate([{transform:'translate(0,0) scale(1)',color:f.c},{transform:`translate(${tTit.x-f.x}px,${tTit.y-f.y}px) scale(${k})`,color:tTit.c}],{duration:dur,easing:PAN_EZ,fill:'forwards'}).onfinish=()=>el.remove();
+      el.animate([{transform:'translate(0,0) scale(1)',color:f.c,opacity:1},{transform:`translate(${tTit.x-(f.wrap?f.ex:f.x)}px,${tTit.y-(f.wrap?f.ey:f.y)}px) scale(${k})`,color:tTit.c,opacity:f.wrap?.6:1}],{duration:dur,easing:PAN_EZ,fill:'forwards'}).onfinish=()=>el.remove();
       setTimeout(()=>el.remove(),dur+300); }
     setTimeout(()=>reveal.forEach(e=>e.style.visibility=''),dur); }
   if(ghost && (toMini || fromMini)){   /* 播放器整頁縮進迷你播放器／從迷你播放器放大回整頁 */
