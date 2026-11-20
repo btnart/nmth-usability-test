@@ -162,7 +162,7 @@ button.mapbar{padding:0 16px}
 .rtsw-b{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:0 8px;font-size:14px;font-weight:500;color:var(--teal7)} .rtsw-b:disabled{color:var(--line);cursor:default}
 .zonesheet.pplay{max-height:50%;display:flex;flex-direction:column;overflow:hidden;padding:0 0 12px} .withmini .zonesheet.pplay{padding-bottom:12px}   /* 2026-11-20 留言：導覽中點點位，面板從迷你播放器後面長出來（播放器留在最上層），看得到的部分仍不超過半個螢幕 */   /* 2026-11-20：半高導覽面板，最高半個螢幕 */
 .pphd{flex:0 0 auto;padding:0 24px;touch-action:none}
-.ppbar{position:relative;height:24px;margin:0 -12px 2px} .ppway{flex:0 0 auto;align-self:center;min-height:40px;padding:0 14px} .ppgrab{position:absolute;left:0;right:0;top:0;height:28px} .ppgrab span{display:block;width:36px;height:4px;border-radius:2px;background:#D1D1D1;margin:8px auto 0} .ppacts{position:absolute;right:0;top:4px;display:flex;gap:2px}
+.ppbar{position:relative;height:24px;margin:0 -12px 2px} .ppway{flex:0 0 44px;width:44px;height:44px;min-height:44px;align-self:center;padding:0;border-radius:22px;justify-content:center;gap:0} .ppgrab{position:absolute;left:0;right:0;top:0;height:28px} .ppgrab span{display:block;width:36px;height:4px;border-radius:2px;background:#D1D1D1;margin:8px auto 0} .ppacts{position:absolute;right:0;top:4px;display:flex;gap:2px}
 .pprow{display:flex;gap:14px;align-items:center} .ppimg{flex:0 0 64px;height:64px;border-radius:10px;overflow:hidden} .ppimg img{width:100%;height:100%;object-fit:cover}
 .ppt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;align-items:flex-start} .ppt b{font-weight:700;font-size:17px;line-height:1.3;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden} .ppm{font-size:12px;color:var(--text2)}
 .ppic{width:36px;height:36px;border-radius:18px;display:grid;place-items:center;background:var(--cream)} .ppmeta{display:flex;align-items:center;gap:8px;flex-wrap:wrap} .ppno{font:500 13px Roboto,'Noto Sans TC',sans-serif;color:var(--text2)} .ppmeta .pccap{margin:0}
@@ -2970,7 +2970,7 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
   const cap=sg?`<span class="pccap sg">${SIGN_IC}手語影片</span>`:tx?'':`<span class="pccap">${MI(MD.head,14,'#5F5F5F')}語音導覽${x.no?` #${x.no}`:''}</span>`;   /* 2026-11-20 留言：不寫時長；語音編號放進膠囊 */
   const txt=(x.txt||'').split('\n').filter(Boolean).map(t=>`<p>${t}</p>`).join('')||`<p style="color:var(--text2)">${x.n}</p>`;
   const pct=live?Math.min(100,P.pos/x.d*100):0;
-  const way=`<button class="waybtn ppway" onclick="startNav('${id}')" aria-label="帶我去 ${x.n}">${MI(MD.nav,16,'#2E5C6E')}帶我去</button>`;
+  const way=`<button class="waybtn ppway" onclick="startNav('${id}')" aria-label="帶我去 ${x.n}">${MI(MD.nav,20,'#2E5C6E')}</button>`;   /* 2026-11-20 留言：只留圖示 */
   const ctl=tx?''   /* 2026-11-20 留言：文字導覽在面板裡就能捲完全文，不另放「看全文」 */
     :sg?`<button class="tealbtn" style="flex:1;min-height:44px" onclick="ppExpand('${id}')">${MI('M8 5v14l11-7z',18,'#fff')}看手語影片</button>`
     :live?`<button class="pb" onclick="ppToggle()" aria-label="${P.playing?'暫停':'播放'}">${MI(P.playing?MD.pause:'M8 5v14l11-7z',24,'#fff')}</button>
