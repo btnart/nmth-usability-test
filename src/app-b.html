@@ -2160,7 +2160,7 @@ function playerCard(){
   /* 同一個模組：展品資訊列、上一則／下一則永遠在；只有語音的導覽內容才多出進度與播放鍵 */
   return `<div class="pcard" id="pcard">
     <div style="display:flex;gap:12px;align-items:center">
-      <img src="${A(x.img)}" alt="" style="width:48px;height:48px;border-radius:10px;object-fit:cover;flex:0 0 48px">
+      <img src="${p.sign&&!x.tonly?sgPoster(x):A(x.img)}" alt="" style="width:48px;height:48px;border-radius:10px;object-fit:cover;flex:0 0 48px${p.sign&&!x.tonly?';object-position:72% 40%':''}">   <!-- 2026-11-20 留言：手語導覽的播放卡縮圖用影片截圖（同迷你播放器） -->
       <div style="flex:1;min-width:0"><b class="pctt"><span>${x.n}</span></b>   <!-- 2026-11-20 留言：標題太長用跑馬燈（見 pcMarquee） -->
         <span style="font-size:12px;color:var(--text2)">${sub}</span></div>
       ${hasPin(p.id)?`<button onclick="openMapSheet('${x.fl==='4F'?'4F':'2F'}','${ctx.type==='ex'?ctx.key:exOf(p.id)}','${p.id}')" aria-label="帶我去：在地圖上看位置" style="width:40px;height:40px;display:grid;place-items:center">${MI(MD.nav,22,'#2E5C6E')}</button>`:''}
@@ -3001,7 +3001,7 @@ function pinCard(id){ const x=it(id), rk0=x.rstop?(S.walk?S.walk.k:S.mapRoute):n
   return `<div class="zonesheet pincard pplay${ppm?' ppm':''}" role="dialog" aria-label="${x.n}" onclick="if(!event.target.closest('button,a,input'))ppExpand('${id}')" style="cursor:pointer">   <!-- 2026-11-20 留言：點面板任何地方（按鈕以外）都展開成完整導覽內頁 -->
     <div class="pphd" ontouchstart="ppTS(event)" ontouchend="ppTE(event,'${id}')">   <!-- 2026-11-20 留言：操作列（拉桿、展開、關閉）獨立一排在最上面，跟下方的資料分開；編號跟語音膠囊同一排 -->
       <div class="ppbar"><button class="ppgrab" onclick="ppExpand('${id}')" aria-label="展開成完整導覽內頁（也可以往上拉；往下拉收合）"><span></span></button></div>   <!-- 2026-11-20 留言：拿掉展開／關閉鈕，只留拉桿：往上拉展開、往下拉收合 -->
-      <div class="pprow"><span class="ppimg"><img src="${A(x.img)}" alt=""></span>
+      <div class="pprow"><span class="ppimg"><img src="${sg&&x.sp?sgPoster(x):A(x.img)}" alt=""${sg&&x.sp?' style="object-position:72% 40%"':''}></span>
         <div class="ppt">${meta||cap?`<div class="ppmeta">${cap}${meta?`<span class="ppm">${meta}</span>`:''}</div>`:''}<b>${x.n}</b></div>   <!-- 2026-11-20 留言：膠囊放在標題上面，標題最多兩行 -->
         ${way}</div></div>   <!-- 2026-11-20 留言：帶我去跟縮圖、標題同一排 -->
     ${noG?`<p class="ppnog">這一站沒有導覽內容，可以帶你走過去。</p>`:`<div class="pptx" onscroll="ppMask(this)">${txt}</div>`}
