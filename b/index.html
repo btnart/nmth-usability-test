@@ -1226,6 +1226,7 @@ const LG_SH={ zh:{'中文':'華','台語':'台','客語':'客','英文':'英','�
   ja:{'中文':'中','台語':'台','客語':'客','英文':'英','日文':'日','韓文':'韓'},
   ko:{'中文':'중','台語':'대','客語':'하','英文':'영','日文':'일','韓文':'한'},
   en:{'中文':'ZH','台語':'TW','客語':'HAK','英文':'EN','日文':'JA','韓文':'KO'} };
+const trkLabel=t=>t==='中文'?'華語':t.replace('臺灣','');   /* 2026-11-20 留言：語音語言名稱用「華語」，不是「中文」 */
 const LG_FULL={ zh:{'中文':'華語','台語':'台語','客語':'客語','英文':'英語','日文':'日語','韓文':'韓語'},
   en:{'中文':'Mandarin','台語':'Taiwanese','客語':'Hakka','英文':'English','日文':'Japanese','韓文':'Korean'},
   ja:{'中文':'中国語','台語':'台湾語','客語':'客家語','英文':'英語','日文':'日本語','韓文':'韓国語'},
@@ -1872,6 +1873,7 @@ function guideProgress(c){
   const p=c?{ctx:c}:S.player; if(!p) return '';
   if(!c&&p.ctx.type==='route'){ const rl=ctxList(p.ctx), ST=rl.length, n=p.ctx.idx+1, nx=rl[p.ctx.idx+1];
     return `<div class="gp"><div class="row"><span class="n">${n}／${ST} 站</span>
+      <span class="s">${nx?'下一站：'+it(nx).n:'最後一站'}</span>
 </div><div class="tr"><i style="width:${n/ST*100}%"></i></div></div>`; }
   const list=ctxList(p.ctx), hs=S.heard[p.ctx.key]||new Set(), total=list.length, heard=list.filter(id=>hs.has(id)).length;   /* 跟導覽列表同一份資料，數字對得上 */
   /* 2026-11-18：導覽形式不一定是語音，「已讀／已聽」講不準；進度只留數字與單位，靠左 */
@@ -1980,19 +1982,19 @@ function sgTap(){ if(S.sgCtl&&S.player.playing){ S.sgCtl=false; clearTimeout(S.s
 function playPane(){
   const p=S.player, x=it(p.id), ctx=p.ctx, fz=18*(S.fs==='l'?1.2:1);
   if(p.track>=trk(x).length) p.track=0;
-  const ver = p.sign ? '手語導覽・中文字幕' : `語音導覽・${trk(x)[p.track]}`;
+  const ver = p.sign ? '手語導覽・中文字幕' : `語音導覽・${trkLabel(trk(x)[p.track])}`;
   /* 第 1 輪測試修正：語言與手語不再藏在下拉選單，正在聽的這頁直接列出可選的版本，點一下就切換 */
   const vchip=(on,label,fn,off)=>`<button class="chipbtn${on?' on':''}" role="radio" aria-checked="${on}" ${off?'disabled aria-disabled="true"':`onclick="${fn}"`} style="height:36px;padding:0 12px;border-radius:18px;font-size:13px${off?';opacity:.45;cursor:default':''}">${on?MI(MD.check,16,'#fff'):''}${label}</button>`;
   const verN=(x.voice!==false?trk(x).length:0)+(x.sign||ctxList(p.ctx).some(id=>it(id).sign)?1:0);   /* 2026-11-20 留言：只有一種語言（沒有別的可以切）就不放語言膠囊 */
   const verBtn = verN<=1?'':`<div role="radiogroup" aria-label="導覽語言，目前${ver}" style="display:flex;flex-direction:column;gap:6px">   <!-- 第 1 輪測試修正：拿掉上方「導覽語言・目前…」小字，選中狀態看按鈕；說明留在 aria-label -->
-      <div style="display:flex;flex-wrap:wrap;gap:6px">${x.voice!==false?trk(x).map((t,i)=>vchip(!p.sign&&p.track===i,t.replace('臺灣',''),`setVersion('voice',${i})`)).join(''):''}${x.sign?vchip(p.sign,'手語',`setVersion('sign')`):ctxList(p.ctx).some(id=>it(id).sign)?vchip(false,'手語（本則未提供）','',true):''}</div></div>`;   /* 整個展覽都沒有手語（特展）就不放「本則未提供」 */
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${x.voice!==false?trk(x).map((t,i)=>vchip(!p.sign&&p.track===i,trkLabel(t),`setVersion('voice',${i})`)).join(''):''}${x.sign?vchip(p.sign,'手語',`setVersion('sign')`):ctxList(p.ctx).some(id=>it(id).sign)?vchip(false,'手語（本則未提供）','',true):''}</div></div>`;   /* 整個展覽都沒有手語（特展）就不放「本則未提供」 */
   const ear = S.typeTip?`<div class="eartip" id="typeTip" role="status">${MI(MD.head,18,'#2E5C6E')}<span>${S.typeTip}</span>
     <button onclick="S.typeTip=null;this.parentNode.remove()" aria-label="關閉提示">${MI(MD.close,18,'#3C3C3C')}</button></div>` : S.earSeen||p.sign?'':`<div class="eartip" role="status">${MI(MD.head,18,'#2E5C6E')}<span>請戴耳機收聽</span>
     <button onclick="S.earSeen=true;this.parentNode.remove()" aria-label="知道了，關閉提醒">${MI(MD.close,18,'#3C3C3C')}</button></div>`;
   /* 第 1 輪測試修正：「這則有幫助嗎？」改成跟耳機提示同款 banner；耳機提示還在時不出現，播完才出現；按了或關閉就收起 */
   const body = p.sign
     ? `<div aria-label="手語導覽影片：${x.n}" class="sgvid${p.playing?' signing':''}${S.sgCtl||!p.playing?' ctl-on':''}" onclick="sgTap()" style="flex:none;height:auto;aspect-ratio:16/9;max-height:none;background:#000">${signYT()}<button class="sgfs" onclick="event.stopPropagation();openSignFs()" aria-label="全螢幕放大觀看手語影片">${MI('M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z',24,'#fff')}</button></div>`   /* 手語影片本身有中文字幕，下方不再放逐字稿 */
-    : (it(p.id).tx||TRANSCRIPT).map(t=>`<p style="font-size:${fz}px;line-height:1.7;color:var(--text);margin-bottom:14px">${t}</p>`).join('');
+    : (it(p.id).tx||(it(p.id).txt?String(it(p.id).txt).split('\n').filter(Boolean):TRANSCRIPT)).map(t=>`<p style="font-size:${fz}px;line-height:1.7;color:var(--text);margin-bottom:14px">${t}</p>`).join('');
   return `<div class="pscroll" style="padding-bottom:${p.sign?170:300}px">
     <div style="display:flex;flex-direction:column;gap:12px;padding:4px 4px 0">
       ${x.voice!==false?verBtn:''}${ear}${body}</div>${zoneMates()}</div>`;   /* 2026-11-13（T4）：耳機提示移到語言按鈕下方，不擋選語言 */   /* 第 1 輪測試修正：順序＝分頁 → 提示 banner（耳機／評分，同時只出現一個）→ 語言列 → 內容 */
@@ -2090,9 +2092,8 @@ function onStopChange(prevId){ const p=S.player, was=isTxt(prevId,p.ctx), now=is
 /* 聽完一則：不跳彈窗，原本的進度列位置換成一鍵評分＋下一則 */
 function endCard(){ const p=S.player, list=ctxList(p.ctx), i=p.ctx.type==='route'?p.ctx.idx:list.indexOf(p.id), nx=list[i+1];
   const r=S.rated&&S.rated[p.id];
-  const tw=nx&&S.tour&&PINS[S.floor]&&PINS[S.floor][nx]; if(!nx&&!tw) return p.ctx.type==='ex'?nextExCard(p.ctx.key):'';   /* 第 1 輪測試 T8：聽完一檔，提示同一層的下一檔 */   /* 第 1 輪測試修正：評分移到上方 banner，這裡只留下一則按鈕；都沒有就不佔位置 */
+  const tw=nx&&S.tour&&PINS[S.floor]&&PINS[S.floor][nx]; if(!tw) return nx?'': p.ctx.type==='ex'?nextExCard(p.ctx.key):'';   /* 第 1 輪測試 T8：聽完一檔，提示同一層的下一檔 */   /* 第 1 輪測試修正：評分移到上方 banner，這裡只留下一則按鈕；都沒有就不佔位置 */
   return `<div class="gp" style="gap:8px">
-    ${nx?`<button class="nextbtn" onclick="step(1)">下一${sUnit(p.ctx)}：${it(nx).n}${p.ctx.type==='route'?'（'+gKind(it(nx))+'）':''} ${MI('M8 5v14l11-7z',16,'#fff')}</button>`:''}
     ${nx&&S.tour&&PINS[S.floor]&&PINS[S.floor][nx]?`<button class="nextbtn" style="background:var(--tealL);color:var(--teal7)" onclick="back();setTimeout(tourNext,500)">還沒走到？帶我去 ${it(nx).no?it(nx).no+'・':''}約 ${pinMeters(p.id,nx)} 公尺</button>`:''}</div>`; }   /* 現場：先走到下一件再聽 */
 /* 同展區其他導覽點：同一檔展覽、同一個展區的其他展品，可直接點播（掃 QR 進來的人站在展區裡，接著聽旁邊的） */
 function zoneMates(){ return '';   /* 2026-11-11 留言：拿掉「同展區其他導覽點」 */
