@@ -2158,7 +2158,7 @@ function playerCard(){
       <div style="flex:1;min-width:0"><b style="display:block;font-weight:500;font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.n}</b>
         <span style="font-size:12px;color:var(--text2)">${sub}</span></div>
       ${hasPin(p.id)?`<button onclick="openMapSheet('${x.fl==='4F'?'4F':'2F'}','${ctx.type==='ex'?ctx.key:exOf(p.id)}','${p.id}')" aria-label="帶我去：在地圖上看位置" style="width:40px;height:40px;display:grid;place-items:center">${MI(MD.nav,22,'#2E5C6E')}</button>`:''}
-      <button onclick="openPlist()" aria-label="導覽列表" style="width:40px;height:40px;display:grid;place-items:center">${MI('M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z',22,'#2E5C6E')}</button></div>   <!-- 2026-11-20 留言：列表圖示改成跟旁邊帶我去同一套（Material 實心、同色同尺寸） -->
+      <button onclick="openPlist()" aria-label="導覽列表" style="width:40px;height:40px;display:grid;place-items:center">${MI('M3 3.6h2.8v2.8H3zM8 3.6h13v2.8H8zM3 10.6h2.8v2.8H3zM8 10.6h13v2.8H8zM3 17.6h2.8v2.8H3zM8 17.6h13v2.8H8z',22,'#2E5C6E')}</button></div>   <!-- 2026-11-20 留言：列表圖示改成跟旁邊帶我去同一套（Material 實心、同色同尺寸） -->
     ${voice?`<div data-pvar>
       <div class="prog" id="prog" role="slider" tabindex="0" aria-label="播放進度" aria-valuemin="0" aria-valuemax="${d}" aria-valuenow="${Math.round(p.pos)}" aria-valuetext="${mmss(p.pos)} / ${mmss(d)}" style="margin-top:12px">
         <div class="track"></div><div class="fill" id="pFill" style="width:calc(${pct}% - 3px)"></div><div class="knob" id="pKnob" style="left:${pct}%"></div></div>
