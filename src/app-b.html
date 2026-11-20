@@ -1639,7 +1639,7 @@ function planKeep(all,n){ const K=new Set(); if(n>=all.length){ all.forEach((_,i
 const planPick=(all,n)=>all.filter((_,i)=>planKeep(all,n).has(i));
 const planMin=ids=>Math.max(1,Math.round(ids.reduce((a,id)=>a+(it(id).d||120)+STEP_WALK,0)/60));
 function planGo(){ const k=S.plan.k, rt=S.plan.rt, list=planPick(planBase(k),S.plan.n);
-  if(rt){ S.routePlan=Object.assign({},S.routePlan,{[k]:list}); S.plan=null; S.sheet=null; S.route=k; openMap('2F','perm',k); return; }   /* 2026-11-18：路線規劃完直接開這條路線的地圖導覽，不再先進路線介紹頁 */
+  if(rt){ S.routePlan=Object.assign({},S.routePlan,{[k]:list}); S.plan=null; S.sheet=null; S.route=k; S._fxFocus=true; openMap('2F','perm',k); return; }   /* 2026-11-18：路線規劃完直接開這條路線的地圖導覽，不再先進路線介紹頁 */
   S.exPlan=Object.assign({},S.exPlan,{[k]:list}); S.plan=null; S.sheet=null; startGuide(list[0],{type:'ex',key:k}); }
 /* 拖曳時只改數字與縮圖，不整頁重繪（重繪會把手指正在拖的滑桿換掉） */
 function planSet(n){ S.plan.n=n; const all=planBase(S.plan.k), pct=all.length>1?(n-1)/(all.length-1)*100:100, $=id=>document.getElementById(id);
@@ -2514,7 +2514,7 @@ function fxHead(k,inEx){   /* inEx＝從展覽頁進來的展覽地圖：已經�
       <button class="tealbtn" style="flex:1;min-height:44px;padding:0 14px" onclick="${on?"go('player')":`startExGuide('${k}',${sg})`}">${on?`<span class="eq go" aria-hidden="true"><i></i><i></i><i></i></span>${sg?'手語導覽中':'正在導覽中'}`:`${MI('M8 5v14l11-7z',18,'#fff')}${sg?'開始手語導覽':'開始導覽'}`}</button>
       <button class="waybtn" style="min-height:44px" onclick="startNav('entry')" aria-label="帶我去${e.n.split('：')[0]}入口">${MI(MD.nav,16,'#2E5C6E')}帶我去</button></div></div>`; }
 /* 選展覽／切到 4F「全部」後，把該展室（或整層）放到地圖可見範圍（標頭下緣到面板上緣）的正中間 */
-function fxFocus(){ const w=document.querySelector('#app > .scr .mapwrap'); if(!w) return; if(S.exOnly) return exFocus(w); if(S.floor!=='4F') return; const v=mapView(), W=w.clientWidth, H=mapVisH(w), top=fvOn()&&S.mapAll?120:104;
+function fxFocus(){ const w=document.querySelector('#app > .scr .mapwrap'); if(!w) return; if(S.exOnly) return exFocus(w); if(S.mapRoute&&ROUTES[S.mapRoute]&&!S.walk) return rtFocus(w); if(S.floor!=='4F') return; const v=mapView(), W=w.clientWidth, H=mapVisH(w), top=fvOn()&&S.mapAll?120:104;
   const ar=(S.fx&&ROOMS4[S.fx]?[S.fx]:Object.keys(ROOMS4)).flatMap(k=>ROOMS4[k].area.split(' ').map(q=>q.split(',').map(Number)).concat(exPins(k).filter(id=>PINS['4F'][id]).flatMap(id=>{ const [x,y]=PINS['4F'][id]; return [[x-70,y-70],[x+70,y+70]]; })));   /* 範圍含走廊延伸展區的點位 */   /* 全部＝兩間特展室合起來的範圍 */
   let x0,y0,x1,y1; { const p=ar; x0=Math.min(...p.map(q=>q[0])); x1=Math.max(...p.map(q=>q[0])); y0=Math.min(...p.map(q=>q[1])); y1=Math.max(...p.map(q=>q[1])); }
   const rl=fvOn()&&!S.fx?84:0, rr=0, ah=Math.max(120,H-top), sc=Math.min((S.fx?W-152:W-40-rl-rr)/(x1-x0), ah*.8/(y1-y0)), to={s:sc, x:(W+rl-rr)/2-(x0+x1)/2*sc, y:top+ah/2-(y0+y1)/2*sc};   /* 2026-11-19：整層檢視左邊讓出樓層按鈕的寬度，入口標籤不被壓到 */
@@ -2524,6 +2524,13 @@ function animView(to){ const v=mapView(), from={...v}, t0=performance.now(), D=P
   const step=n=>{ if(done) return; const k=Math.min(1,(n-t0)/D), e=ez(k); v.s=from.s+(to.s-from.s)*e; v.x=from.x+(to.x-from.x)*e; v.y=from.y+(to.y-from.y)*e; placePins(); if(k<1) requestAnimationFrame(step); else done=true; };
   requestAnimationFrame(step); setTimeout(()=>{ if(done) return; done=true; Object.assign(v,to); placePins(); },D+150); }
 /* 展覽地圖：把這檔展覽的範圍（4F＝特展室、2F＝所有導覽點外框）放到可見範圍正中間 */
+/* 2026-11-21 留言：主題路線設定好時間進地圖時，縮放到看得到這條路線（規劃後）所有站點——標頭下緣到面板上緣之間，圖釘頭與左右留邊 */
+function rtFocus(w){ const f=S.floor, v=mapView(), W=w.clientWidth, H=mapVisH(w), top=112;
+  const p=rtList(S.mapRoute).filter(id=>PINS[f]&&PINS[f][id]).map(id=>PINS[f][id]); if(!p.length) return;
+  const x0=Math.min(...p.map(q=>q[0])), x1=Math.max(...p.map(q=>q[0])), y0=Math.min(...p.map(q=>q[1])), y1=Math.max(...p.map(q=>q[1]));
+  const ah=Math.max(120,H-top), sideX=36, headY=46, botY=14;   /* 圖釘尖端在座標上，圓頭往上約 40px */
+  const sc=Math.min(2.2,(W-sideX*2)/Math.max(x1-x0,1),(ah-headY-botY)/Math.max(y1-y0,1));
+  Object.assign(v,{s:sc, x:W/2-(x0+x1)/2*sc, y:top+headY+(ah-headY-botY)/2-(y0+y1)/2*sc}); placePins(); }
 function exFocus(w){ const f=S.floor, k=S.exOnly, v=mapView(), W=w.clientWidth, H=mapVisH(w), top=104;
   const pad=70; let p=exPins(k).filter(id=>PINS[f]&&PINS[f][id]).map(id=>PINS[f][id]).flatMap(([x,y])=>[[x-pad,y-pad],[x+pad,y+pad]]);   /* 範圍＝展室外框＋所有導覽點（含走廊延伸展區） */
   if(f==='4F'&&ROOMS4[k]) p=p.concat(ROOMS4[k].area.split(' ').map(q=>q.split(',').map(Number))); if(!p.length) return;
