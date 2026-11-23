@@ -3581,7 +3581,7 @@ function scrLeave(){
       <button onclick="back()" aria-label="返回" style="transform:rotate(180deg)">${img('ic-back-arrow.svg',16,16)}</button>
       <p style="flex:1;text-align:center;font-weight:500;font-size:17px;color:var(--ink)">離館與交通</p><span style="width:12px;flex:0 0 12px" aria-hidden="true"></span></div>
     <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
-      ${card('出口在 6 號門',p('入館是 8 號門，<b>離館請走 6 號門</b>（大廳左側、服務臺旁）。8 號門只能進、不能出。')+
+      ${card('出口在 6 號門',p('入館是 8 號門，<b>離館請走 6 號門</b>：從展區回到 1 樓大廳後，背對 8 號門入口，往左手邊走到底就是。8 號門只能進、不能出。')+
         `<button class="tealbtn" style="align-self:flex-start" onclick="goExit()">${MI(MD.map,18,'#fff')}帶我去 6 號門</button>`)}   <!-- 2026-11-11 留言：加帶我去 -->
       ${card('搭計程車',p('館區沒有固定叫車區，請到<b>洽公停車場</b>（6 號門出去右轉約 100 公尺）上車。')+
         `<div style="display:flex;flex-wrap:wrap;gap:8px"><button class="tealbtn" onclick="toast('已複製上車地點：臺史博洽公停車場')">複製上車地點給司機</button><button class="tealbtn soft" style="box-shadow:none;border-color:transparent" onclick="showTaxiMap()">${MI(MD.map,18,'#2E5C6E')}查看地圖</button></div>`)}   <!-- 2026-11-11 留言：加查看地圖 -->
