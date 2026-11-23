@@ -3587,14 +3587,15 @@ function scrLeave(){
         `<div style="display:flex;flex-wrap:wrap;gap:8px"><button class="tealbtn" onclick="toast('已複製上車地點：臺史博洽公停車場')">複製上車地點給司機</button><button class="tealbtn soft" style="box-shadow:none;border-color:transparent" onclick="showTaxiMap()">${MI(MD.map,18,'#2E5C6E')}查看地圖</button></div>`)}   <!-- 2026-11-11 留言：加查看地圖 -->
       ${card('公車',p('6 號門外「臺史博」站：10、18、紅 3（往臺南火車站）')+
         `<button class="tealbtn soft" style="align-self:flex-start;box-shadow:none;border-color:transparent" onclick="showSiteMap('公車站')">${MI(MD.map,18,'#2E5C6E')}查看地圖</button>`)}   <!-- 2026-11-11 留言：加查看地圖 -->
-      ${card('周邊吃什麼',['安南區・虱目魚粥（步行 8 分）','鹿耳門天后宮商圈小吃（車程 10 分）','四草大眾廟周邊海產（車程 12 分）'].map(t=>`<div class="meta" style="padding:0"><i></i>${t}</div>`).join(''))}
-      <button onclick="S.sheet='fbm';render()" style="font-size:13px;color:var(--teal7);padding:4px 0;min-height:44px;text-decoration:underline;text-underline-offset:3px">參觀後有意見？告訴我們</button></div>   <!-- 2026-11-11 留言：在這裡直接開置中的意見回饋彈窗，不換頁 -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px 0 8px;text-align:center">   <!-- 2026-11-23 留言：用詞改寫，加上跟首頁一樣的意見回饋按鈕（原地開彈窗） -->
+        <b style="font-weight:700;font-size:16px;line-height:1.5;color:var(--ink)">參觀後有意見想回饋的嗎？歡迎告訴我們！</b>
+        <button class="tealbtn soft" style="min-width:180px;min-height:44px;padding:0 28px;border-color:transparent" onclick="S.sheet='fbm';render()">意見回饋</button></div></div>   <!-- 2026-11-11 留言：在這裡直接開置中的意見回饋彈窗，不換頁 -->
   </div></div>`;
 }
 /* ---------- 常見問題（旅程痛點：到館前、在館內的疑問，只寫已確認的事實） ---------- */
 function mailbox(){ toast('將開啟臺史博官網館長信箱'); }
 const FAQ_QA=[['幾點開門？哪天休館？','開放時間 09:00–17:00，<b>週一休館</b>。'],
-    ['館內有東西吃嗎？','館內只有一間咖啡廳。想吃正餐可以看「離館與交通」裡的周邊美食。<br><button onclick="go(\'leave\')">看周邊美食 →</button>'],
+    ['館內有東西吃嗎？','館內只有一間咖啡廳。'],   /* 2026-11-23：離館頁拿掉周邊吃什麼，這題不再連過去 */
     ['館內有 ATM 嗎？','館內<b>沒有 ATM</b>，需要現金請先準備好。'],
     ['有 Wi-Fi 嗎？','有，使用 iTaiwan。連線約 30 分鐘會自動登出，建議出發前先把導覽內容離線預載，館內不用網路也能聽。<br><button onclick="S.sheet=\'offline\';render()">去離線預載 →</button>'],
     ['可以借輪椅嗎？','可以，1F 服務臺<b>免費借用</b>。'],
