@@ -255,7 +255,7 @@ button.mapbar{padding:0 16px}
 /* 地圖上有迷你播放器時：下方面板加高、內容往上讓位，樓層列與縮放鍵一起上移，卡片不會被迷你播放器蓋住 */
 .withmini .zonesheet{padding-bottom:104px} .withmini .mapwrap{bottom:var(--sh,338px)}
 
-.maponly .floorsel{display:none}   /* 單件展品地圖：只看這一層這一件 */
+.maponly .floorsel{display:none} .railtight .floorsel{opacity:0;pointer-events:none;visibility:hidden;transition:opacity .2s,visibility 0s .2s}   /* 單件展品地圖：只看這一層這一件 */
 .navk{font-size:12px;color:var(--teal7);font-weight:500}
 .navt{font-weight:700;font-size:18px;line-height:1.3;color:var(--ink);margin-top:-6px}
 .lmchip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:18px;background:var(--tealL);color:var(--teal7);font-weight:500;font-size:13px}
@@ -2750,6 +2750,7 @@ function floorRailFit(){ const scr=(document.querySelector('#app > .scr.mapsheet
   const top=Math.max(0,...[...scr.querySelectorAll(':scope > .maphead > *, :scope > .facbar, :scope > .pickhead')].filter(vis).map(bot));
   const under=[...scr.querySelectorAll(':scope > .zonesheet, :scope > .navsheet, :scope > .mini')].filter(vis).map(e=>(e.dataset.fh?e.offsetTop+e.offsetHeight-(+e.dataset.fh):e.offsetTop)+(e.classList.contains('mini')?28:0)), end=Math.min(scr.clientHeight,...under);
   const v=Math.round((top+end)/2)+'px';
+  { const fs=scr.querySelector(':scope > .floorsel'); if(fs) scr.classList.toggle('railtight', end-top<fs.offsetHeight+24); }   /* 2026-11-23 留言：半高導覽面板＋迷你播放器時地圖可視區太矮，樓層列放不下就先收起（關掉面板再出現），不疊到面板或篩選列 */
   if(!scr.style.getPropertyValue('--railc')){ const els=[...scr.querySelectorAll('.floorsel')]; els.forEach(e=>e.style.transition='none');
     scr.style.setProperty('--railc',S._railc||v); scr.offsetHeight; els.forEach(e=>e.style.transition=''); }   /* 重畫出的新畫面先放在上一次的位置（第一次進地圖就直接放定位） */
   scr.style.setProperty('--railc',v); S._railc=v; placeFab(); }   /* 2026-11-11 留言：面板收合／展開、換樓層後，樓層列與縮放鍵從原位置滑到新位置 */   /* 2026-11-11 留言：樓層列（左）與縮放鍵（右）同一條中線、左右都距邊 20px */   /* 樓層列：標頭（含設施 tab）下緣到底部面板上緣之間置中 */
