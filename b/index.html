@@ -1244,9 +1244,9 @@ const LG_FULL={ zh:{'中文':'華語','台語':'台語','客語':'客語','英�
   ko:{'中文':'중국어','台語':'대만어','客語':'하카어','英文':'영어','日文':'일본어','韓文':'한국어'} };
 function langTag(k,cls,line){ const ln=lineOf(k,line||'main'), v=!!ln&&ln.kind==='voice', sg=!!ln&&ln.kind==='sign';   /* 2026-11-18：標籤照卡片代表的那條線（現正展出＝主線，無障礙專區＝手語線） */
   const a=exVoice(k), L=S.lang in LG_SH?S.lang:'zh', full=a.map(t=>LG_FULL[L][t]||t).join('、');
-  const lv=a.length===1?`<span translate="no">${({zh:'語音',en:'Audio',ja:'音声',ko:'음성'})[L]}</span>`:a.map(t=>`<span class="ln" translate="no">${LG_SH[L][t]||t}</span>`).join('');   /* 2026-11-12：卡片只顯示這個介面語言的語音，單一語言時不寫語言、只寫「語音導覽」；多種（如中文介面的華台客）才列語言 */
+  const lv=a.length===1&&L!=='zh'?`<span translate="no">${({zh:'語音',en:'Audio',ja:'音声',ko:'음성'})[L]}</span>`:a.map(t=>`<span class="ln" translate="no">${LG_SH[L][t]||t}</span>`).join('');   /* 2026-11-12：卡片只顯示這個介面語言的語音，單一語言時不寫語言、只寫「語音導覽」；多種（如中文介面的華台客）才列語言；2026-11-23 中文介面一律列出音檔語言（只有一種也寫，例如「華」） */
   if(!v&&!sg) return '';   /* 沒有語音也沒有手語（文字導覽或只有多媒體）不放標籤（2026-11-12） */
-  return `<span class="langtag${cls?' '+cls:''}" title="${full}${sg?'、手語':''}" aria-label="導覽語言：${full}${sg?'、手語':''}">${v?`<span class="lv" aria-hidden="true">${MI(MD.head,14,'currentColor')}<span>${lv}</span></span>`:''}${sg?`<span class="ls">${SIGN_IC}<span>手語</span></span>`:''}</span>`; }
+  return `<span class="langtag${cls?' '+cls:''}" title="${[v&&full,sg&&'手語'].filter(Boolean).join('、')}" aria-label="導覽語言：${[v&&full,sg&&'手語'].filter(Boolean).join('、')}">${v?`<span class="lv" aria-hidden="true">${MI(MD.head,14,'currentColor')}<span>${lv}</span></span>`:''}${sg?`<span class="ls">${SIGN_IC}<span>手語</span></span>`:''}</span>`; }
 /* 語言太多、標籤超出照片時：保留前面幾個（目前介面語言排第一），其餘收成「+N」 */
 function fitLangTags(){ document.querySelectorAll('#app .langtag').forEach(t=>{ const box=t.closest('.cardimg'); if(!box) return; const max=box.clientWidth-20+1;
   const ln=[...t.querySelectorAll('.ln')]; let n=ln.length, more=t.querySelector('.lmore');
