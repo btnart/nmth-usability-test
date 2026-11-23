@@ -1831,10 +1831,10 @@ function play(id, ctx, sign, tab, force){   /* tab：從展品列表點進來時
   if(S._stayMap&&S.screen==='map'){ S._stayMap=false; S.mapSel=id; if(!isTxt(id,S.player.ctx)&&!S.player.sign){ S.player.playing=true; S.earSeen=true; } return render(); }   /* 2026-11-20：地圖半高面板按播放＝留在地圖上播 */
   S._stayMap=false;
   /* 2026-11-23 留言：點導覽不再直接打開導覽內頁，改成只出現迷你播放器（換一則＝換迷你播放器的內容）。
-     手語、文字導覽也一樣只出現迷你播放器（點它再看內容）；這一頁沒有迷你播放器時才打開內頁 */
+     手語、文字導覽要看畫面，直接打開內頁（依導覽類型決定開啟方式，2026-11-23 確認）；這一頁沒有迷你播放器時也打開內頁 */
   const full=S._full; S._full=false;
-  if(!full&&S.screen!=='player'){
-    if(!S.player.sign&&!isTxt(id,S.player.ctx)){ if(!S.earSeen) toast('請戴耳機收聽'); S.earSeen=true; S.player.playing=true; } render();
+  if(!full&&S.screen!=='player'&&!S.player.sign&&!isTxt(id,S.player.ctx)){
+    if(!S.earSeen) toast('請戴耳機收聽'); S.earSeen=true; S.player.playing=true; render();
     if(document.querySelector('#app .mini')) return; }
   go('player');
 }
