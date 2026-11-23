@@ -1534,8 +1534,9 @@ function scrScan(){
             ${(v=>v.tonly?'':`<span style="font-size:12px;color:var(--text2)">${v.voice===false?`手語導覽 ${mmss(v.d)}`:`語音導覽 ${mmss(v.d)}<span>・</span>${trk(v).map(t=>`<span>${t.replace('臺灣','')}</span>`).join('<span>／</span>')}`}</span>`)(it(found[0]))}</div></div>
         <button class="tealbtn" style="width:100%;height:48px;border-radius:24px;margin-top:14px;font-size:15px" onclick="scanPlay('${found[0]}',{type:'ex',key:'${Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(found[0]))||'perm'}'})">${it(found[0]).tonly?'看文字介紹':'開始播放導覽'}</button>
         <button style="display:block;margin:14px auto 0;font-size:12px;color:var(--teal7)" onclick="S.code='';S.kp=true;render()">重新輸入編號</button></div>`
-     :!S.kp?'':`<div class="sheet" style="position:relative;flex:none;padding:8px 24px 16px;border-radius:24px 24px 0 0">
-        <div style="display:flex;justify-content:center;align-items:center"><button onclick="S.kp=false;render()" style="display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 6px;font-size:13px;font-weight:500;color:var(--teal7)">${img('ic-scan-dark.svg',16,16)}改用相機掃描</button></div>
+     :!S.kp?'':`<div style="flex:none;display:flex;justify-content:center;padding:0 20px 14px"><button onclick="S.kp=false;render()" style="display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:20px;background:rgba(255,255,255,.1);color:var(--tealL);font-size:13px;font-weight:500">${img('ic-scan-white.svg',16,16)}改用相機掃描</button></div>
+     <div class="sheet" style="position:relative;flex:none;padding:20px 24px 16px;border-radius:24px 24px 0 0">
+        
         <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
           ${[[1,2,3],[4,5,6],[7,8,9],['',0,'⌫']].map(r=>`<div style="display:flex;gap:10px">${r.map(key).join('')}</div>`).join('')}
           ${c.length===3?`<p style="font-size:12px;color:#8D0E0E;margin-top:2px">查無編號 ${c}（示範：205）</p>`:''}
@@ -1830,7 +1831,14 @@ function play(id, ctx, sign, tab, force){   /* tab：從展品列表點進來時
   if(!S.earSeen&&!S.player.sign) S.player.playing=false;   /* 2026-11-13：第一次聽語音先顯示戴耳機提醒、不自動出聲，按播放才開始 */
   S.ci=0; S.pTab=tab||'play'; markHeard();
   if(S._stayMap&&S.screen==='map'){ S._stayMap=false; S.mapSel=id; if(!isTxt(id,S.player.ctx)&&!S.player.sign){ S.player.playing=true; S.earSeen=true; } return render(); }   /* 2026-11-20：地圖半高面板按播放＝留在地圖上播 */
-  S._stayMap=false; go('player');
+  S._stayMap=false;
+  /* 2026-11-23 留言：點導覽不再直接打開導覽內頁，改成只出現迷你播放器（換一則＝換迷你播放器的內容）。
+     手語影片、文字導覽要看畫面，仍打開內頁；這一頁沒有迷你播放器時也打開內頁 */
+  const full=S._full; S._full=false;
+  if(!full&&S.screen!=='player'&&!S.player.sign&&!isTxt(id,S.player.ctx)){
+    if(!S.earSeen) toast('請戴耳機收聽'); S.earSeen=true; S.player.playing=true; render();
+    if(document.querySelector('#app .mini')) return; }
+  go('player');
 }
 function markHeard(){ const p=S.player; if(p.ctx.type==='ex'||p.ctx.type==='pre'){ (S.heard[p.ctx.key]=S.heard[p.ctx.key]||new Set()).add(p.id); } }
 /* 路線上下一個／上一個有音檔的站（沒有就回 -1） */
@@ -3010,7 +3018,7 @@ function ppFocus(id){ requestAnimationFrame(()=>{ const P=PINS[S.floor]&&PINS[S.
   animView({s, x:W/2-P[0]*s, y:cy-P[1]*s}); }); }
 function ppPlay(id){ ppExpand(id); }   /* 2026-11-20 留言：在半高面板按播放＝展開成完整導覽內頁並開始播（跨清單仍先問） */
 function ppToggle(){ const p=S.player; if(!p) return; if(p.playing){ p.playing=false; return render(); } p.playing=true; ppExpand(p.id); }   /* 暫停留在面板；按播放就展開 */
-function ppExpand(id){ if(S.screen!=='map') return; if(S.player&&S.player.id===id){ S.mapSel=null; return go('player'); } S._stayMap=false; S.mapSel=null; play(id,ppCtx(id)); }
+function ppExpand(id){ if(S.screen!=='map') return; if(S.player&&S.player.id===id){ S.mapSel=null; return go('player'); } S._stayMap=false; S.mapSel=null; S._full=true; play(id,ppCtx(id)); }
 let ppY=null; /* 2026-11-20 留言：內文捲到底（或本來就不用捲）時拿掉底部漸層遮罩，最後一句才看得清楚 */
 function ppMask(el){ if(el) el.classList.toggle('end', el.scrollTop+el.clientHeight>=el.scrollHeight-2); }
 function ppTS(e){ ppY=e.touches[0].clientY; } function ppTE(e,id){ if(ppY==null) return; const dy=e.changedTouches[0].clientY-ppY; ppY=null; if(dy<-50||dy>70){ if(e.cancelable) e.preventDefault(); } if(dy<-50) ppExpand(id); else if(dy>70) pinBack(); }   /* 2026-11-20：滑完不要再補一次點擊（原本會展開兩次，標題被藏住沒回來） */
@@ -4012,12 +4020,12 @@ if(!__GO[0]&&!new URLSearchParams(__QS).has('skip')){ S.screen='landing'; preloa
 (()=>{ 
   if(__GO[0]==='ex'&&EXHIBITIONS[__GO[1]]){ openEx(__GO[1]); S.hist=['home']; return; }   /* ?go=ex:zj 掃展場入口的 QR Code：開這檔展覽頁 */
   if(__GO[0]==='tour'&&EXHIBITIONS[__GO[1]]){ const k=__GO[1], l=exBase(k), i=Math.max(0,Math.min(l.length-1,(+__GO[2]||1)-1));   /* ?go=tour:perm:3 展覽導覽聽到第 3 則（前面的已聽完） */
-    S.heard[k]=new Set(l.slice(0,i)); play(l[i],{type:'ex',key:k}); S.hist=['home']; return; }
+    S.heard[k]=new Set(l.slice(0,i)); S._full=true; play(l[i],{type:'ex',key:k}); S.hist=['home']; return; }
   if(__GO[0]==='pre'){ startPre(); S.hist=['home']; return; }
   if(__GO[0]==='resume'){ S.resume={id:'p102',ctx:{type:'ex',key:'perm'},pos:42,t:Date.now()-3600e3}; return; }   /* 易用性測試情境：#go=resume 模擬上次聽到一半 */   /* ?go=pre 從官網連結進來：直接開參觀前先聽 */
   const e=Object.entries(ITEMS).find(([k,v])=>v.no===__GO[1]); if(!e) return;
-  if(__GO[0]==='pt'){ play(e[0],{type:'ex',key:exOf(e[0])}); S.hist=['home']; return; }   /* 掃展籤 QR Code：直接進播放器開始播這一件（不再停在掃碼頁按開始） */
-  if(__GO[0]==='play'){ const ex=Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(e[0]))||'perm'; play(e[0],{type:'ex',key:ex}); S.hist=['home']; } })();
+  if(__GO[0]==='pt'){ S._full=true; play(e[0],{type:'ex',key:exOf(e[0])}); S.hist=['home']; return; }   /* 掃展籤 QR Code：直接進播放器開始播這一件（不再停在掃碼頁按開始） */
+  if(__GO[0]==='play'){ const ex=Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(e[0]))||'perm'; S._full=true; play(e[0],{type:'ex',key:ex}); S.hist=['home']; } })();
 /* 2026-11-13（審查 #15）：逐字稿複製超過 50 字，貼上時自動附出處與網址 */
 document.addEventListener('copy',ev=>{ const sel=document.getSelection(), t=sel?String(sel):''; if(t.length<=50||!S.player) return;
   const n=sel.anchorNode, el=n&&(n.nodeType===1?n:n.parentElement); if(!el||!el.closest('.pscroll')) return;
