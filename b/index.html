@@ -439,10 +439,8 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .signfs #sfClose{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 12px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.35) inset}   /* 2026-11-18：手語影片底色是白的，全螢幕右上角的縮放鈕原本半透明白會被影片吃掉——改深色底＋陰影，跟放大鈕同一款 */
 .pctl{flex:0 0 44px;width:44px;height:44px;display:grid;place-items:center;color:#3C3C3C}   /* 第 1 輪測試修正：播放控制兩端與 15 秒鍵統一 44×44 */
 .pspd{font:600 16px/1 Roboto,sans-serif;letter-spacing:.2px}
-.eartip.rateb .ratebtn{flex:0 0 auto;width:auto;height:auto;min-height:32px;white-space:nowrap;padding:4px 12px} .rateb span{min-width:0}   /* 第 1 輪測試修正：評分按鈕不被耳機提示的 36px 寬度規則擠成直排 */
 .eartip{position:relative;z-index:1;   /* 第 1 輪測試修正：不再浮在語言選單上，改在內容流裡 */display:flex;align-items:center;gap:8px;background:#fff;border-radius:12px;box-shadow:0 6px 16px rgba(0,0,0,.14);
   padding:6px 6px 6px 12px;font-size:13px;color:var(--text)} .eartip span{flex:1} .eartip button{width:36px;height:36px;display:grid;place-items:center}
-.ratebtn{min-height:32px;padding:4px 12px;border-radius:16px;background:#fff;border:1px solid var(--border);font-size:12px;color:var(--teal7)}
 #pcard{position:relative} .pnext{position:absolute;left:0;right:0;bottom:calc(100% + 10px);display:flex;justify-content:center;pointer-events:none} .pnext .gp{pointer-events:auto;display:flex;flex-direction:column;align-items:center} .pnext .nextbtn{box-shadow:0 8px 20px -6px rgba(15,25,30,.45);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nextbtn{min-height:40px;border-radius:20px;background:var(--teal7);color:#fff;font-weight:500;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 14px}
 /* 2026-11-18：導覽列表改成卡片式分層——單元是灰底大卡，底下的子單元與展品是白底小卡、往內縮，右側統一一顆播放鍵 */
@@ -769,12 +767,12 @@ video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-web
 .loginscr .lgbot>div i{flex:1;width:auto!important} .loginscr .lgbot>div span{white-space:nowrap}   /* 「或使用 Email」不換行，兩側線條撐滿 */
 #app .scr .mapwrap{bottom:0!important}   /* 地圖鋪滿到底，面板疊在上面（見 mapVisH） */
 #app .mapwrap .pickpin{top:calc((100% - var(--sh,0px))/2)}   /* 標位置的圖釘＝看得到的地圖正中間 */
-.pnext{flex-direction:column;align-items:center;gap:8px;padding:0 16px}.pnext>*{pointer-events:auto}.pnext .rateb{align-self:stretch}
+.pnext{flex-direction:column;align-items:center;gap:8px;padding:0 16px}.pnext>*{pointer-events:auto}
 .signhome{display:flex;align-items:center;gap:12px;width:calc(100% - 48px);max-width:640px;margin:-12px auto 26px;padding:12px 16px;border-radius:16px;background:var(--tealL);text-align:left}
 .signhome>svg,.signhome>.ico{flex:0 0 26px;width:26px;height:26px;color:#2E5C6E}.signhome>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.signhome b{font-weight:700;font-size:16px;color:var(--ink)}.signhome small{font-size:12px;color:var(--text2)}
 .resume{display:flex;align-items:center;gap:10px;width:calc(100% - 48px);max-width:640px;margin:0 auto 14px;padding:10px 8px 10px 10px;border-radius:16px;background:#fff;box-shadow:0 6px 18px rgba(26,23,15,.14)}
 .resume img{width:48px;height:48px;border-radius:10px;object-fit:cover;flex:0 0 48px}.resume b{font-size:13px;color:var(--teal7)}.resume .rn{font-weight:700;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.resume small{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.resume .rx{width:36px;height:36px;display:grid;place-items:center;flex:0 0 36px}
-.nextex{align-self:stretch;display:flex;flex-direction:column;gap:4px;background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 6px 18px rgba(0,0,0,.16)}.nextex>span{font-size:12px;color:var(--text2)}.nextex b{font-weight:700;font-size:16px;line-height:1.35;color:var(--ink)}.nextex small{font-size:12px;color:var(--text2)}.nextex div{display:flex;gap:8px;margin-top:8px}.nextex div button{flex:1;height:40px;border-radius:20px;font-size:14px;gap:6px;white-space:nowrap}
+.nextex{position:absolute;left:24px;right:24px;top:50%;transform:translateY(-50%);z-index:46;display:flex;flex-direction:column;gap:4px;background:#fff;border-radius:24px;padding:24px 20px 20px;box-shadow:0 16px 40px -8px rgba(0,0,0,.3)}.nextex>span{padding-right:36px}.nextex .nxx{position:absolute;top:10px;right:10px;width:44px;height:44px;display:grid;place-items:center;border-radius:22px}.nextex>span{font-size:12px;color:var(--text2)}.nextex b{font-weight:700;font-size:16px;line-height:1.35;color:var(--ink)}.nextex small{font-size:12px;color:var(--text2)}.nextex div{display:flex;gap:8px;margin-top:12px}.nextex div button{flex:1;height:48px;border-radius:24px!important;border-radius:20px;font-size:14px;gap:6px;white-space:nowrap}
 .exrev{padding:8px 24px 16px}.exrev h2{font-weight:500;font-size:20px;letter-spacing:.5px;color:var(--text)}.exrev .avg{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2)}.exrev .avg b{font-weight:700;color:var(--ink)}
 .stars{display:inline-flex;gap:1px}.stars i{font-style:normal;color:#D8D2C6;line-height:1}.stars i.on{color:var(--gold-mid)}
 .rv{padding:12px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}.rv .rh{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}.rv .rh b{font-weight:500;color:var(--ink);font-size:13px}.rv .rh em{font-style:normal;font-size:11px;padding:1px 8px;border-radius:9px;background:#fff7e0;color:#8a6d00}.rv p{font-size:14px;line-height:1.6;color:var(--text)}.rv small{font-size:11px;color:var(--text2)}.rv.mine{background:var(--cream);border-radius:12px;padding:12px;border:0}
@@ -2017,7 +2015,6 @@ function playPane(){
   const ear = S.typeTip?`<div class="eartip" id="typeTip" role="status">${MI(MD.head,18,'#2E5C6E')}<span>${S.typeTip}</span>
     <button onclick="S.typeTip=null;this.parentNode.remove()" aria-label="關閉提示">${MI(MD.close,18,'#3C3C3C')}</button></div>` : S.earSeen||p.sign?'':`<div class="eartip" role="status">${MI(MD.head,18,'#2E5C6E')}<span>請戴耳機收聽</span>
     <button onclick="S.earSeen=true;this.parentNode.remove()" aria-label="知道了，關閉提醒">${MI(MD.close,18,'#3C3C3C')}</button></div>`;
-  /* 第 1 輪測試修正：「這則有幫助嗎？」改成跟耳機提示同款 banner；耳機提示還在時不出現，播完才出現；按了或關閉就收起 */
   const body = p.sign
     ? `<div aria-label="手語導覽影片：${x.n}" class="sgvid${p.playing?' signing':''}${S.sgCtl||!p.playing?' ctl-on':''}" onclick="sgTap()" style="flex:none;height:auto;aspect-ratio:16/9;max-height:none;background:#000">${signYT()}<button class="sgfs" onclick="event.stopPropagation();openSignFs()" aria-label="全螢幕放大觀看手語影片">${MI('M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z',24,'#fff')}</button></div>`   /* 手語影片本身有中文字幕，下方不再放逐字稿 */
     : ((it(p.id).txT||{})[trk(x)[p.track]]||it(p.id).tx||(l=>(l.length?[`此音檔為測試音檔。${l[0]}`,...l.slice(1)]:l))(it(p.id).txt?String(it(p.id).txt).split('\n').filter(Boolean):TRANSCRIPT)).map(t=>`<p style="font-size:${fz}px;line-height:1.7;color:var(--text);margin-bottom:14px">${t}</p>`).join('');
@@ -2025,10 +2022,6 @@ function playPane(){
     <div style="display:flex;flex-direction:column;gap:12px;padding:4px 4px 0">
       ${x.voice!==false?verBtn:''}${ear}${body}</div>${zoneMates()}</div>`;   /* 2026-11-13（T4）：耳機提示移到語言按鈕下方，不擋選語言 */   /* 第 1 輪測試修正：順序＝分頁 → 提示 banner（耳機／評分，同時只出現一個）→ 語言列 → 內容 */
 }
-function rateBanner(){ const p=S.player, x=p&&it(p.id); if(!p) return '';   /* 2026-11-16 留言：「這則有幫助嗎？」放在下方播放面板上方，不放在字幕上方 */
-  return (S.pTab||'play')==='play' && p.pos>=x.d && !isTxt(p.id,p.ctx) && !(S.rated&&S.rated[p.id]) && !(S.rateX&&S.rateX[p.id]) ? `<div class="eartip rateb" role="status">${MI('M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z',18,'#2E5C6E')}<span>這則有幫助嗎？</span>
-    ${['有幫助','沒幫助'].map(t=>`<button class="ratebtn" onclick="(S.rated=S.rated||{})['${p.id}']='${t}';toast('謝謝你的回饋');render()">${t}</button>`).join('')}
-    <button onclick="(S.rateX=S.rateX||{})['${p.id}']=true;this.parentNode.remove()" aria-label="關閉">${MI(MD.close,18,'#3C3C3C')}</button></div>` : ''; }
 /* ---------- 2026-11-16：Notion SB-2516 剩餘項目 ---------- */
 /* 審查 #10：中斷後重開，首頁最上方提示接著聽（同一支手機不用登入；換手機要登入） */
 function resumeCard(){ const r=S.resume, x=it(r.id);
@@ -2044,8 +2037,13 @@ function resumeX(){ S.resume=null; try{ localStorage.removeItem('nmth.resume'); 
 function nextExKey(k){ const cur=EXHIBITIONS[k], ks=Object.keys(EXHIBITIONS).filter(x=>x!==k&&!/^demo/.test(x)&&(EXHIBITIONS[x].items||[]).length&&!lrText(x));
   const same=ks.filter(x=>EXHIBITIONS[x].fl===cur.fl); return same[0]?{k:same[0],same:true}:ks[0]?{k:ks[0],same:false}:null; }
 function nextExCard(k){ const n=nextExKey(k); if(!n) return ''; const E=EXHIBITIONS[n.k];
-  return `<div class="nextex" role="status"><span>這檔導覽聽完了，${n.same?'同一層還有':E.fl+' 還有'}</span><b>${E.n}</b>${(E.meta||[])[0]?`<small>${E.meta[0]}・${E.meta[1]||E.fl}</small>`:''}
+  return `<div class="nextex" role="alertdialog" aria-modal="true" aria-labelledby="nxH"><button class="nxx" onclick="nextExX()" aria-label="關閉">${MI(MD.close,22,'#3C3C3C')}</button><span>這檔導覽聽完了，${n.same?'同一層還有':E.fl+' 還有'}</span><b id="nxH">${E.n}</b>${(E.meta||[])[0]?`<small>${E.meta[0]}・${E.meta[1]||E.fl}</small>`:''}
     <div><button class="tealbtn" onclick="startExGuide('${n.k}')">${MI('M8 5v14l11-7z',18,'#fff')}開始導覽</button><button class="tealbtn soft" onclick="openEx('${n.k}')">看展覽介紹</button></div></div>`; }
+/* 2026-11-23 留言：「下一檔展覽」改成置中彈窗，背景蓋遮罩不能點，只能按關閉或兩顆按鈕；關掉後這則不再跳 */
+function nextExDlg(){ const p=S.player; if(S.screen!=='player'||S.sheet||!p||p.ctx.type!=='ex'||isTxt(p.id,p.ctx)||(S.pTab||'play')!=='play'||p.pos<it(p.id).d) return '';
+  const list=ctxList(p.ctx); if(list[list.indexOf(p.id)+1]||S.nextExOff===p.id) return '';
+  const c=nextExCard(p.ctx.key); return c?`<div class="scr" style="background:transparent;z-index:45"><div class="dim"></div>${c}</div>`:''; }
+function nextExX(){ S.nextExOff=S.player&&S.player.id; render(); }
 /* 審查 #20、22／簡報 P14：展覽評論與評分——要登入、館方審核後公開；不登入也能用全部導覽 */
 const REVIEWS={perm:{list:[['王＊＊','11/10',5,'手語影片很清楚，跟著展區一路看下來不會迷路。'],['Lin＊＊','11/08',4,'展品很多，建議先選一條主題路線再逛。'],['吳＊＊','11/07',5,'帶爸媽來，文字導覽字夠大，長輩看得很輕鬆。'],['Chen＊＊','11/05',5,'找廁所的功能很實用，地圖一點就帶過去。'],['許＊＊','11/03',4,'內容很豐富，一次逛不完，下次想再來聽後半段。'],['蔡＊＊','11/01',5,'主題路線「聽」很有趣，小孩一直要按下一站。']]},
   zj:{list:[['陳＊＊','11/12',5,'媽祖神像的故事很好聽，小孩也聽得懂。'],['張＊＊','11/09',4,'導覽點不多，15 分鐘剛好。'],['楊＊＊','11/06',5,'展場燈光很美，配著語音導覽很有氣氛。'],['Lee＊＊','11/04',4,'英文導覽也有，帶外國朋友來很方便。']]},
@@ -2117,8 +2115,7 @@ function onStopChange(prevId){ const p=S.player, was=isTxt(prevId,p.ctx), now=is
     clearTimeout(onStopChange.t); onStopChange.t=setTimeout(()=>{ S.typeTip=null; const e=document.getElementById('typeTip'); if(e) e.remove(); },4000); } }
 /* 聽完一則：不跳彈窗，原本的進度列位置換成一鍵評分＋下一則 */
 function endCard(){ const p=S.player, list=ctxList(p.ctx), i=p.ctx.type==='route'?p.ctx.idx:list.indexOf(p.id), nx=list[i+1];
-  const r=S.rated&&S.rated[p.id];
-  const tw=nx&&S.tour&&PINS[S.floor]&&PINS[S.floor][nx]; if(!tw) return nx?'': p.ctx.type==='ex'?nextExCard(p.ctx.key):'';   /* 第 1 輪測試 T8：聽完一檔，提示同一層的下一檔 */   /* 第 1 輪測試修正：評分移到上方 banner，這裡只留下一則按鈕；都沒有就不佔位置 */
+  const tw=nx&&S.tour&&PINS[S.floor]&&PINS[S.floor][nx]; if(!tw) return '';   /* 2026-11-23：聽完一檔的「下一檔展覽」改成置中彈窗（nextExDlg） */   /* 第 1 輪測試 T8：聽完一檔，提示同一層的下一檔 */   /* 第 1 輪測試修正：評分移到上方 banner，這裡只留下一則按鈕；都沒有就不佔位置 */
   return `<div class="gp" style="gap:8px">
     ${nx&&S.tour&&PINS[S.floor]&&PINS[S.floor][nx]?`<button class="nextbtn" style="background:var(--tealL);color:var(--teal7)" onclick="back();setTimeout(tourNext,500)">還沒走到？帶我去 ${it(nx).no?it(nx).no+'・':''}約 ${pinMeters(p.id,nx)} 公尺</button>`:''}</div>`; }   /* 現場：先走到下一件再聽 */
 /* 同展區其他導覽點：同一檔展覽、同一個展區的其他展品，可直接點播（掃 QR 進來的人站在展區裡，接著聽旁邊的） */
@@ -2205,7 +2202,7 @@ function playerCard(){
         <button onclick="seek(15)" aria-label="前進 15 秒" class="pctl">${fwd15}</button>
         <button class="pctl pspd" onclick="S.sheet='speed';render()" aria-label="播放速度 ${p.speed} 倍">${p.speed}x</button></div>   <!-- 第 1 輪測試修正：速度鈕跟左邊「從頭播放」同尺寸 44×44、同色 #3C3C3C -->
       </div>`:''}
-    ${(()=>{ const rb=rateBanner(), ec=!isTxt(p.id,ctx)&&p.pos>=d&&(S.pTab||'play')==='play'?endCard():''; return rb||ec?`<div class="pnext">${rb}${ec}</div>`:''; })()}   <!-- 2026-11-16：聽完後的「下一則」浮在播放控制面板上方，不再撐高面板、壓縮逐字稿 -->
+    ${(()=>{ const ec=!isTxt(p.id,ctx)&&p.pos>=d&&(S.pTab||'play')==='play'?endCard():''; return ec?`<div class="pnext">${ec}</div>`:''; })()}   <!-- 2026-11-16：聽完後的「下一則」浮在播放控制面板上方，不再撐高面板、壓縮逐字稿 -->
   </div>`;
 }
 /* 2026-11-18：從導覽內頁打開導覽列表，直接捲到正在導覽的那一則（放在可視範圍中間），不用自己往下找 */
@@ -3941,6 +3938,7 @@ function render(resetScroll, anim){
   if(S.screen==='map'&&S.mapSheet&&S.player){ html=scrPlayer().replace('<div class="scr"','<div class="scr" aria-hidden="true" inert')+'<div class="dim'+(S._mapSheetIn&&!REDUCED?' dim-in':'')+'" style="z-index:3" onclick="closeMapSheet()"></div>'+html.replace('<div class="scr','<div class="scr mapsheet'+(S._mapSheetIn&&!REDUCED?' msin':''))+((S.mapStack&&S.mapStack.length)?'':`<button class="mscx" onclick="back()" aria-label="關閉地圖">${MI(MD.close,22,'#3C3C3C')}</button>`); S._mapSheetIn=false; }   /* 地圖面板模式 */
   if(S.sheet==='menu'||(S.menuUnder&&['display','offline','lang','note','acct','delc'].includes(S.sheet))) html+=menuOverlay();
   if(S.sheet==='plan'&&S.plan) html+=`<div class="scr" style="background:transparent;z-index:45">${planSheet()}</div>`;
+  html+=nextExDlg();
   if(S.sheet==='switch') html+=`<div class="scr" style="background:transparent;z-index:45">${switchSheet()}</div>`;
   if(S.sheet==='display') html+=`<div class="scr" style="background:transparent;z-index:45">${displaySheet()}</div>`;
   if(S.sheet==='review') html+=`<div class="scr" style="background:transparent;z-index:45">${reviewSheet()}</div>`;
