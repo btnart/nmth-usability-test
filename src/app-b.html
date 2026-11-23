@@ -1500,9 +1500,11 @@ function scanNativeB(){ nativeScan(txt=>{ const e=matchCode(txt);
   if(e){ S.code=e[1].no; toast('已掃到：'+e[1].n); render(); }
   else toast(txt?'這個 QR Code 不是本館的導覽碼':'沒有讀到 QR Code，靠近一點再拍一次'); }); }
 /* ---------- 掃碼與編號 ---------- */
+/* 2026-11-23 留言：輸入編號後按開始導覽＝先關掉搜尋頁回到上一頁，再打開導覽內頁；關掉導覽內頁時回到進搜尋前的那一頁 */
+function scanPlay(id,ctx){ if(S.screen!=='scan') return; back(); setTimeout(()=>play(id,ctx),REDUCED?0:PAN_MS); }
 function scrScan(){
   const c=S.code, found=c.length===3?Object.keys(ITEMS).map(k=>[k,it(k)]).find(([k,v])=>v.no===c&&!v.rstop):null;   /* 2026-11-18：路線站點沿用所屬導覽的編號，輸入編號一律找到導覽本身，不是站點 */
-  const digits=[0,1,2].map(i=>`<div style="width:56px;height:min(76px,9vh);border-radius:18px;background:rgba(255,255,255,${c[i]?'.14':'.06'});box-shadow:0 8px 24px -4px rgba(26,23,15,.14);${S.kp&&i===c.length&&!found?'outline:2px solid var(--tealL);outline-offset:-2px;':''}
+  const digits=[0,1,2].map(i=>`<div style="width:56px;height:min(76px,9vh);border-radius:18px;background:rgba(255,255,255,${c[i]?'.26':'.16'});border:1.5px solid rgba(255,255,255,${c[i]?'.55':'.4'});box-shadow:0 8px 24px -4px rgba(26,23,15,.14);${S.kp&&i===c.length&&!found?'outline:2px solid var(--tealL);outline-offset:-2px;':''}
     display:grid;place-items:center;color:#fff;font-size:min(36px,5vh);font-weight:400">${c[i]||''}</div>`).join('');
   const key=k=>`<button onclick="${k==='⌫'?"S.code=S.code.slice(0,-1)":`S.code=(S.code+'${k}').slice(0,3)`};render()" style="width:108px;height:min(48px,6.5vh);border-radius:12px;display:flex;align-items:center;justify-content:center;background:${k===''?'transparent':'var(--cream)'};
     font-weight:500;font-size:18px;color:var(--ink)" ${k===''?'disabled':''} aria-label="${k==='⌫'?'刪除':k}">${k}</button>`;
@@ -1520,7 +1522,7 @@ function scrScan(){
     ${[['left:-9px;top:-9px',0],['right:-9px;top:-9px',90],['left:-9px;bottom:-9px',-90],['right:-9px;bottom:-9px',180]].map(([pos,r])=>`<img src="${A('scan-corner.svg')}" alt="" style="position:absolute;${pos};width:34px;height:34px;transform:rotate(${r}deg);pointer-events:none">`).join('')}</div>
     `}
     ${S.kp&&!found?`<button onclick="S.kp=false;render()" style="display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:20px;background:rgba(255,255,255,.1);color:var(--tealL);font-size:13px;font-weight:500">${img('ic-scan-white.svg',16,16)}改用相機掃描</button>`:''}   <!-- 2026-11-16：輸入編號時相機收起，編號框貼在數字鍵盤正上方，整排看得到 -->
-    <button onclick="S.kp=true;render()" aria-label="輸入展品編號，已輸入 ${c||'無'}" aria-expanded="${!!S.kp}" style="display:flex;justify-content:center;gap:18px">${digits}</button>
+    <button onclick="S.kp=true;render()" aria-label="輸入展品編號，已輸入 ${c||'無'}" aria-expanded="${!!S.kp}" style="display:flex;justify-content:center;gap:18px;${found||S.kp?'':'margin-top:28px'}">${digits}</button>
     </div>
     ${found?`<div class="sheet" style="position:relative;flex:none;padding:16px 24px 24px;border-radius:24px 24px 0 0">
         <div class="grab" style="margin-bottom:16px"></div>
@@ -1530,7 +1532,7 @@ function scrScan(){
             <span style="font-size:12px;color:var(--text2)">${found[1].fl} ${found[1].zone}</span></div>
             <b style="display:block;font-weight:700;font-size:16px;color:var(--ink);margin:6px 0 4px">${found[1].n}</b>
             ${(v=>v.tonly?'':`<span style="font-size:12px;color:var(--text2)">${v.voice===false?`手語導覽 ${mmss(v.d)}`:`語音導覽 ${mmss(v.d)}<span>・</span>${trk(v).map(t=>`<span>${t.replace('臺灣','')}</span>`).join('<span>／</span>')}`}</span>`)(it(found[0]))}</div></div>
-        <button class="tealbtn" style="width:100%;height:48px;border-radius:24px;margin-top:14px;font-size:15px" onclick="play('${found[0]}',{type:'ex',key:'${Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(found[0]))||'perm'}'})">${it(found[0]).tonly?'看文字介紹':'開始播放導覽'}</button>
+        <button class="tealbtn" style="width:100%;height:48px;border-radius:24px;margin-top:14px;font-size:15px" onclick="scanPlay('${found[0]}',{type:'ex',key:'${Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(found[0]))||'perm'}'})">${it(found[0]).tonly?'看文字介紹':'開始播放導覽'}</button>
         <button style="display:block;margin:14px auto 0;font-size:12px;color:var(--teal7)" onclick="S.code='';S.kp=true;render()">重新輸入編號</button></div>`
      :!S.kp?'':`<div class="sheet" style="position:relative;flex:none;padding:8px 24px 16px;border-radius:24px 24px 0 0">
         <div style="display:flex;justify-content:flex-end"><button onclick="S.kp=false;render()" style="min-height:36px;padding:0 6px;font-size:13px;font-weight:500;color:var(--teal7)">收起鍵盤</button></div>
