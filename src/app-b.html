@@ -1513,7 +1513,7 @@ function scrScan(){
     <div style="flex:none;display:flex;align-items:center;padding:16px 20px 8px;gap:70px">
       <button onclick="back()" aria-label="關閉">${img('ic-close-white.svg',22,22)}</button>
       <p style="font-weight:500;font-size:15px;color:#fff">掃描 QR Code／輸入展品編號</p></div>   <!-- 第 1 輪測試修正：標題直接講可以輸入編號；下方是 0–9 數字鍵盤，不會跳出文字鍵盤 -->
-    <div style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:${S.kp&&!found?'flex-end':'center'};gap:10px;padding:8px 20px 14px">
+    <div style="flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:8px 20px 14px">
     ${found||S.kp?'':`<div style="position:relative;flex:none;width:${S.kp?'min(200px,22vh)':'min(280px,40vh)'};height:${S.kp?'min(200px,22vh)':'min(280px,40vh)'};transition:width .25s,height .25s">
     ${CAM.stream?`<video id="camVid" playsinline muted autoplay aria-label="相機畫面，對準 QR Code 會自動辨識" style="width:100%;height:100%;object-fit:cover;border-radius:20px;background:#000"></video>`
     :!CAM.err?`<div style="width:100%;height:100%;border-radius:20px;background:rgba(255,255,255,.06);display:grid;place-items:center;color:#fff;font-size:14px">正在開啟相機…</div>`
@@ -1521,7 +1521,7 @@ function scrScan(){
       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><circle cx="12" cy="12.5" r="3.5"/></svg>點這裡開啟相機</button>`}
     ${[['left:-9px;top:-9px',0],['right:-9px;top:-9px',90],['left:-9px;bottom:-9px',-90],['right:-9px;bottom:-9px',180]].map(([pos,r])=>`<img src="${A('scan-corner.svg')}" alt="" style="position:absolute;${pos};width:34px;height:34px;transform:rotate(${r}deg);pointer-events:none">`).join('')}</div>
     `}
-    ${S.kp&&!found?`<button onclick="S.kp=false;render()" style="display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:20px;background:rgba(255,255,255,.1);color:var(--tealL);font-size:13px;font-weight:500">${img('ic-scan-white.svg',16,16)}改用相機掃描</button>`:''}   <!-- 2026-11-16：輸入編號時相機收起，編號框貼在數字鍵盤正上方，整排看得到 -->
+    <!-- 2026-11-23：輸入編號時編號格在畫面中間，「改用相機掃描」移到數字鍵盤上方 -->
     <button onclick="S.kp=true;render()" aria-label="輸入展品編號，已輸入 ${c||'無'}" aria-expanded="${!!S.kp}" style="display:flex;justify-content:center;gap:18px;${found||S.kp?'':'margin-top:28px'}">${digits}</button>
     </div>
     ${found?`<div class="sheet" style="position:relative;flex:none;padding:16px 24px 24px;border-radius:24px 24px 0 0">
@@ -1535,7 +1535,7 @@ function scrScan(){
         <button class="tealbtn" style="width:100%;height:48px;border-radius:24px;margin-top:14px;font-size:15px" onclick="scanPlay('${found[0]}',{type:'ex',key:'${Object.keys(EXHIBITIONS).find(k=>(EXHIBITIONS[k].items||[]).includes(found[0]))||'perm'}'})">${it(found[0]).tonly?'看文字介紹':'開始播放導覽'}</button>
         <button style="display:block;margin:14px auto 0;font-size:12px;color:var(--teal7)" onclick="S.code='';S.kp=true;render()">重新輸入編號</button></div>`
      :!S.kp?'':`<div class="sheet" style="position:relative;flex:none;padding:8px 24px 16px;border-radius:24px 24px 0 0">
-        <div style="display:flex;justify-content:flex-end"><button onclick="S.kp=false;render()" style="min-height:36px;padding:0 6px;font-size:13px;font-weight:500;color:var(--teal7)">收起鍵盤</button></div>
+        <div style="display:flex;justify-content:center;align-items:center"><button onclick="S.kp=false;render()" style="display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 6px;font-size:13px;font-weight:500;color:var(--teal7)">${img('ic-scan-dark.svg',16,16)}改用相機掃描</button></div>
         <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
           ${[[1,2,3],[4,5,6],[7,8,9],['',0,'⌫']].map(r=>`<div style="display:flex;gap:10px">${r.map(key).join('')}</div>`).join('')}
           ${c.length===3?`<p style="font-size:12px;color:#8D0E0E;margin-top:2px">查無編號 ${c}（示範：205）</p>`:''}
