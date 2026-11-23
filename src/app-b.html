@@ -1719,11 +1719,9 @@ function switchSheet(){ const p=S.player, n=S.pending;
   const sameEx=!n.walk&&p.ctx.type===n.ctx.type&&p.ctx.key===n.ctx.key;   /* 只差在手語／文字 */
   const toSign=!!n.ctx.sg, kindN=toSign?'手語導覽':'文字導覽', kindP=p.ctx.sg?'手語導覽':'文字導覽';
   return `<div class="dim" onclick="switchCancel()"></div>
-  <div class="sheet" role="alertdialog" aria-labelledby="swH" style="border-radius:24px 24px 0 0;padding:14px 24px 28px;display:flex;flex-direction:column;gap:14px">
-    <div class="grab"></div>
-    ${closeX('switchCancel()')}
+  <div class="swdlg" role="alertdialog" aria-modal="true" aria-labelledby="swH" style="position:absolute;left:24px;right:24px;top:50%;transform:translateY(-50%);z-index:46;background:#fff;border-radius:24px;box-shadow:0 16px 40px -8px rgba(0,0,0,.3);padding:24px 20px 20px;display:flex;flex-direction:column;gap:14px">   <!-- 2026-11-23 留言：切換提示改成置中彈窗，底部迷你播放器不被擋住，看得到切換過程 -->
     <h2 id="swH" style="font-weight:700;font-size:18px;line-height:1.4;color:var(--ink)">${sameEx?'切換成「'+kindN+'」？':(q=>n.walk?'中斷目前的導覽，開始走'+q+'？':'改聽'+q+'？')(/「/.test(ctxName(n.ctx))?ctxName(n.ctx):'「'+ctxName(n.ctx)+'」')}</h2>
-    <p style="font-size:13px;line-height:1.6;color:var(--text2)">${sameEx?`目前在「${kindP}」看「${it(p.id).n}」，共 ${ctxList(p.ctx).length} 則；「${kindN}」是另一份清單，共 ${ctxList(n.ctx).length} 則。切換後會從第 1 則開始，原本看到哪裡會記在導覽歷程。`:`目前正在聽「${it(p.id).n}」（${ctxName(p.ctx)}）。${n.walk?'開始走路線後，目前的播放會停止，':'切換後會從第 1 則開始，'}原本聽到哪裡會記在導覽歷程。`}</p>
+    <p style="font-size:13px;line-height:1.6;color:var(--text2)">${sameEx?`目前在「${kindP}」看「${it(p.id).n}」，共 ${ctxList(p.ctx).length} 則；「${kindN}」是另一份清單，共 ${ctxList(n.ctx).length} 則。切換後會從「${it(n.id).n}」開始，原本看到哪裡會記在導覽歷程。`:`目前正在聽「${it(p.id).n}」（${ctxName(p.ctx)}）。${n.walk?'開始走路線後，目前的播放會停止，':'切換後改播「'+it(n.id).n+'」，'}原本聽到哪裡會記在導覽歷程。`}</p>
     <div style="display:flex;gap:10px">
       <button onclick="switchCancel()" style="flex:1;min-height:48px;background:var(--cream);border-radius:24px;font-size:14px;color:var(--text)">繼續原本的</button>
       <button class="tealbtn" style="flex:1;min-height:48px;border-radius:24px" onclick="const n=S.pending;S.pending=null;S.sheet=null;n.walk?startWalk(n.walk,true):play(n.id,n.ctx,n.sign,n.tab,true)">${n.walk?'中斷並開始走路線':sameEx?'切換成'+kindN:'切換導覽'}</button></div>
@@ -1833,10 +1831,10 @@ function play(id, ctx, sign, tab, force){   /* tab：從展品列表點進來時
   if(S._stayMap&&S.screen==='map'){ S._stayMap=false; S.mapSel=id; if(!isTxt(id,S.player.ctx)&&!S.player.sign){ S.player.playing=true; S.earSeen=true; } return render(); }   /* 2026-11-20：地圖半高面板按播放＝留在地圖上播 */
   S._stayMap=false;
   /* 2026-11-23 留言：點導覽不再直接打開導覽內頁，改成只出現迷你播放器（換一則＝換迷你播放器的內容）。
-     手語影片、文字導覽要看畫面，仍打開內頁；這一頁沒有迷你播放器時也打開內頁 */
+     手語、文字導覽也一樣只出現迷你播放器（點它再看內容）；這一頁沒有迷你播放器時才打開內頁 */
   const full=S._full; S._full=false;
-  if(!full&&S.screen!=='player'&&!S.player.sign&&!isTxt(id,S.player.ctx)){
-    if(!S.earSeen) toast('請戴耳機收聽'); S.earSeen=true; S.player.playing=true; render();
+  if(!full&&S.screen!=='player'){
+    if(!S.player.sign&&!isTxt(id,S.player.ctx)){ if(!S.earSeen) toast('請戴耳機收聽'); S.earSeen=true; S.player.playing=true; } render();
     if(document.querySelector('#app .mini')) return; }
   go('player');
 }
