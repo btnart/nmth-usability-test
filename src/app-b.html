@@ -3048,7 +3048,7 @@ function ppFocus(id){ requestAnimationFrame(()=>{ const P=PINS[S.floor]&&PINS[S.
   if(REDUCED){ Object.assign(v,{s,x:W/2-P[0]*s,y:cy-P[1]*s}); return placePins(); }
   animView({s, x:W/2-P[0]*s, y:cy-P[1]*s}); }); }
 function ppPlay(id){ if(S.screen!=='map') return; S._stayMap=true; play(id,ppCtx(id)); }   /* 2026-11-23：語音導覽只切換迷你播放器——半高面板按播放就留在地圖上播（面板就是這則的播放器），跨清單仍先問；點面板或往上滑才展開內頁   /* 2026-11-20 留言：在半高面板按播放＝展開成完整導覽內頁並開始播（跨清單仍先問） */
-function ppToggle(){ const p=S.player; if(!p) return; if(p.playing){ p.playing=false; return render(); } p.playing=true; ppExpand(p.id); }   /* 暫停留在面板；按播放就展開 */
+function ppToggle(){ const p=S.player; if(!p) return; p.playing=!p.playing; render(); }   /* 2026-11-23 留言：暫停／繼續播放都留在面板，只跟底部迷你播放器同步，不展開內頁 */
 function ppExpand(id){ if(S.screen!=='map') return; if(S.player&&S.player.id===id){ S.mapSel=null; return go('player'); } S._stayMap=false; S.mapSel=null; S._full=true; play(id,ppCtx(id)); }
 let ppY=null; /* 2026-11-20 留言：內文捲到底（或本來就不用捲）時拿掉底部漸層遮罩，最後一句才看得清楚 */
 function ppMask(el){ if(el) el.classList.toggle('end', el.scrollTop+el.clientHeight>=el.scrollHeight-2); }
