@@ -1415,8 +1415,7 @@ function menuOverlay(){
   :`<button onclick="S.sheet=null;${RO}go('login')" ${mbOn?'aria-current="page"':''} style="display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;border-radius:16px;text-align:left;background:${mbOn?'var(--tealL)':'var(--cream)'}">
     <span style="flex:0 0 44px;width:44px;height:44px;border-radius:22px;background:var(--teal7);display:grid;place-items:center">${MI('M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',24,'#fff')}</span>
     <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><b style="font-weight:700;font-size:17px;color:var(--ink)">${S.loggedIn?'會員中心':'登入會員'}</b>
-      <span style="font-size:12px;line-height:1.5;color:var(--text2)">${S.loggedIn?'我的收藏・導覽歷程・我的筆記':'登入後收藏與筆記會保留到帳號'}</span></span>
-    ${img('ic-arrow-right-dark2.svg',16,16)}</button>`;
+      <span style="font-size:12px;line-height:1.5;color:var(--text2)">${S.loggedIn?'我的收藏・導覽歷程・我的筆記':'登入後收藏與筆記會保留到帳號'}</span></span></button>`;   /* 2026-11-23 留言：登入會員卡拿掉箭頭 */
   const row=([t,fn,scr])=>{ const on=scr.includes(cur); return `<button onclick="S.sheet=null;${fn}" ${on?'aria-current="page"':''} style="display:flex;align-items:center;gap:10px;min-height:52px;width:100%;text-align:left;border-top:1px solid var(--line)">
       ${on?img('dot-gold-8.svg',8,8):''}<span style="flex:1;font-weight:${on?700:500};font-size:17px;color:var(--ink)">${t}</span>${img('ic-arrow-right-dark2.svg',16,16)}</button>`; };
   const setRow=([t,st,fn])=>`<button onclick="${fn}" style="display:flex;align-items:center;gap:10px;min-height:52px;width:100%;text-align:left;border-top:1px solid var(--line)">
@@ -3582,7 +3581,7 @@ function scrLeave(){
       <button onclick="back()" aria-label="返回" style="transform:rotate(180deg)">${img('ic-back-arrow.svg',16,16)}</button>
       <p style="flex:1;text-align:center;font-weight:500;font-size:17px;color:var(--ink)">離館與交通</p><span style="width:12px;flex:0 0 12px" aria-hidden="true"></span></div>
     <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
-      ${card('出口在 6 號門',p('入館是 8 號門，<b>離館請走 6 號門</b>：從展區回到 1 樓大廳後，背對 8 號門入口，往左手邊走到底就是。8 號門只能進、不能出。')+
+      ${card('出口在 6 號門',p('入館是 8 號門，<b>離館請走 6 號門</b>：從展區回到 1 樓大廳後，面向 8 號門入口，往右手邊走到底就是。8 號門只能進、不能出。')+
         `<button class="tealbtn" style="align-self:flex-start" onclick="goExit()">${MI(MD.map,18,'#fff')}帶我去 6 號門</button>`)}   <!-- 2026-11-11 留言：加帶我去 -->
       ${card('搭計程車',p('館區沒有固定叫車區，請到<b>洽公停車場</b>（6 號門出去右轉約 100 公尺）上車。')+
         `<div style="display:flex;flex-wrap:wrap;gap:8px"><button class="tealbtn" onclick="toast('已複製上車地點：臺史博洽公停車場')">複製上車地點給司機</button><button class="tealbtn soft" style="box-shadow:none;border-color:transparent" onclick="showTaxiMap()">${MI(MD.map,18,'#2E5C6E')}查看地圖</button></div>`)}   <!-- 2026-11-11 留言：加查看地圖 -->
