@@ -1428,6 +1428,7 @@ function menuOverlay(){
     <nav style="padding:12px 24px 32px">${mbCard}
       ${S.loggedIn?memberCards()+memberNote()+memberRows():guestMine()}   <!-- 2026-11-20 留言：未登入也看得到收藏與筆記（存在本機），空的時候先留標題與做法 -->
       <!-- 2026-11-21 留言：選單拿掉「服務與協助」整塊（無障礙服務、常見問題、意見回饋、AI 館員）；常見問題與意見回饋在首頁 -->
+      ${sec('參觀資訊')}${row(['離館與交通',RO+"go('leave')",['leave']])}   <!-- 2026-11-23 留言：離館指南放進選單，隨時找得到（首頁的入口只在閉館前 30 分鐘出現） -->
       ${sec('設定')}${sets.map(setRow).join('')}
     </nav></div>`;
 }
