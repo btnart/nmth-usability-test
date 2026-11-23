@@ -1715,7 +1715,7 @@ const listKey=c=>c?[c.type,c.key,c.sg?'sg':'',c.objs?'objs':'',c.one?'one':''].j
 const switchingList=ctx=>!!S.player&&listKey(S.player.ctx)!==listKey(ctx);
 function startGuide(id,ctx){   /* 2026-11-18：同一檔展覽在手語導覽與文字導覽之間切換也要先問——兩邊的則數與內容不同，切過去會從第 1 則重來 */
   play(id,ctx); }
-function switchCancel(){ S.pending=null; S.sheet=null; render(); }
+function switchCancel(){ S._stayMap=false; S.pending=null; S.sheet=null; render(); }
 function switchSheet(){ const p=S.player, n=S.pending;
   const sameEx=!n.walk&&p.ctx.type===n.ctx.type&&p.ctx.key===n.ctx.key;   /* 只差在手語／文字 */
   const toSign=!!n.ctx.sg, kindN=toSign?'手語導覽':'文字導覽', kindP=p.ctx.sg?'手語導覽':'文字導覽';
@@ -3046,7 +3046,7 @@ function ppFocus(id){ requestAnimationFrame(()=>{ const P=PINS[S.floor]&&PINS[S.
   const cy=(top+bot)/2+20;   /* 點位的尖端在座標上、圓頭在上方約 20px：讓圓頭落在正中間 */
   if(REDUCED){ Object.assign(v,{s,x:W/2-P[0]*s,y:cy-P[1]*s}); return placePins(); }
   animView({s, x:W/2-P[0]*s, y:cy-P[1]*s}); }); }
-function ppPlay(id){ ppExpand(id); }   /* 2026-11-20 留言：在半高面板按播放＝展開成完整導覽內頁並開始播（跨清單仍先問） */
+function ppPlay(id){ if(S.screen!=='map') return; S._stayMap=true; play(id,ppCtx(id)); }   /* 2026-11-23：語音導覽只切換迷你播放器——半高面板按播放就留在地圖上播（面板就是這則的播放器），跨清單仍先問；點面板或往上滑才展開內頁   /* 2026-11-20 留言：在半高面板按播放＝展開成完整導覽內頁並開始播（跨清單仍先問） */
 function ppToggle(){ const p=S.player; if(!p) return; if(p.playing){ p.playing=false; return render(); } p.playing=true; ppExpand(p.id); }   /* 暫停留在面板；按播放就展開 */
 function ppExpand(id){ if(S.screen!=='map') return; if(S.player&&S.player.id===id){ S.mapSel=null; return go('player'); } S._stayMap=false; S.mapSel=null; S._full=true; play(id,ppCtx(id)); }
 let ppY=null; /* 2026-11-20 留言：內文捲到底（或本來就不用捲）時拿掉底部漸層遮罩，最後一句才看得清楚 */
