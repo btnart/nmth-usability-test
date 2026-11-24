@@ -3274,9 +3274,9 @@ function offlineSheet(){
       const sub= st==='done'?'<span style="color:#00752e">已可離線使用 ✓</span>' : busy?`${st==='paused'?'已暫停・':''}已完成 45%（38 / 85 MB）`: sz;
       const b= st==='none'?['下載','background:var(--gold);color:var(--ink);border-radius:15px'] : st==='dl'?['暫停','background:var(--cream);color:var(--text);border-radius:14px'] : st==='paused'?['繼續','background:var(--cream);color:var(--text);border-radius:14px'] : ['移除','background:var(--cream);color:var(--text);border-radius:14px'];
       return `<div style="${busy?'background:var(--cream);border:1px solid var(--border);border-radius:12px':'background:#fff;border-radius:16px;box-shadow:0 8px 24px -4px rgba(26,23,15,.14)'};padding:12px 16px;display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;gap:8px;align-items:center"><div style="width:250px;display:flex;flex-direction:column;gap:2px;white-space:nowrap">
-          <b style="font-weight:500;font-size:13px;color:var(--text)">${n}</b><span style="font-size:11px;color:var(--text2)">${sub}</span></div>
-          <button onclick="offAct('${k}')" style="padding:6px 14px;font-weight:500;font-size:12px;line-height:normal;${b[1]}">${b[0]}</button></div>
+        <div style="display:flex;gap:12px;align-items:center"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">   <!-- 2026-11-24 留言：英文展名很長，原本固定 250px 寬又不換行，把「下載」按鈕擠出卡片——改成吃剩下的寬度、展名可換行，按鈕固定不縮 -->
+          <b style="font-weight:500;font-size:13px;line-height:1.35;color:var(--text)">${n}</b><span style="font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${sub}</span></div>
+          <button onclick="offAct('${k}')" style="flex:none;white-space:nowrap;padding:6px 14px;font-weight:500;font-size:12px;line-height:normal;${b[1]}">${b[0]}</button></div>
         ${busy?'<div role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="height:6px;border-radius:3px;background:var(--border);width:340px;max-width:100%;position:relative"><i style="position:absolute;left:0;top:0;height:6px;width:45%;border-radius:3px;background:var(--gold-mid)"></i></div>':''}</div>`; }).join('')}
   </div>`;
 }
