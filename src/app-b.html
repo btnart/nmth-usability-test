@@ -2263,7 +2263,13 @@ function openSignFs(){ S.player.fsCc=true; S.sheet='signfs'; S.vwIn=true; render
   setTimeout(()=>{ const b=document.getElementById('sfClose'); if(b) b.focus(); },50); }
 function sfFit(){ const v=document.querySelector('#app .signfs'), app=document.getElementById('app'); if(!v||!app) return; const W=app.clientWidth, H=app.clientHeight;
   v.style.setProperty('--aw',W+'px'); v.style.setProperty('--ah',H+'px'); v.classList.toggle('rot',H>W); if(S.sgCtl||!(S.player&&S.player.playing)) v.classList.add('ctl-on'); }
-function closeSignFs(){ try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); if(screen.orientation&&screen.orientation.unlock) screen.orientation.unlock(); }catch(e){} S.sheet=null; render(); }
+/* 2026-11-24 留言：Android 縮回時要一起轉回直向。原本先離開全螢幕、再 unlock——unlock 只是放掉鎖定，手機關了自動旋轉時畫面就停在橫向。
+   改成還在全螢幕時先鎖回直向（鎖方向只有全螢幕時有效），轉好再離開全螢幕；離開全螢幕時瀏覽器會自動放掉鎖定 */
+function sfExit(){ try{ if(!document.fullscreenElement) return; const so=screen.orientation, out=()=>document.exitFullscreen().catch(()=>{});
+  if(so&&so.lock) so.lock('portrait').catch(()=>{}).finally(()=>setTimeout(out,120)); else out(); }catch(e){} }
+function closeSignFs(){ sfExit(); S.sheet=null; render(); }
+/* 用 Android 返回鍵／手勢離開全螢幕：一起關掉全螢幕檢視，不留在橫向的放大畫面 */
+document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement&&S.sheet==='signfs'){ try{ if(screen.orientation&&screen.orientation.unlock) screen.orientation.unlock(); }catch(e){} S.sheet=null; render(); } });
 window.addEventListener('resize',()=>{ if(S.sheet==='signfs') sfFit(); });
 function signFs(){ const p=S.player, x=it(p.id);
   return `<div class="viewer signfs ${S.vwIn?'fadein':''}" role="dialog" aria-label="手語影片全螢幕：${x.n}" onkeydown="if(event.key==='Escape'){closeSignFs()}">
