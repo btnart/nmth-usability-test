@@ -3933,7 +3933,7 @@ function render(resetScroll, anim){
   const shP=window.__shSig, shN=shSig(); window.__shSig=shN; S._wayIn=!REDUCED&&shN.k==='way'&&(!shP||shP.k!=='way');   /* 剛進入帶我去：標頭由上往下滑入（只在進入那一刻） */ const shSame=!REDUCED&&shP&&shP.scr===shN.scr&&!anim&&shP.k!==shN.k;
   const zsMorph=shSame&&!shN.ov&&['def','full','min','sel'].includes(shP.k)&&['def','full','min','sel'].includes(shN.k), zsOld=zsMorph?app.querySelector(':scope > .scr .zonesheet'):null, zsOldH=zsOld?zsOld.offsetHeight:0, zsOldGhost=(()=>{ if(!zsOld||shP.k!=='sel') return null; const a=app.getBoundingClientRect(), r=zsOld.getBoundingClientRect(), c=zsOld.cloneNode(true); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id')); Object.assign(c.style,{position:'absolute',left:(r.left-a.left)+'px',top:(r.top-a.top)+'px',width:r.width+'px',height:r.height+'px',bottom:'auto',zIndex:30,pointerEvents:'none',maxHeight:'none'}); return c; })();   /* 2026-11-11 留言：收合／展開是同一張面板變高變矮，不是先收掉再彈出 */
   let shOut=null; if(shSame&&!zsMorph&&shPanel(shP.k,shN.k)){ const els=shP.ov?[...app.querySelectorAll('.dim,.sheet,.lgmodal')]:[...app.querySelectorAll(':scope > .scr .zonesheet')];
-    if(els.length){ shOut=document.createElement('div'); shOut.className='shghost'; els.forEach(e=>{ const c=e.cloneNode(true); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id')); shOut.appendChild(c); }); } }
+    if(els.length){ shOut=document.createElement('div'); shOut.className='shghost'; els.forEach(e=>{ const c=e.cloneNode(true); c.classList.remove('sh-in','dim-in','lg-in'); c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id')); shOut.appendChild(c); }); } }
   let ghost=null;
   /* 展開播放器：記下迷你播放器的位置，新畫面從那裡長出來 */
   const rel=el=>{ if(!el) return null; const a=app.getBoundingClientRect(), r=el.getBoundingClientRect(); return {t:r.top-a.top, l:r.left-a.left, b:a.bottom-r.bottom, r:a.right-r.right}; };
@@ -3979,6 +3979,9 @@ function render(resetScroll, anim){
   if(S.sheet==='fbm') html+=`<div class="scr" style="background:transparent;z-index:45">${fbModal()}</div>`;
   if(S.sheet==='howto') html+=`<div class="scr" style="background:transparent;z-index:45">${howtoSheet()}</div>`;
   app.innerHTML=html; i18nStart(); if(S.lang!=='zh') i18nNode(app);
+  /* 2026-11-24 留言：首頁主視覺的慢速平移每次重畫（開、關面板）都會從頭播、圖片瞬間跳回起點看起來像閃一下——接回同一條時間軸繼續播 */
+  { const hp=app.querySelector('.hpan'); const an=hp&&hp.getAnimations().find(a=>a.animationName==='hpan');
+    if(an){ if(window.__hpanT0==null) window.__hpanT0=document.timeline.currentTime; an.startTime=window.__hpanT0; } }
   /* 2026-11-24 留言：迷你播放器第一次出現時從底部滑上來（不是突然出現）；已經在的時候換播別則，只讓內容淡入換上 */
   { const mb=[...app.querySelectorAll(':scope > .scr .mini .box')].find(b=>!b.closest('[inert]')), id=S.player&&S.player.id;
     if(mb&&!REDUCED&&!anim){   /* 動畫掛在 .box 本身（不是外層）：placeFab 會扣掉 .box 的位移，FAB 一開始就停在最後的位置，不會被滑上來的播放器擋到 */
