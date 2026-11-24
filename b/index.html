@@ -3939,8 +3939,9 @@ function render(resetScroll, anim){
     const cs=getComputedStyle(el), eb=el.getBoundingClientRect(), a=app.getBoundingClientRect(); return {...b, fs:parseFloat(cs.fontSize), fw:cs.fontWeight, c:cs.color, t:el.textContent.trim(), lh:cs.lineHeight, ew:eb.width, ex:eb.left-a.left, ey:eb.top-a.top}; };
   const fly = (!REDUCED && (anim==='down'||anim==='up')) ? (anim==='down' ? (()=>{ const pi=app.querySelector('#pimg'), sg=app.querySelector('.sgvid');
       const im=pi?pi.querySelectorAll('img')[S.ci||0]:null;
-      return { img:box_(pi||sg), src:im?im.src:(S.player?A(it(S.player.id).img):''), r0:16, title:txt_(app.querySelector('.pname')||app.querySelector('.sgttl p')) }; })()
-    : (()=>{ const pp=app.querySelector(':scope > .scr .pplay'), th=pp?pp.querySelector('.ppimg img'):app.querySelector(':scope > .scr .mini .th img'); return { img:box_(th), src:th?th.src:'', r0:pp?10:8, title:(t=>t&&pp?{...t, wrap:true}:t)(txt_(pp?pp.querySelector('.ppt b'):app.querySelector(':scope > .scr .mini .tt span'))) }; })()) : null;   /* 2026-11-20 留言：從地圖的半高面板展開時，縮圖和標題從面板上的位置飛到完整內頁的位置 */
+      const sgOnly=!pi&&sg&&S.player;   /* 2026-11-24 留言：手語影片收合時，飛下去的是影片海報（跟迷你播放器縮圖同一張），不是展品照——原本飛的是展品照，落地才換成海報，看起來像別張圖的殘影 */
+      return { img:box_(pi||sg), src:sgOnly?sgPoster(it(S.player.id)):im?im.src:(S.player?A(it(S.player.id).img):''), pos0:'center', pos1:sgOnly?'72% 40%':'center', r0:16, title:txt_(app.querySelector('.pname')||app.querySelector('.sgttl p')) }; })()
+    : (()=>{ const pp=app.querySelector(':scope > .scr .pplay'), th=pp?pp.querySelector('.ppimg img'):app.querySelector(':scope > .scr .mini .th img'); return { img:box_(th), src:th?th.src:'', pos0:th&&th.style.objectPosition||'center', pos1:'center', r0:pp?10:8, title:(t=>t&&pp?{...t, wrap:true}:t)(txt_(pp?pp.querySelector('.ppt b'):app.querySelector(':scope > .scr .mini .tt span'))) }; })()) : null;   /* 2026-11-20 留言：從地圖的半高面板展開時，縮圖和標題從面板上的位置飛到完整內頁的位置 */
   if(anim && !REDUCED && app.firstElementChild){   /* 舊畫面留著做轉場，轉完就移除 */
     ghost=document.createElement('div'); ghost.className='ghost g-'+anim;
     while(app.firstChild) ghost.appendChild(app.firstChild);
@@ -4012,9 +4013,9 @@ function render(resetScroll, anim){
     const reveal=[];
     if(fly.img&&tImg){ ghost.querySelectorAll(hideG.slice(0,toMini?2:1).join(',')).forEach(e=>e.style.visibility='hidden'); tImgEl.style.visibility='hidden'; reveal.push(tImgEl);
       const el=document.createElement('div'); el.setAttribute('aria-hidden','true');
-      Object.assign(el.style,{position:'absolute',zIndex:80,pointerEvents:'none',background:`url("${fly.src}") center/cover`,boxShadow:'0 6px 18px rgba(0,0,0,.18)'});
+      Object.assign(el.style,{position:'absolute',zIndex:80,pointerEvents:'none',background:`#000 url("${fly.src}") no-repeat`,backgroundSize:'cover',boxShadow:'0 6px 18px rgba(0,0,0,.18)'});
       app.appendChild(el); const r1=toMini?8:16, f=fly.img;
-      el.animate([{left:f.x+'px',top:f.y+'px',width:f.w+'px',height:f.h+'px',borderRadius:fly.r0+'px'},{left:tImg.x+'px',top:tImg.y+'px',width:tImg.w+'px',height:tImg.h+'px',borderRadius:r1+'px'}],{duration:dur,easing:PAN_EZ,fill:'forwards'}).onfinish=()=>el.remove();
+      el.animate([{left:f.x+'px',top:f.y+'px',width:f.w+'px',height:f.h+'px',borderRadius:fly.r0+'px',backgroundPosition:fly.pos0||'center'},{left:tImg.x+'px',top:tImg.y+'px',width:tImg.w+'px',height:tImg.h+'px',borderRadius:r1+'px',backgroundPosition:fly.pos1||'center'}],{duration:dur,easing:PAN_EZ,fill:'forwards'}).onfinish=()=>el.remove();
       setTimeout(()=>el.remove(),dur+300); }
     if(fly.title&&tTit){ ghost.querySelectorAll(hideG.slice(toMini?2:1).join(',')).forEach(e=>e.style.visibility='hidden'); tTitEl.style.visibility='hidden'; reveal.push(tTitEl);
       const f=fly.title, k=tTit.fs/f.fs, el=document.createElement('span'); el.textContent=f.t; el.setAttribute('aria-hidden','true');
