@@ -147,6 +147,7 @@ button.mapbar{padding:0 16px}
 .mpin.first i.tip{background:var(--ink);color:#fff;font-size:12px;padding:6px 10px;border-radius:8px;bottom:calc(100% + 10px);line-height:1.35;text-align:center;animation:hintin .4s ease-out both}
 .mpin.first i.tip::after{content:'';position:absolute;left:50%;top:100%;margin-left:-5px;border:5px solid transparent;border-top-color:var(--ink)}
 .mpin.first i.tip small{display:block;font-size:11px;font-weight:400;opacity:.75}
+.mpin.tipdn>i{bottom:auto;top:calc(100% + 6px)} .mpin.first.tipdn i.tip{bottom:auto;top:calc(100% + 10px)} .mpin.first.tipdn i.tip::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:var(--ink)}   /* 撞到入口標籤時翻到點位下方 */
 @keyframes fstfloat{50%{translate:0 -5px}}   /* 用 translate 屬性浮動，不蓋掉原本 transform 的定位 */
 @keyframes fstglow{0%{box-shadow:0 4px 10px rgba(15,25,30,.3),0 0 0 0 rgba(201,169,97,.75)}100%{box-shadow:0 4px 10px rgba(15,25,30,.3),0 0 0 14px rgba(201,169,97,0)}}
 .mpin i{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);font-style:normal;font-size:11px;font-weight:500;background:#fff;color:var(--ink);padding:3px 8px;border-radius:10px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.16)}
@@ -2739,6 +2740,9 @@ function placePins(){ const v=mapView(), L=document.getElementById('mlayer'); if
   clusterPins(); facDeclutter(); }
 /* 第 1 輪測試修正：設施圖示彼此、或跟展品點位／A、B 標記疊在一起時，往旁邊錯開，不互相蓋住 */
 function facDeclutter(){ const root=document.querySelector('#app > .scr .mpins'); if(!root) return;
+  /* 2026-11-24 留言：點位上方的提示（第一件展品／下一站…）撞到特展入口標籤時，改放到點位下方，不被入口標籤蓋住 */
+  const ents=[...root.querySelectorAll('.exent')].map(e=>e.getBoundingClientRect()), hit0=(a,b)=>!(a.right<=b.left||b.right<=a.left||a.bottom<=b.top||b.bottom<=a.top);
+  root.querySelectorAll('.mpin > i').forEach(t=>{ t.parentNode.classList.remove('tipdn'); if(ents.some(b=>hit0(t.getBoundingClientRect(),b))) t.parentNode.classList.add('tipdn'); });
   const fac=[...root.querySelectorAll('.mfac')]; fac.forEach(e=>{ e.style.marginLeft=''; e.style.marginTop=''; });
   const box=e=>e.getBoundingClientRect(), hit=(a,b)=>!(a.right<=b.left+2||b.right<=a.left+2||a.bottom<=b.top+2||b.bottom<=a.top+2);
   const fixed=[...root.querySelectorAll('.mpin:not(.inclu),.mclu,.wsel,.mchip.exlab,.mchip.elev,.exent')].map(box);
