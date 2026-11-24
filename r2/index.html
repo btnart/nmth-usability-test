@@ -58,6 +58,23 @@ input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-vis
 .choices button{font:inherit;font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 16px;cursor:pointer}
 .choices button[aria-checked="true"]{background:var(--teal-soft);border-color:var(--teal);color:var(--teal);font-weight:500}
 .choices button[aria-checked="true"]::before{content:"✓ "}
+/* 矩陣題：列＝題目、欄＝ 1–5 同意度；手機上題目獨占一行、五格排在下面 */
+.mx{border:1px solid var(--line);border-radius:12px;overflow:clip;background:var(--surface)}
+.mx-h,.mx-r{display:grid;grid-template-columns:minmax(0,1fr) repeat(5,76px);align-items:center}
+.mx-h{position:sticky;top:0;z-index:2;background:var(--surface);border-bottom:1px solid var(--line);font-size:12px;color:var(--muted);text-align:center;line-height:1.3}
+.mx-h span{padding:10px 2px}.mx-h b{display:block;font-size:15px;color:var(--ink)}
+.mx-r{border-top:1px solid var(--line)}.mx-r:nth-of-type(odd){background:color-mix(in srgb,var(--line) 22%,transparent)}
+.mx-r:first-of-type{border-top:0}
+.mx-q{padding:12px 14px;font-size:15px;line-height:1.55}
+.mx-r button{justify-self:stretch;align-self:stretch;min-height:48px;border:0;background:none;cursor:pointer;display:grid;place-items:center;font:inherit;color:var(--ink)}
+.mx-r button i{width:22px;height:22px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;font-style:normal}
+.mx-r button[aria-checked="true"] i{border-color:var(--btn);background:var(--btn)}
+.mx-r button[aria-checked="true"] i::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--btn-fg)}
+.mx-r button span{display:none}
+.mx-r button:focus-visible{outline:2px solid var(--btn);outline-offset:-4px}
+.mx-r.need-mark{box-shadow:inset 3px 0 0 #C2410C}
+@media (max-width:600px){.mx-h,.mx-r{grid-template-columns:repeat(5,minmax(0,1fr))}.mx-h>span:first-child{display:none}.mx-q{grid-column:1/-1;padding:12px 12px 2px}
+  .mx-r button{min-height:46px;grid-template-rows:auto auto;gap:2px}.mx-r button span{display:block;font-size:11px;color:var(--muted)}.mx-h{font-size:11px}.mx-h span{padding:8px 1px}}
 .scale{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .scale button{font:inherit;font-variant-numeric:tabular-nums;font-size:17px;height:46px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
 .scale button[aria-checked="true"]{background:var(--btn);color:var(--btn-fg);border-color:var(--btn);font-weight:700}
@@ -372,12 +389,13 @@ function render(scroll){
   if(kind==='sus'){
     const vi=+a, v=S.order[vi], U=S.ver[v]||{}, sus=U.sus||[];
     h=`<div class="stack view"><div><span class="ver">${VNAME[vi]}・整體感受</span></div><h2>${VNAME[vi]}用起來怎麼樣？</h2>
-    <p class="lead">請依照剛才使用「這個版本」的實際感受回答，是你自己的感受，不用猜觀眾會怎麼想。每一題在最符合的格子打勾，十題都要回答，沒有對錯。</p>
-    <div class="card stack" style="gap:22px">${SUS.map((s,i)=>`<div id="sus-${v}-${i}"><div class="q">${i+1}. ${esc(s)}</div>
-      <div class="lk" role="radiogroup">${LIKERT5.map((l,x)=>`<button type="button" role="radio" aria-checked="${sus[i]===x+1}" data-set="ver.${v}.sus.${i}" data-val="${x+1}" data-num="1" aria-label="${x+1} ${l}"><i class="box" aria-hidden="true">✓</i><span><b>${x+1}</b>${l}</span></button>`).join('')}</div></div>`).join('')}</div>
+    <p class="lead">請依照剛才使用「這個版本」的實際感受回答，是你自己的感受，不用猜觀眾會怎麼想。每一題在最符合的那一格點一下，12 題都要回答，沒有對錯。</p>
+    ${(()=>{ const row=(id,no,q,name,val)=>`<div class="mx-r" id="${id}" role="radiogroup" aria-label="${esc(q)}"><div class="mx-q">${no}. ${esc(q)}</div>${LIKERT5.map((l,x)=>`<button type="button" role="radio" aria-checked="${val===x+1}" data-set="${name}" data-val="${x+1}" data-num="1" aria-label="${x+1} ${l}"><i aria-hidden="true"></i><span aria-hidden="true">${x+1}</span></button>`).join('')}</div>`;
+      return `<div class="mx"><div class="mx-h" aria-hidden="true"><span></span>${LIKERT5.map((l,x)=>`<span><b>${x+1}</b>${l}</span>`).join('')}</div>
+      ${SUS.map((q,i)=>row('sus-'+v+'-'+i,i+1,q,'ver.'+v+'.sus.'+i,sus[i])).join('')}
+      ${row('cl-'+v,11,'這個版本的畫面看起來簡潔、不雜亂。','ver.'+v+'.clean',U.clean)}
+      ${row('tx-'+v,12,'這個版本畫面上的字，讀起來大小剛好、不吃力。','ver.'+v+'.text',U.text)}</div>`; })()}
     <div class="card stack" style="gap:22px">
-      <div id="cl-${v}"><div class="q">介面簡潔度：這個版本的畫面看起來簡潔、不雜亂</div>${scale('ver.'+v+'.clean',U.clean,'非常不同意','非常同意',5)}</div>
-      <div id="tx-${v}"><div class="q">文字大小：這個版本畫面上的字，讀起來大小剛好、不吃力</div>${scale('ver.'+v+'.text',U.text,'非常不同意','非常同意',5)}</div>
       <div><label class="q" for="un">最喜歡、或最想改的地方？<span class="hint">（選填）</span></label><textarea id="un" data-in="ver.${v}.note">${esc(U.note)}</textarea></div></div></div>`;
   }
   if(kind==='compare'){
@@ -427,8 +445,8 @@ function missing(kind,a,b){
     return null; }
   if(kind==='sus'){ const v=S.order[+a], U=S.ver[v]||{}, sus=U.sus||[];
     for(let i=0;i<10;i++) if(!sus[i]) return ['第 '+(i+1)+' 題還沒回答','sus-'+v+'-'+i];
-    if(!U.clean) return ['請給介面簡潔度分數','cl-'+v];
-    if(!U.text) return ['請給文字大小分數','tx-'+v];
+    if(!U.clean) return ['第 11 題還沒回答','cl-'+v];
+    if(!U.text) return ['第 12 題還沒回答','tx-'+v];
     return null; }
   if(kind==='compare') return S.compare.pick?null:['請選一個','cmp'];
   return null;
