@@ -617,12 +617,12 @@ li.l3{margin-left:26px} .prow.l1 b{font-weight:700!important;font-size:15px!impo
 .sgvid .vbig,.sgvid .sgfs{transition:opacity .25s} .sgvid.signing:not(.ctl-on) .vbig,.sgvid.signing:not(.ctl-on) .sgfs{opacity:0;pointer-events:none}   /* 2026-11-16 留言：手語影片播放中 3 秒後收起播放／全螢幕鈕，點影片再叫出 */
 video.sgv{pointer-events:none} video.sgv::-webkit-media-controls,video.sgv::-webkit-media-controls-enclosure,video.sgv::-webkit-media-controls-panel,video.sgv::-webkit-media-controls-overlay-play-button,video.sgv::-webkit-media-controls-start-playback-button{display:none!important;opacity:0!important;-webkit-appearance:none}   /* 擋掉瀏覽器原生的影片按鈕（含 iOS 省電模式的大播放鈕） */
 /* 常駐播放器 */
-.mini{position:absolute;left:0;right:0;bottom:0;z-index:20;padding:28px 8px 12px;background:linear-gradient(to top,rgba(20,26,31,.34),rgba(20,26,31,0));pointer-events:none}
+.mini{position:absolute;left:0;right:0;bottom:0;z-index:20;padding:28px 12px 12px;background:linear-gradient(to top,rgba(20,26,31,.34),rgba(20,26,31,0));pointer-events:none}
 .mini .box{pointer-events:auto}
 .mini::before{content:'';position:absolute;inset:0;z-index:-1;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   -webkit-mask-image:linear-gradient(to top,#000 45%,transparent);mask-image:linear-gradient(to top,#000 45%,transparent)}   /* 外圍也霧化，往上漸淡、沒有硬邊 */
 .mini .box{height:72px;/* 第 1 輪測試修正（T1）：拿掉白邊，同播放卡 */background:rgba(255,255,255,.45);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);
-  border:0;border-radius:20px;box-shadow:0 -2px 0 rgba(255,255,255,.4) inset,0 10px 28px -6px rgba(15,25,30,.38),0 2px 6px rgba(15,25,30,.12);
+  border:0;border-radius:24px;/* 2026-11-24 留言：圓角與左右間距（12px）對齊導覽內頁的播放卡 */box-shadow:0 -2px 0 rgba(255,255,255,.4) inset,0 10px 28px -6px rgba(15,25,30,.38),0 2px 6px rgba(15,25,30,.12);
   display:flex;align-items:center;gap:8px;padding:0 20px 0 8px}
 .mini .th{width:64px;height:72px;padding:12px 8px 12px 10px;flex:0 0 64px}
 .mini .th img{width:100%;height:100%;object-fit:cover;border-radius:8px} .mini .th .sgth{display:block;width:100%;height:100%;border-radius:8px;overflow:hidden}
