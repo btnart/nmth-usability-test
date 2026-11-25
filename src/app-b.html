@@ -2835,8 +2835,7 @@ function wselClamp(){ wayEdge();
   /* 2026-11-25 留言：進地圖時標籤一開始不出現、移動後才出現——原本拿整個 #app 當邊界，進場轉場時地圖頁還在從右邊滑進來，標籤被當成超出畫面、往左推到看不見，轉場結束也沒推回來。改成以標籤所在的那一頁（.scr）當邊界，滑動中也算得對 */
   const box=el=>{ const sc=el.closest('.scr')||document.getElementById('app'); return sc.getBoundingClientRect(); }, push=(el,r,L,R)=>{ let dx=0; if(r.right>R) dx=R-r.right; if(r.left+dx<L) dx=L-r.left; return dx; };
   document.querySelectorAll('#app .wsel span').forEach(sp=>{ sp.style.transform=''; const r=sp.getBoundingClientRect(); if(!r.width) return; const A=box(sp), dx=push(sp,r,A.left+8,A.right-8); if(dx) sp.style.transform=`translateX(${dx}px)`; });
-  document.querySelectorAll('#app .wroom .wlab').forEach(sp=>{ sp.style.transform=''; const r=sp.getBoundingClientRect(); if(!r.width) return; const sc=sp.closest('.scr'), A=box(sp), rl=sc&&sc.querySelector('.flrail'), RR=rl&&rl.offsetParent?rl.getBoundingClientRect():null;   /* 展名拉線標籤：撞到畫面邊緣或左側樓層列時，卡片往內推（圓點與線不動） */
-    let L=A.left+8; if(RR&&r.top<RR.bottom&&r.bottom>RR.top) L=Math.max(L,RR.right+6); const dx=push(sp,r,L,A.right-8); if(dx) sp.style.transform=`translateX(${dx}px)`; });
+  /* 2026-11-25 留言：展名拉線標籤固定在原位，不因超出畫面或撞到樓層列而推移 */
   document.querySelectorAll('#app .mchip.wayel').forEach(el=>{ el.style.marginLeft=''; const r=el.getBoundingClientRect(); if(!r.width) return; const A=box(el), dx=push(el,r,A.left+8,A.right-8); if(dx) el.style.marginLeft=dx+'px'; }); }   /* 電梯「往／回 XF」標籤也一樣（第二輪模擬測試：1F 段的電梯標籤被切在右邊） */
 /* 第 1 輪測試修正：設施圖示彼此、或跟展品點位／A、B 標記疊在一起時，往旁邊錯開，不互相蓋住 */
 function facDeclutter(){ const root=document.querySelector('#app > .scr .mpins'); if(!root) return;
