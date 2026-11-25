@@ -2121,7 +2121,7 @@ function scrSitemap(){ const a=(t,fn)=>`<li><button onclick="${fn}">${t}${img('i
       ${grp('首頁',a('首頁',"go('home')")+a('參觀前先聽 3 分鐘','startPre()')+a('找導覽（掃描／輸入編號）',"go('scan')")+a('離館指南',"go('leave')"))}
       ${grp('現正展出',a('全部展覽',"go('exlist')")+ex)}
       ${grp('主題路線',a('全部主題路線',"go('theme')")+rt)}
-      ${grp('展區地圖',a('全區地圖','openMapAll()'))}
+      ${grp('展區地圖',a('全區地圖','openMapHome()'))}
       ${grp('服務與協助',a('無障礙服務',"go('a11y')")+a('常見問題',"go('faq')")+a('意見回饋',"go('feedback')"))}
       ${grp('會員',a(S.loggedIn?'會員中心':'登入會員','goMember()'))}
       ${grp('設定',a('語言',"S.sheet='lang';render()")+a('字級與高對比',"S.sheet='display';render()")+a('離線預載',"S.sheet='offline';render()"))}
@@ -3147,7 +3147,7 @@ function openExMap(k,fl){ const sn=S.mapSnaps&&S.mapSnaps[S.mapSnaps.length-1]; 
 function openMapSheet(fl,ex,id){ S._hold=true; openMap(fl,ex,null,id); S.mapSheet=true; S._mapSheetIn=true; S._hold=false; render(true); }
 function closeMapSheet(){ back(); }
 function openMapHome(){ S._hold=true; openMap('site','perm'); S.mapFloors=true; S.fx=null; S._hold=false; render(true,'push'); }   /* 首頁進的全區地圖：內頁（有返回鍵），可換樓層，標題跟著樓層 */
-function openMapAll(){ const from=S.screen; S._top=true; S._hold=true; openMap('site','perm'); S.mapAll=true; S.fx=null;   /* 2026-11-11 留言：展區地圖一律先開全區，跟首頁縮圖一致 */ S._hold=false; render(true, from==='map'?null:from==='landing'?'fade':'fade'); }   /* 狀態一次設好只畫一次，標頭與浮動鈕不會在進場時跳動 */   /* 全館地圖＝頂層頁 */
+/* 2026-11-25 留言：拿掉頂層的「展區地圖」頁（館徽標頭、沒有返回鍵）；選單與常見問題的入口都改開首頁那版地圖（有返回鍵、可換樓層） */
 /* 播放器「在地圖上看位置」：只看這一件展品的位置，不放其他點位、不放迷你播放器，只能帶我去或回去繼續聽，避免點來點去搞混 */
 function mapNextId(){ return null;   /* 2026-11-20 留言：主題路線地圖拿掉「下一站」標籤，順序編號已經說明先後 */ if(S.walk) return null; const k=S.mapRoute; if(!k||!ROUTES[k]) return null; const h=S.heard[k]||new Set(); return rtList(k).find(id=>!h.has(id)&&PINS[S.floor][id])||null; }
 /* ── 2026-11-20 留言：地圖點位的底部面板改成「精簡版導覽內頁」（半高）──────────────────────────
@@ -3767,7 +3767,7 @@ const FAQ_QA=[['幾點開門？哪天休館？','開放時間 09:00–17:00，<b
     ['館內有 ATM 嗎？','館內<b>沒有 ATM</b>，需要現金請先準備好。'],
     ['有 Wi-Fi 嗎？','有，使用 iTaiwan。連線約 30 分鐘會自動登出，建議出發前先把導覽內容離線預載，館內不用網路也能聽。<br><button onclick="S.sheet=\'offline\';render()">去離線預載 →</button>'],
     ['可以借輪椅嗎？','可以，1F 服務臺<b>免費借用</b>。'],
-    ['廁所在哪裡？','打開地圖，點「廁所」就能帶你過去。<br><button onclick="openMapAll()">打開地圖 →</button>'],
+    ['廁所在哪裡？','打開地圖，點「廁所」就能帶你過去。<br><button onclick="openMapHome()">打開地圖 →</button>'],
     ['聽不到或不方便說話，怎麼溝通？','服務臺與志工備有筆談服務，可以直接寫字溝通。'],
     ['離館要走哪個門？','離館請走 <b>6 號門</b>，入館的 8 號門只能進、不能出。<br><button onclick="go(\'leave\')">看離館與交通 →</button>'],
     ['要搭計程車在哪裡上車？','館區沒有固定叫車區，請到<b>洽公停車場</b>上車。']];   /* 2026-11-20 留言：首頁與常見問題頁共用同一份 */
