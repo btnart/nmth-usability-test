@@ -4088,6 +4088,7 @@ if(!__GO[0]&&!new URLSearchParams(__QS).has('skip')){ S.screen='landing'; preloa
   if(__GO[0]==='pre'){ startPre(); S.hist=['home']; return; }
   if(__GO[0]==='home'&&({map:1,route:1})[__GO[1]]){ const sec=__GO[1]==='map'?'secMap':'secRt'; let done=false; const j=()=>{ if(done||S.screen!=='home') return; const sc=document.getElementById('sc'); if(!sc||!document.getElementById(sec)) return setTimeout(j,150); done=true; jumpSec(sec); };   /* 第 2 輪易用性測試：#go=home:map 捲到展區地圖（情境 4）、#go=home:route 捲到主題路線（情境 6）；等圖片載完版面穩定再捲，只捲一次 */
     if(document.readyState==='complete') setTimeout(j,400); else { addEventListener('load',()=>setTimeout(j,200)); setTimeout(j,2500); } return; }
+  if(__GO[0]==='map'&&/^[124]F$/.test(__GO[1]||'')){ S.screen='home'; openMapHome(); S.floor=__GO[1]; S.mapSel=null; S.hist=['home']; return; }   /* 第 2 輪易用性測試情境 4：#go=map:1F 直接開地圖的一樓（返回回首頁） */
   if(__GO[0]==='resume'){ S.resume={id:'p102',ctx:{type:'ex',key:'perm'},pos:42,t:Date.now()-3600e3}; return; }   /* 易用性測試情境：#go=resume 模擬上次聽到一半 */   /* ?go=pre 從官網連結進來：直接開參觀前先聽 */
   const e=Object.entries(ITEMS).find(([k,v])=>v.no===__GO[1]); if(!e) return;
   if(__GO[0]==='pt'){ S._full=true; play(e[0],{type:'ex',key:exOf(e[0])}); S.hist=['home']; return; }   /* 掃展籤 QR Code：直接進播放器開始播這一件（不再停在掃碼頁按開始） */
