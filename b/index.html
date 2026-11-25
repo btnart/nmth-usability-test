@@ -1128,7 +1128,7 @@ function go(scr, opt){ const from=S.screen; if(scr!==from){ S._railc=null; S._zb
     else { S.hist.push(from); (S.histTop=S.histTop||[]).push(scrollSnap());
       if(from==='map') (S.mapSnaps=S.mapSnaps||[]).push({d:S.hist.length, st:{floor:S.floor,mapAll:S.mapAll,mapFloors:S.mapFloors,exOnly:S.exOnly,mapEx:S.mapEx,mapRoute:S.mapRoute,fx:S.fx,fxPick:S.fxPick,room4:S.room4,zsFull:S.zsFull,mv:JSON.parse(JSON.stringify(S.mv||{}))}}); }   /* 2026-11-12：離開地圖前記下狀態（樓層檢視、選的展覽…），回來時還原，不會變回舊樣式 */
     histPush(); }
-  Object.assign(S, opt||{}); S.pmore=false; if(scr!=="map"){ S.fxPick=null; S.floorOpen=false; S.signPick=false; S.nav=null; S.herePick=false; S.navPending=null; S.mapSel=null; S.mapOnly=null; S.here=null; S.arrived=null; S.navFl=null; S.way=null; S.facFind=null; }   /* 第 1 輪測試修正：離開地圖收起找設施清單 */
+  Object.assign(S, opt||{}); S.pmore=false; if(scr!=="map"){ S._gateEx=null; S.fxPick=null; S.floorOpen=false; S.signPick=false; S.nav=null; S.herePick=false; S.navPending=null; S.mapSel=null; S.mapOnly=null; S.here=null; S.arrived=null; S.navFl=null; S.way=null; S.facFind=null; }   /* 第 1 輪測試修正：離開地圖收起找設施清單 */
   if(scr!=='map') S.mapSheet=false;
   S.screen=scr; S.sheet=null;
   render(true, scr===from?null : scr==='player'?'up' : (top||from==='landing')?'fade' : 'push'); }
@@ -2525,7 +2525,13 @@ function placeCard(k){ const [,f,i]=k.split(':'), [t,n,,,tx]=PLACES[f][+i];
 /* 2026-11-19 留言：找設施只在地圖上標點位、不出清單面板；地圖平順縮放到這層同類設施全部看得到 */
 /* 2026-11-25 第二輪模擬測試：2F／4F 按「找出入口」只看到展廳的門，民眾會以為那就是出口——底部固定告訴他場館出口在 1F，一鍵帶過去 */
 function gateCard(f){ if(S.facFind!=='gate'||!['2F','4F'].includes(f)) return ''; const i=PLACES['1F'].findIndex(p=>p[0]==='exit');   /* 2026-11-25 留言：不用底部面板（像找出入口的結果，反而讓地圖上這層的出入口被忽略），改成下方一條提示 banner */
-  return `<div class="gatebar" role="note" aria-label="要找場館出口嗎？場館出口・6 號門在 1F"><span class="gi">${MI(PL_IC.exit,20,'#2E5C6E')}</span><span class="gt"><b>要找場館出口嗎？</b><small>場館出口・6 號門在 1F</small></span><button class="tealbtn" onclick="startNav('p:1F:${i}')">帶我去</button></div>`; }
+  return `<div class="gatebar" role="note" aria-label="要找場館出口嗎？場館出口・6 號門在 1F"><span class="gi">${MI(PL_IC.exit,20,'#2E5C6E')}</span><span class="gt"><b>要找場館出口嗎？</b><small>場館出口・6 號門在 1F</small></span><button class="tealbtn" onclick="gateGo()">帶我去</button></div>`; }
+/* 2026-11-25 留言：banner 的「帶我去」不直接進帶我去，先切到 1F、選中場館出口並對焦到那個點位（下方出現它的資訊卡，再按「帶我去這裡」） */
+function gateGo(){ const i=PLACES['1F'].findIndex(p=>p[0]==='exit'), p=PLACES['1F'][i];
+  S._gateEx=S.exOnly||S.fxPick||S._gateEx||null; S.exOnly=null; S.mapOnly=null; S.ftPrev=['1F','2F','4F'].indexOf(S.floor); S.floor='1F'; S.mapSel='p:1F:'+i;   /* 離開展覽專屬地圖（不然標題會變成 1F 的別檔展覽），但記住從哪一檔來，帶我去時起點照樣帶那間展室入口 */ S.nav=null; S.navFl=null; S.fx=null; S.fxPick=null; S.mv=S.mv||{}; S.mv['1F']=fitV(mapOf('1F').fit); S._flIn=true; render();
+  setTimeout(()=>{ const w=document.querySelector('#app > .scr .mapwrap'); if(!w) return; const wr=w.getBoundingClientRect(), fb=document.querySelector('#app > .scr .facbar'), top=fb?fb.getBoundingClientRect().bottom-wr.top+16:100, H=mapVisH(w),
+    rr=document.querySelector('#app > .scr .flrail'), rl=rr&&rr.offsetParent?Math.max(0,rr.getBoundingClientRect().right-wr.left+8):0, sc=Math.max(mapView().s, fitV(mapOf('1F').fit).s*1.4);
+    animView({s:sc, x:(w.clientWidth+rl)/2-p[2]*sc, y:(top+H)/2-p[3]*sc}); },0); }
 /* 2026-11-25 留言：找設施時保留目前展品的圖釘（單件展品地圖那件，或正在聽的那件），當成「我在這附近」的參考點 */
 const facKeep=()=>S.mapOnly||(S.player&&S.player.id)||null;
 function facFit(){ const w=document.querySelector('#app > .scr .mapwrap'), t=S.facFind, f=S.floor; if(!w||!FAC_TYPES[t]) return;
@@ -2538,7 +2544,7 @@ function facFit(){ const w=document.querySelector('#app > .scr .mapwrap'), t=S.f
 /* 2026-11-19 留言：只顯示設施時，底部提示現在只看得到哪一種設施，按「返回導覽」回到原本的點位 */
 function facHint(){ const [tn,td]=FAC_TYPES[S.facFind];
   return `<div class="fachint" role="status"><span>${MI(td,16,'#fff')}只顯示${tn}</span><button onclick="facClose()">返回</button></div>`; }
-function facClose(){ S.facFind=null; if(String(S.mapSel||'').startsWith('p:')) S.mapSel=null; if(S.mapOnly) S.mapSel=S.mapOnly; render();   /* 2026-11-25 留言：關閉找設施時，已打開的設施資訊面板一起收起 */ const pv=S._facPrev; S._facPrev=null; if(pv&&pv.k===S.floor+'|'+S.mapOnly+'|'+S.exOnly) setTimeout(()=>animView(pv.v),0); }   /* 2026-11-12 留言：從單件展品地圖找設施，關掉後回到這件展品的「帶我去」畫面 */
+function facClose(){ S.facFind=null; S._gateEx=null; if(String(S.mapSel||'').startsWith('p:')) S.mapSel=null; if(S.mapOnly) S.mapSel=S.mapOnly; render();   /* 2026-11-25 留言：關閉找設施時，已打開的設施資訊面板一起收起 */ const pv=S._facPrev; S._facPrev=null; if(pv&&pv.k===S.floor+'|'+S.mapOnly+'|'+S.exOnly) setTimeout(()=>animView(pv.v),0); }   /* 2026-11-12 留言：從單件展品地圖找設施，關掉後回到這件展品的「帶我去」畫面 */
 /* 2026-11-25 留言：特展內的地圖——展區以外轉成灰階，只有特展室保留原色，焦點留在這檔展覽，跟全館地圖做出區隔。
    做法：底圖整張灰階，上面再疊一張只剪出展區的彩色底圖；萬相天后的展櫃線稿不在焦點展區時也一起轉灰 */
 let EXG_N=0;
@@ -2886,7 +2892,7 @@ function startNav(id){ const f=S.floor, pl=id&&id.startsWith('p:')?PLACES[id.spl
   /* 2026-11-20 留言：只在「照順序導覽中」或播放器開的地圖才自動帶起點；一般地圖、主題路線地圖背景有迷你播放器時不帶，起點一律在地圖上選（正在聽的那件不一定是人現在站的位置） */
   if(!a&&pp&&(S.tour||S.mapOnly)&&!(b&&b.key==='x:'+S.player.id)) a={fl:f,x:pp[0],y:pp[1],name:`正在聽 ${it(S.player.id).no?it(S.player.id).no+'・':''}${it(S.player.id).n}`,id:S.player.id,key:'x:'+S.player.id};
   /* 2026-11-25 第二輪模擬測試：從特展地圖進帶我去，起點預設這檔特展的展室入口（4F 地圖小、房間沒寫展名，民眾不確定自己點對沒有）；要改可按「更改」 */
-  const exK=S.exOnly||S.fxPick;   /* 只在明確進到這檔展覽（展覽地圖、找展覽選了它）時才帶；一般 4F 地圖底部預設的展覽不算 */ if(!a&&exK&&ROOMS4[exK]){ const i=PLACES['4F'].findIndex(p=>p[1]===ROOMS4[exK].name+'入口'), p=PLACES['4F'][i];
+  const exK=S.exOnly||S.fxPick||S._gateEx; S._gateEx=null;   /* 只在明確進到這檔展覽（展覽地圖、找展覽選了它）時才帶；一般 4F 地圖底部預設的展覽不算 */ if(!a&&exK&&ROOMS4[exK]){ const i=PLACES['4F'].findIndex(p=>p[1]===ROOMS4[exK].name+'入口'), p=PLACES['4F'][i];
     if(p&&!(b&&(b.key==='p:4F:'+i||(b.key==='entry'&&f==='4F')))) a={fl:'4F',x:p[2],y:p[3],name:`4F ${p[1]}`,ex:EXHIBITIONS[exK].n.split('：')[0],key:'p:4F:'+i}; }
   S.wayPins=false; S.way={step:a&&b?'route':a?'b':'a', a, b, bPre:!!b, from:f, mapOnly:S.mapOnly}; if(a&&b){ wayDoorFix(S.way); if(a.fl!==f){ S.ftPrev=['1F','2F','4F'].indexOf(f); S.floor=a.fl; } } S.arrived=null; S.facFind=null;   /* 第 1 輪測試修正：已有起點就直接選目的地 */ S.mapSel=null; S.nav=null; S.navPending=null; S.herePick=false;
   wayFit(); render(); }
