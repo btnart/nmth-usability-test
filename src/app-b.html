@@ -253,7 +253,7 @@ button.mapbar{padding:0 16px}
 .wrow .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px} .wrow small{font-size:11px;color:var(--text2)} .wrow .v{font-size:15px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .wrow .v.ph{color:var(--teal7);font-weight:500;font-size:14px}
 .wrow .ed{flex:0 0 auto;font-size:12px;font-weight:500;color:var(--teal7);padding:4px 10px;border-radius:12px;border:1px solid rgba(46,92,110,.35)}
 .whint{display:flex;align-items:flex-start;gap:6px;padding:0 24px;font-size:12px;line-height:1.5;color:var(--text2)} .whint svg{flex:0 0 14px;margin-top:2px}
-.wsum{padding:0 24px;display:flex;align-items:baseline;gap:8px} .wsum b{font-size:20px;font-weight:700;color:var(--ink)} .wsum span{font-size:13px;color:var(--text2)}
+.wsum{padding:0 24px;display:flex;align-items:baseline;gap:8px} .wsum b{font-size:20px;font-weight:700;color:var(--ink)} .wsum span{font-size:13px;color:var(--text2);margin-left:auto;text-align:right}   /* 2026-11-25 留言：摘要只寫步行距離、靠右；路線怎麼走看下面步驟 */
 .wsteps{display:flex;flex-direction:column;gap:2px;font-size:14px;line-height:1.45;color:var(--ink)} .wsteps li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;transition:background-color var(--pan-dur) var(--pan-ez),color var(--pan-dur) var(--pan-ez)} .wsteps li em{font-style:normal;flex:0 0 22px;height:22px;border-radius:11px;font:700 12px Roboto,sans-serif;display:grid;place-items:center;transition:background-color var(--pan-dur) var(--pan-ez),color var(--pan-dur) var(--pan-ez)}
 .wsteps li.cur{background:var(--tealL);font-weight:500} .wsteps li.cur em{background:var(--teal7);color:#fff}
 .wsteps li.done{color:var(--text2)} .wsteps li.done span:not(.sr){text-decoration:line-through;text-decoration-color:rgba(0,0,0,.25)} .wsteps li.done em{background:var(--tealL)}
@@ -2892,9 +2892,15 @@ function waySel(k){ const w=S.way; if(!w||w.step==='route') return; const f=S.fl
   if(k.startsWith('x:')){ const id=k.slice(2), p=PINS[f][id]; pt={fl:f,x:p[0],y:p[1],name:`${it(id).no?it(id).no+'・':''}${it(id).n}`,id,key:k}; }
   else { const [t,n,x,y]=PLACES[f][+k.split(':')[2]]; pt={fl:f,x,y,name:`${f.replace('site','戶外')} ${n}`,key:k}; }
   w[w.step]=pt; render(); }
+/* 2026-11-25 留言：從館內去「展示教育大樓出口／正門入口」，走到 1F 那道門就到了，不再多一段戶外 5 公尺；從這兩道門進館也一樣從 1F 門口算起 */
+const BLD_DOOR={[SITE_EXIT]:'out',[SITE_ENT]:'in'};
+function wayDoorFix(w){ ['a','b'].forEach(k=>{ const p=w[k], o=w[k==='a'?'b':'a']; if(!p||!o||p.fl!=='site'||o.fl==='site') return;
+  const d=BLD_DOOR[+String(p.key||'').split(':')[2]]; if(!d||!String(p.key).startsWith('p:site:')) return; const [x,y]=SITE_DOOR['1F'][d];
+  w['_'+k]=p; w[k]=Object.assign({},p,{fl:'1F',x,y}); }); }
+function wayDoorUndo(w){ ['a','b'].forEach(k=>{ if(w['_'+k]){ w[k]=w['_'+k]; delete w['_'+k]; } }); }
 function wayNext(){ const w=S.way; if(w.step==='b'&&!w.a){ w.step='a'; S.mv[S.floor]=fitV(mapOf(S.floor).fit); return render(); }   /* 2026-11-11 留言：先改了目的地、還沒標起點 → 回去標起點，不會卡住 */
-  if(w.step==='a'&&!(w.bPre&&w.b)){ w.step='b'; if(w.b) wayGo(w.b.fl); } else if(w.step!=='route'){   /* 2026-11-11 留言：從活動、展品等頁進來時目的地已經帶好，選完起點直接看路線；要改目的地按 B 列的「更改」 */ w.step='route'; wayGo(w.a.fl); wayFit(); render(); return wayZoomRoute(); } render(); }
-function wayBack(){ const w=S.way; if(w.step==='route'&&w.bPre){ w.step='a'; if(w.a) wayGo(w.a.fl); } else if(w.step==='route'){ w.step='b'; if(w.b) wayGo(w.b.fl); } else if(w.step==='b'){ w.step='a'; if(w.a) wayGo(w.a.fl); } else return wayClose(); S.mv[S.floor]=fitV(mapOf(S.floor).fit); render(); }
+  if(w.step==='a'&&!(w.bPre&&w.b)){ w.step='b'; if(w.b) wayGo(w.b.fl); } else if(w.step!=='route'){   /* 2026-11-11 留言：從活動、展品等頁進來時目的地已經帶好，選完起點直接看路線；要改目的地按 B 列的「更改」 */ w.step='route'; wayDoorFix(w); wayGo(w.a.fl); wayFit(); render(); return wayZoomRoute(); } render(); }
+function wayBack(){ const w=S.way; if(w.step==='route') wayDoorUndo(w); if(w.step==='route'&&w.bPre){ w.step='a'; if(w.a) wayGo(w.a.fl); } else if(w.step==='route'){ w.step='b'; if(w.b) wayGo(w.b.fl); } else if(w.step==='b'){ w.step='a'; if(w.a) wayGo(w.a.fl); } else return wayClose(); S.mv[S.floor]=fitV(mapOf(S.floor).fit); render(); }
 function wayClose(){ const w=S.way; if(w&&w.ret) return back();   /* 2026-11-11 留言：從活動面板、離館指南按「帶我去」進來的，關掉就回上一頁（活動面板會重新打開） */
   S.way=null; if(w) wayGo(w.from); S.mapSel=w&&w.mapOnly||null; render(); }
 /* 到了：目的地是展品就開始聽、是展區入口就接「第一件在哪」；設施就收起帶我去 */
@@ -2945,6 +2951,19 @@ function wayPath(f){ const w=S.way; if(!w||!w.a||!w.b) return []; const a=w.a, b
   if(seq.length===1){ if(f==='site'){ const r=siteRoute(a,b); if(r) return r.p; } return L([a.x,a.y],[b.x,b.y]); }
   const st=i===0?[a.x,a.y]:wayLink(f,seq[i-1]), en=i===seq.length-1?[b.x,b.y]:wayLink(f,seq[i+1]);
   return st&&en?L(st,en):[]; }
+/* 2026-11-25 留言：步驟加觀眾角度的相對方向——第一段以地圖上方為前方（往左前方走…），出電梯／進出大門後看第一個轉角（出電梯口右轉…） */
+function wayDir(P,f,from,face){ if(P.length<2) return '';
+  const tol=f==='site'?5:40, rdp=(a,b)=>{ let k=-1,dm=0; const [x1,y1]=P[a],[x2,y2]=P[b], L=Math.hypot(x2-x1,y2-y1)||1;
+    for(let i=a+1;i<b;i++){ const d=Math.abs((x2-x1)*(y1-P[i][1])-(x1-P[i][0])*(y2-y1))/L; if(d>dm){ dm=d; k=i; } }
+    return dm>tol?[...rdp(a,k),...rdp(k,b).slice(1)]:[a,b]; };
+  const Q=rdp(0,P.length-1).map(i=>P[i]), v=(i)=>[Q[i+1][0]-Q[i][0],Q[i+1][1]-Q[i][1]], len=i=>Math.hypot(...v(i))*(f==='site'?.4:.05);
+  if(!from){ const [dx,dy]=v(0), a=(Math.atan2(dx,-dy)*180/Math.PI+360)%360;
+    return '往'+['前方','右前方','右方','右後方','後方','左後方','左方','左前方'][Math.round(a/45)%8]; }
+  let ax,ay,bx,by;
+  if(face){ [ax,ay]=face; const j=Q.length>2&&len(0)<1.5?1:0; [bx,by]=v(j); }   /* 有門的朝向（電梯門都朝南）：出門那一刻面向門外，跟第一段方向比 */
+  else { if(Q.length<3||len(0)>8) return from+'直'; [ax,ay]=v(0); [bx,by]=v(1); }
+  const t=Math.atan2(ax*by-ay*bx,ax*bx+ay*by)*180/Math.PI, r=t>0?'右':'左', u=Math.abs(t);
+  return from+(u<25?'直':u<60?`往${r}前方`:u<135?`${r}轉，`:'向後轉，'); }
 const pathM=(P,fl)=>{ let d=0; for(let i=1;i<P.length;i++) d+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]); return Math.max(5,Math.round(d*(fl==='site'?.4:.05)/5)*5); };   /* 全區圖 1px 約 40 公分、樓層平面圖約 5 公分（示意） */
 function wayLayer(f, anchor){ const w=S.way; if(!w) return ''; const sel=[w.a,w.b].filter(p=>p&&p.fl===f);
   const near=(x,y)=>sel.some(p=>Math.abs(p.x-x)<8&&Math.abs(p.y-y)<8);
@@ -2973,11 +2992,13 @@ function waySheet(){ const w=S.way, st=w.step, ph={a:'在地圖上標出你在�
   const FN2={site:'戶外','1F':'1F','2F':'2F','4F':'4F'}, ci=Math.max(0,FS.indexOf(S.floor));
   const steps=cross?FS.map((f,i)=>{ const m=pathM(wayPath(f),f), nx=FS[i+1];
     const via=nx?((f==='site'||nx==='site')?`走大門到${FN2[nx]}`:`搭電梯到 ${FN2[nx]}`):'到目的地';
-    return [`在${FN2[f]}走約 ${m} 公尺，${via}`, i<ci?'done':i===ci?'cur':'next']; }):[];   /* 2026-11-18：可能三段，照樓層序列逐段寫 */
+    const pv=FS[i-1], from=!pv?(w._a?'進大門':''):(pv==='site'||f==='site')?(f==='site'?'出大門':'進大門'):'出電梯口';
+    const face=from==='出電梯口'?[0,1]:from==='進大門'?(w._a&&BLD_DOOR[+w._a.key.split(':')[2]]==='out'?[1,0]:[0,-1]):null;   /* 電梯門 1F／2F／4F 都朝南；正門（8 號門）在南側，進門面向北 */
+    return [`在${FN2[f]}${wayDir(wayPath(f),f,from,face)}走約 ${m} 公尺，${via}`, i<ci?'done':i===ci?'cur':'next']; }):[];   /* 2026-11-18：可能三段，照樓層序列逐段寫 */
   const sr=a.fl==='site'&&b.fl==='site'?siteRoute(a,b):null, toEnt=sr&&b.key==='p:site:'+SITE_ENT;
   const done=w.mapOnly?'到了，繼續聆聽':toEnt?'到了，看 1F 大廳':'我到了';
   return `<div class="zonesheet navsheet" role="dialog" aria-label="帶我去：路線建議">
-    <div class="wsum"><b>約 ${min} 分鐘</b><span>${sr?'步行約 ':''}${tot} 公尺${cross?`・${FS.includes('site')?'要走大門':'要搭電梯'}（${FS.map(f=>FN2[f]).join(' → ')}）`:'・沿虛線走'}</span></div>
+    <div class="wsum"><b>約 ${min} 分鐘</b><span>步行約 ${tot} 公尺</span></div>
     <p class="wto">前往<b>${b.name}</b></p>   <!-- 2026-11-16：路線這一步不放 A／B 兩列（面板太高會蓋地圖），要改起點或目的地按「上一步」 -->
     ${sr&&sr.say?`<p class="whint" style="font-size:13px;color:var(--text)">${MI(MD.nav,14,'#2E5C6E')}<span>${sr.say}距離依地圖比例估算。</span></p>`:''}
     ${steps.length?`<ol class="wsteps" style="padding:0 24px;list-style:none">${steps.map(([t,st],i)=>`<li class="${st}" ${st==='cur'?'aria-current="step"':''}><em>${st==='done'?MI(MD.check,14,'#2E5C6E'):i+1}</em><span>${t}</span>${st==='done'?'<span class="sr">（已完成）</span>':''}</li>`).join('')}</ol>`:''}
@@ -3851,6 +3872,19 @@ const RX_JK=[
   [/^正在聽 (.+)$/,'再生中 $1','재생 중 $1'], [/^目的地：(.+)$/,'目的地：$1','목적지: $1'], [/^已到 (.+)$/,'$1に到着','$1 도착'],
   [/^(.+)・目的地：(\d+)・(.+)$/,'$1・目的地：$2・$3','$1・목적지: $2・$3'], [/^(1F|2F|4F) (.+)$/,'$1 $2','$1 $2'], [/^(\d+) (.+)$/,'$1 $2','$1 $2'],
 ];
+/* 2026-11-25：帶我去步驟改成相對方向（往左前方…／出電梯口右轉…），補英日韓句型 */
+{ const RX=/^在(戶外|1F|2F|4F)(.+?)走約 (\d+) 公尺，(.+)$/;
+  RX_EN.unshift([RX,'$1: $2 about $3 m, $4']); RX_JK.unshift([RX,'$1：$2約$3m、$4','$1: $2 약 $3m, $4']);
+  const D=['前方','右前方','右方','右後方','後方','左後方','左方','左前方'];
+  const DE=['straight ahead','ahead to the right','to the right','back to the right','back','back to the left','to the left','ahead to the left'];
+  const DJ=['前方','右斜め前','右','右斜め後ろ','後ろ','左斜め後ろ','左','左斜め前'];
+  const DK=['앞쪽','오른쪽 앞','오른쪽','오른쪽 뒤','뒤쪽','왼쪽 뒤','왼쪽','왼쪽 앞'];
+  const en={'戶外':'Outdoors','走大門到戶外':'go out the main door','走大門到#F':'go in the main door to #F','到目的地':'you arrive'}, ja={'戶外':'屋外','走大門到戶外':'正面入口から屋外へ','走大門到#F':'正面入口から#Fへ','到目的地':'目的地に到着'}, ko={'戶外':'야외','走大門到戶外':'정문으로 나가 야외로','走大門到#F':'정문으로 들어가 #F로','到目的地':'목적지 도착'};
+  D.forEach((d,i)=>{ en['往'+d]='walk '+DE[i]; ja['往'+d]=DJ[i]+'へ'; ko['往'+d]=DK[i]+' 방향으로'; });
+  const F={'出電梯口':['Exit the elevator','エレベーターを出て','엘리베이터에서 나와'],'進大門':['Enter the main door','正面入口から入って','정문으로 들어와'],'出大門':['Exit the main door','正面入口を出て','정문으로 나가']};
+  const TU={'直':[' and walk straight','まっすぐ','직진'],'往右前方':[', bear right and walk','右斜め前へ','오른쪽 앞으로'],'往左前方':[', bear left and walk','左斜め前へ','왼쪽 앞으로'],'右轉，':[', turn right and walk','右に曲がり','우회전해'],'左轉，':[', turn left and walk','左に曲がり','좌회전해'],'向後轉，':[', turn around and walk','振り返って','뒤로 돌아']};
+  for(const f in F) for(const t in TU){ en[f+t]=F[f][0]+TU[t][0]; ja[f+t]=F[f][1]+TU[t][1]; ko[f+t]=F[f][2]+' '+TU[t][2]; }
+  Object.assign(T_EN,en); for(const k in en) if(k.includes('#')) T_EN_N[k]=en[k]; Object.assign(I18N.ja,ja); Object.assign(I18N.ko,ko); }
 function trJK(t,d){ if(d[t]!=null) return d[t]; if(!CJK.test(t.replace(/《[^》]*》/g,''))) return t;
   const li=S.lang==='ja'?1:2; for(const r of RX_JK){ const m=t.match(r[0]); if(m){ let ok=true; const out=r[li].replace(/\$(\d)/g,(_,i)=>{ const g=m[+i]; if(!CJK.test(g.replace(/《[^》]*》/g,''))) return g; const x=trJK(g.trim(),d); if(x==null){ ok=false; return g; } return x; }); if(ok) return out; } }   /* 第 1 輪測試修正（T1）：日韓句型 */
   const nums=t.match(/\d+(?:\.\d+)?/g); if(nums){ const v=d[t.replace(/\d+(?:\.\d+)?/g,'#')]; if(v!=null){ let i=0; return v.replace(/#/g,()=>nums[i++]??'#'); } }
