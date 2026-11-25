@@ -244,7 +244,7 @@ const FRICTION = [['wrong','點錯，要退回上一頁'],['nobtn','找不到要
 const HOW = [['no','輸入展品編號'],['qr','掃說明牌上的 QR Code'],['map','在平面圖上點選'],['list','從展覽頁的導覽列表點選'],['start','按「開始導覽」再切到這一則'],['other','其他方式']];
 const TAPS = [['2','1–2 下'],['4','3–4 下'],['5','5 下以上'],['na','不記得']];
 /* SUS 參考譯文：完整十題、原順序、正反向敘述交錯（奇數題正向、偶數題反向） */
-const SUS = ['我想我會願意經常使用這個系統。','我覺得這個系統有不必要的複雜之處。','我覺得這個系統容易使用。','我想我需要技術人員的協助，才能使用這個系統。','我覺得這個系統的各項功能整合良好。',
+const SUS = ['我想我會願意使用這個系統。','我覺得這個系統有不必要的複雜之處。','我覺得這個系統容易使用。','我想我需要其他人的協助，才能使用這個系統。','我覺得這個系統的各項功能整合良好。',
   '我覺得這個系統有太多不一致的地方。','我想大多數人都能很快學會使用這個系統。','我覺得這個系統使用起來很繁瑣。','使用這個系統時，我感到很有信心。','我需要先學習很多東西，才能開始使用這個系統。'];
 const LIKERT5 = ['非常不同意','不同意','中立','同意','非常同意'];
 const susScore = a => (a&&a.length===10&&a.every(Boolean)) ? a.reduce((s,x,i)=>s+(i%2===0?x-1:5-x),0)*2.5 : null;   /* 奇數題「答案－1」、偶數題「5－答案」，加總 ×2.5 */
@@ -393,8 +393,8 @@ function render(scroll){
   }
   if(kind==='sus'){
     const vi=+a, v=S.order[vi], U=S.ver[v]||{}, sus=U.sus||[];
-    h=`<div class="stack view"><div><span class="ver">${VNAME[vi]}・整體感受</span></div><h2>${VNAME[vi]}用起來怎麼樣？</h2>
-    <p class="lead">請依照剛才使用「這個版本」的實際感受回答，是你自己的感受，不用猜觀眾會怎麼想。每一題在最符合的那一格點一下，12 題都要回答，沒有對錯。</p>
+    h=`<div class="stack view"><div><span class="ver">${VNAME[vi]}・整體感受</span></div><h2>${VNAME[vi]}用起來怎麼樣？請假設你是一位民眾。</h2>
+    <p class="lead">想像你是來參觀的民眾，依照剛才的使用感受回答。每一題在最符合的那一格點一下，12 題都要回答，沒有對錯。</p>
     ${(()=>{ const row=(id,no,q,name,val)=>`<div class="mx-r" id="${id}" role="radiogroup" aria-label="${esc(q)}"><div class="mx-q">${no}. ${esc(q)}</div>${LIKERT5.map((l,x)=>`<button type="button" role="radio" aria-checked="${val===x+1}" data-set="${name}" data-val="${x+1}" data-num="1" aria-label="${x+1} ${l}"><i aria-hidden="true"></i><span aria-hidden="true">${x+1}</span></button>`).join('')}</div>`;
       return `<div class="mx"><div class="mx-h" aria-hidden="true"><span></span>${LIKERT5.map((l,x)=>`<span><b>${x+1}</b>${l}</span>`).join('')}</div>
       ${SUS.map((q,i)=>row('sus-'+v+'-'+i,i+1,q,'ver.'+v+'.sus.'+i,sus[i])).join('')}
