@@ -324,7 +324,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .tabstick.flat.stuck{box-shadow:0 4px 8px -6px rgba(0,0,0,.2)}
 .exrows{display:flex;flex-direction:column} .exrow{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 0;font-size:15px;line-height:1.4;color:var(--text)} .exrow+.exrow{border-top:1px solid var(--line)} .exrow>.ico,.exrow>svg{flex:0 0 18px}
 .tealbtn.exmaplink{flex:0 0 auto;gap:0;height:40px;padding:0 8px 0 16px;font-size:14px;box-shadow:none;border-color:transparent}   /* 2026-11-12 留言：地圖改第二層級按鈕（淺青底，同「手語導覽」），保留尾端箭頭 */
-.excta{position:absolute;left:0;right:0;bottom:0;z-index:7;padding:12px 20px 20px;background:none;box-shadow:none;transform:translateY(130%);transition:transform var(--pan-dur) var(--pan-ez),bottom .2s ease-out;pointer-events:none}   /* 2026-11-18：拿掉背後的色帶（毛玻璃也拿掉），只留按鈕本身的陰影 */
+.excta{position:absolute;left:0;right:0;bottom:0;z-index:7;padding:12px 20px 20px;background:none;box-shadow:none;transform:translateY(130%);opacity:0;visibility:hidden;transition:transform var(--pan-dur) var(--pan-ez),opacity .18s,visibility 0s var(--pan-dur),bottom .2s ease-out;pointer-events:none}   /* 2026-11-25 留言：收起時原本只往下移，剛好躲在半透明迷你播放器後面還看得到——收起時一併隱藏，捲過上方按鈕才從底部冒出 */   /* 2026-11-18：拿掉背後的色帶（毛玻璃也拿掉），只留按鈕本身的陰影 */
 .excta.wm{bottom:var(--mb,96px);padding-bottom:8px}   /* 有迷你播放器：停在迷你播放器上方，一樣固定不跟著捲 */
 .excta>.tealbtn,.excta .tealbtn{box-shadow:0 10px 26px -6px rgba(15,25,30,.5),0 2px 8px rgba(15,25,30,.22)}   /* 2026-11-18：捲動後浮出的「開始導覽」原本壓一條幾乎不透明的白底，看起來像多一層面板——改成毛玻璃（同迷你播放器），底色拿掉，改由按鈕自己的陰影浮起來 */ .scanfab.fabhide{opacity:0!important;pointer-events:none;transition:opacity .2s}
 .exhero.ins{position:relative;margin:64px 24px 0;border-radius:20px;overflow:hidden}   /* 2026-11-16 手機實機確認：Safari 不吃負值 inset、inset(...round...) 不生效、margin 簡寫裡的 var() 會整條失效。這裡只留字面值，收合全部由 JS 設 inline style（見 exNavMount） */
@@ -340,7 +340,7 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 .pccaps{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
 .pccap{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 10px 0 8px;border-radius:13px;background:var(--cream);font-size:12px;line-height:1;color:var(--text);white-space:nowrap}
 .pccap.sg{background:var(--tealL);color:var(--teal7);font-weight:500} .pccap .ico{width:14px;height:14px;flex:0 0 14px}
-.excta.on{transform:none;pointer-events:auto}
+.excta.on{transform:none;pointer-events:auto;opacity:1;visibility:visible;transition:transform var(--pan-dur) var(--pan-ez),opacity .18s,visibility 0s,bottom .2s ease-out}
 .tabstick.stuck{background:#fff;padding:0!important;box-shadow:0 1px 0 var(--line),0 4px 8px -6px rgba(0,0,0,.2)}
 .tabstick.stuck .tabs2{box-shadow:none;border-radius:0;width:100%}
 .tabstick .rprog{transition:border-radius .2s}
@@ -1899,7 +1899,7 @@ const sUnit=c=>c&&c.type==='route'?'站':c&&c.objs?'件':'則';   /* 2026-11-20�
 const atEdge=d=>{ const p=S.player; if(!p) return true; const list=ctxList(p.ctx), i=p.ctx.type==='route'?p.ctx.idx:list.indexOf(p.id); return d<0?i<=0:i>=list.length-1; };
 function step(d){ if(atEdge(d)) return; const p=S.player, list=ctxList(p.ctx);
   if(p.ctx.type==='route'){ const j=p.ctx.idx+d; if(j<0||j>=list.length) return;
-    const was=p.id; p.id=list[j]; p.ctx.idx=j; p.pos=0; p.playing=!isTxt(p.id,p.ctx); S.ci=0; applyVersion(p, verFor(p)); onStopChange(was); render(); return; }   /* 停在原本的分頁 */
+    const was=p.id; p.id=list[j]; p.ctx.idx=j; p.pos=0; p.playing=!isTxt(p.id,p.ctx); S.ci=0; applyVersion(p, verFor(p)); onStopChange(was); if(S.sheet==='signfs'&&!p.sign){ sfExit(); S.sheet=null; } render(); return; }   /* 停在原本的分頁 */
   let i = list.indexOf(p.id);
   i=Math.max(0,Math.min(list.length-1,i+d));
   playIdx(i); }   /* 2026-11-16：原本這裡自己抄一份換站邏輯，漏了「有導覽就切回導覽分頁」、onStopChange 的類型提示，
@@ -2184,7 +2184,7 @@ function listPane(c){   /* 2026-11-20：c＝從展覽頁打開時給的清單（
         <span class="gt"><b>${x.n}</b><span class="gs">${sub}</span></span>
         <span class="gp" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></span></button></li>`; }).join(''); })()}</ol></div>`;
 }
-function playIdx(i){ const p=S.player, list=ctxList(p.ctx), was=p.id; p.id=list[i]; if(p.ctx.type==='route') p.ctx.idx=i; p.pos=0; p.playing=!isTxt(p.id,p.ctx); S.ci=0; applyVersion(p, verFor(p)); onStopChange(was); markHeard(); S.sheet=null; if(ptabs().includes('play')) S.pTab='play'; render(); }
+function playIdx(i){ const p=S.player, list=ctxList(p.ctx), was=p.id; p.id=list[i]; if(p.ctx.type==='route') p.ctx.idx=i; p.pos=0; p.playing=!isTxt(p.id,p.ctx); S.ci=0; applyVersion(p, verFor(p)); onStopChange(was); markHeard(); const fs=S.sheet==='signfs'&&p.sign; if(S.sheet==='signfs'&&!p.sign) sfExit(); S.sheet=fs?'signfs':null; if(ptabs().includes('play')) S.pTab='play'; render(); if(fs) sgPoke(); }   /* 2026-11-25 留言：手語全螢幕時切上一件／下一件要維持全螢幕；換到沒有手語影片的才退出 */
 function playInCtx(id){ const p=S.player, list=ctxList(p.ctx), i=list.indexOf(id); if(i>=0) return playIdx(i); play(id,p.ctx); }
 /* 2026-11-18：上一則／下一則獨立一列，浮在播放面板正上方。切分頁時 swapPCard 會整塊重畫，所以不能跟 playerCard 綁在一起（會越疊越多） */
 function pstepRow(){ const p=S.player; if(!p) return ''; const ctx=p.ctx, U=sUnit(ctx);
@@ -2528,7 +2528,7 @@ function facFit(){ const w=document.querySelector('#app > .scr .mapwrap'), t=S.f
 /* 2026-11-19 留言：只顯示設施時，底部提示現在只看得到哪一種設施，按「返回導覽」回到原本的點位 */
 function facHint(){ const [tn,td]=FAC_TYPES[S.facFind];
   return `<div class="fachint" role="status"><span>${MI(td,16,'#fff')}只顯示${tn}</span><button onclick="facClose()">返回</button></div>`; }
-function facClose(){ S.facFind=null; if(S.mapOnly) S.mapSel=S.mapOnly; render(); const pv=S._facPrev; S._facPrev=null; if(pv&&pv.k===S.floor+'|'+S.mapOnly+'|'+S.exOnly) setTimeout(()=>animView(pv.v),0); }   /* 2026-11-12 留言：從單件展品地圖找設施，關掉後回到這件展品的「帶我去」畫面 */
+function facClose(){ S.facFind=null; if(String(S.mapSel||'').startsWith('p:')) S.mapSel=null; if(S.mapOnly) S.mapSel=S.mapOnly; render();   /* 2026-11-25 留言：關閉找設施時，已打開的設施資訊面板一起收起 */ const pv=S._facPrev; S._facPrev=null; if(pv&&pv.k===S.floor+'|'+S.mapOnly+'|'+S.exOnly) setTimeout(()=>animView(pv.v),0); }   /* 2026-11-12 留言：從單件展品地圖找設施，關掉後回到這件展品的「帶我去」畫面 */
 /* 2026-11-25 留言：特展內的地圖——展區以外轉成灰階，只有特展室保留原色，焦點留在這檔展覽，跟全館地圖做出區隔。
    做法：底圖整張灰階，上面再疊一張只剪出展區的彩色底圖；萬相天后的展櫃線稿不在焦點展區時也一起轉灰 */
 let EXG_N=0;
@@ -3245,7 +3245,7 @@ function scrMap(){ if(fvOn()&&S.fx) S.fx=null;   /* 2026-11-19 留言：全館�
     </div>`:''}${uniP?'':`   <!-- 2026-11-19 留言：主題路線地圖保留路線名稱與站數（知道下面是什麼卡片），不放帶我去 -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:0 24px;min-height:32px">
         ${f==='4F'?ex4Info(exKey)   /* 第 1 輪測試修正（T8）：4F 面板＝目前選的特展資訊＋開始導覽；原本的切換 chip 和「開始導覽這個特展」整併進來，切換改點地圖上的特展入口 */
-        :f==='site'?`<div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">臺史博全區</b></div>`:`<div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">${RT?ROUTES[RT].n:M?M.name:'1F 大廳'}</b>${cardIds.length?`<span style="font-size:11px;color:var(--text2)">${RT?`${cardIds.length} 站・${cardIds.filter(id=>it(id).guide).length} 站有導覽`:`${cardIds.length} 個導覽點`}</span>`:''}</div>${RT&&M?'':`<button class="waybtn" onclick="startNav(${ENTRY[f]?"'entry'":''})" aria-label="${ENTRY[f]?`帶我去${M?M.name:''}入口`:'帶我去：選起點和目的地，幫你畫路線'}">${MI(MD.nav,16,'#2E5C6E')}帶我去</button>`}`}</div>
+        :f==='site'?`<div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">臺史博全區</b></div>`:`<div style="display:flex;gap:8px;align-items:center"><b style="font-weight:700;font-size:18px;color:var(--ink)">${RT?ROUTES[RT].n:M?M.name:'1F 大廳'}</b>${cardIds.length?`<span style="font-size:11px;color:var(--text2)">${RT?`${cardIds.length} 站`:`${cardIds.length} 個導覽點`}</span>`:''}</div>${RT&&M?'':`<button class="waybtn" onclick="startNav(${ENTRY[f]?"'entry'":''})" aria-label="${ENTRY[f]?`帶我去${M?M.name:''}入口`:'帶我去：選起點和目的地，幫你畫路線'}">${MI(MD.nav,16,'#2E5C6E')}帶我去</button>`}`}</div>
       ${f==='site'?`<div class="hs zrow" style="gap:12px;padding:8px 24px 28px;margin-bottom:-28px">   <!-- 2026-11-19 留言：全區面板拿掉說明文字，只留卡片，面板矮一點（有迷你播放器時不會吃掉半個畫面） -->
         <div class="zcard" onclick="S.floor='1F';S.mapSel=null;render()"><img src="${A('home-hero.jpg')}" alt="">
           <div class="t"><span>1F・2F・4F 展廳</span><b>展示教育大樓</b></div></div></div>`:''}
