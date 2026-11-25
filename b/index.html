@@ -2523,7 +2523,7 @@ function facFit(){ const w=document.querySelector('#app > .scr .mapwrap'), t=S.f
   const fb=document.querySelector('#app > .scr .facbar'), wr=w.getBoundingClientRect(), top=fb?fb.getBoundingClientRect().bottom-wr.top+24:104, H=mapVisH(w), W=w.clientWidth;
   const x0=Math.min(...pts.map(p=>p[2]))-60, x1=Math.max(...pts.map(p=>p[2]))+60, y0=Math.min(...pts.map(p=>p[3]))-60, y1=Math.max(...pts.map(p=>p[3]))+60;
   const k=f+'|'+S.mapOnly+'|'+S.exOnly; if(!S._facPrev||S._facPrev.k!==k) S._facPrev={k, v:{...mapView()}};   /* 記住原本的視角，取消找設施時回去 */
-  const rl=fvOn()?84:0;   /* 2026-11-25：整層檢視左邊讓出樓層按鈕，點位不被壓住（1F 的 6 號門出口原本被擋） */ const ah=Math.max(120,H-top-24), base=fitV(mapOf(f).fit).s, sc=Math.min((W-48-rl-(f==="1F"?90:0))/(x1-x0), ah/(y1-y0), Math.max(base*1.2, S._facPrev.v.s));   /* 只有一兩處時不放太大，還看得出在館內哪裡 */
+  const rr=document.querySelector('#app > .scr .flrail'), rl=rr&&rr.offsetParent?Math.max(0,rr.getBoundingClientRect().right-wr.left+8):(fvOn()?84:0);   /* 2026-11-25：樓層列一直在左側——不論哪種檢視都讓出它的寬度，最左邊的設施（例：2F／4F 出入口）不被壓住 */   /* 2026-11-25：整層檢視左邊讓出樓層按鈕，點位不被壓住（1F 的 6 號門出口原本被擋） */ const ah=Math.max(120,H-top-24), base=fitV(mapOf(f).fit).s, sc=Math.min((W-48-rl-(f==="1F"?90:0))/(x1-x0), ah/(y1-y0), Math.max(base*1.2, S._facPrev.v.s));   /* 只有一兩處時不放太大，還看得出在館內哪裡 */
   animView({s:sc, x:(W+rl)/2-(x0+x1)/2*sc, y:top+ah/2-(y0+y1)/2*sc}); }
 /* 2026-11-19 留言：只顯示設施時，底部提示現在只看得到哪一種設施，按「返回導覽」回到原本的點位 */
 function facHint(){ const [tn,td]=FAC_TYPES[S.facFind];
@@ -2823,7 +2823,7 @@ function floorRailFit(){ const scr=(document.querySelector('#app > .scr.mapsheet
   scr.style.setProperty('--railc',v); S._railc=v; placeFab(); }   /* 2026-11-11 留言：面板收合／展開、換樓層後，樓層列與縮放鍵從原位置滑到新位置 */   /* 2026-11-11 留言：樓層列（左）與縮放鍵（右）同一條中線、左右都距邊 20px */   /* 樓層列：標頭（含設施 tab）下緣到底部面板上緣之間置中 */
 /* 2026-11-12 留言：換樓層時，標題和下方面板先淡出、再淡入；面板高度平順變化 */
 function flSwitch(x){ if(x===S.floor) return; const z=document.querySelector('#app > .scr > .zonesheet'), out=[...document.querySelectorAll('#app > .scr .maphead .c, #app > .scr .maphead p, #app > .scr > .zonesheet > *')];
-  const go2=()=>{ S._flOldH=z?z.offsetHeight:0; S._flIn=true; S.floor=x; S.mapSel=null; S.nav=null; S.navFl=null; S.fx=null; S.fxPick=null; if(fvOn()&&S.mv) delete S.mv['4F']; if(fvOn()&&x==='4F') S._fxFocus=true; if(S.way) wayFit(); render(); };
+  const go2=()=>{ S._flOldH=z?z.offsetHeight:0; S._flIn=true; S.floor=x; S.mapSel=null; S.nav=null; S.navFl=null; S.fx=null; S.fxPick=null; if(fvOn()&&S.mv) delete S.mv['4F']; if(fvOn()&&x==='4F') S._fxFocus=true; if(S.facFind&&!S.way) S._facFit=true; if(S.way) wayFit(); render(); };   /* 2026-11-25 留言：找設施時切樓層，重新對焦讓該層設施落在可見範圍中間 */
   if(REDUCED||!out.length) return go2(); out.forEach(e=>e.animate([{opacity:1},{opacity:0}],{duration:150,easing:'ease-in',fill:'forwards'})); clearTimeout(S._flT); S._flT=setTimeout(go2,150); }
 function flFadeIn(){ if(!S._flIn) return; S._flIn=false; const D=300;
   document.querySelectorAll('#app > .scr .maphead .c, #app > .scr .maphead p').forEach(e=>e.animate([{opacity:0},{opacity:1}],{duration:D,easing:'ease-out'}));
