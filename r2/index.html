@@ -197,9 +197,9 @@ const QS = [
    tasks:[
     {id:'a', label:'找手語影片', go:{A:'',B:'home'}, where:'首頁',
      do:'請在首頁找到「無障礙專區」，並點開「斯土斯民：臺灣的故事」開始進行手語導覽。', done:'畫面上開始播放手語影片，就算完成。影片是示意，不用看完。',
-     ask:'開始播放的第一支手語影片是哪一則？', ph:'寫下影片標題',
-     opts:[['p1','舊石器時代：第一批臺灣人群之謎'],['p2','鐵器時代：人群的再到來？或文化變革？'],['p3','世界航線，集結！'],['u1','臺灣，交會之島']],
-     expect:'A：☰ → 手語導覽列表／B：首頁無障礙專區 → 斯土斯民「21 支手語影片」→ 開始手語導覽。正確答案：舊石器時代：第一批臺灣人群之謎（1／21 則）'}
+     ask:'是否有看到手語導覽影片？', ph:'',
+     opts:[['yes','是'],['no','否']], noOth:true,
+     expect:'A：☰ → 手語導覽列表／B：首頁無障礙專區 → 斯土斯民「21 支手語影片」→ 開始手語導覽。正確答案：是（第一支是「舊石器時代：第一批臺灣人群之謎」，1／21 則）'}
    ]},
   {id:'q4', title:'用地圖找展區和出口',
    scenario:'你站在一樓大廳的服務臺旁邊，想去看媽祖特展「萬相天后」。',
@@ -309,7 +309,7 @@ function openBox(v,t,title,note){
 }
 /* 一個核心任務：讀任務 → 按開始計時 → 手機上做 → 按結果停止計時 → 填答案與 SEQ */
 /* 追問：有 opts 就是選擇題＋其他（選其他再出文字欄），沒有就是文字欄 */
-function ansBlock(t,k,T,st){ return t.opts?`<div id="ans-${k}"${st||''}><div class="q">${esc(t.ask)}</div>${choices('task.'+k+'.pick',[...t.opts,['other',t.oth||'其他']],T.pick)}
+function ansBlock(t,k,T,st){ return t.opts?`<div id="ans-${k}"${st||''}><div class="q">${esc(t.ask)}</div>${choices('task.'+k+'.pick',(t.noOth?t.opts:[...t.opts,['other',t.oth||'其他']]),T.pick)}
       ${T.pick==='other'?`<label class="hint" for="ansi-${k}" style="display:block;margin:12px 0 6px">${esc(t.othq||'請寫下你看到的')}</label><input type="text" id="ansi-${k}" data-in="task.${k}.picktxt" value="${esc(T.picktxt)}" placeholder="${esc(t.ph)}" autocomplete="off">`:''}</div>`
     :`<div id="ans-${k}"${st||''}><label class="q" for="ansi-${k}">${esc(t.ask)}</label><input type="text" id="ansi-${k}" data-in="task.${k}.answer" value="${esc(T.answer)}" placeholder="${esc(t.ph)}" autocomplete="off"></div>`; }
 function taskCard(vi,q,t,j,locked){
