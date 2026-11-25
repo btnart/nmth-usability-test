@@ -106,7 +106,7 @@ img{display:block}
 button.mapbar{padding:0 16px}
 .mapwrap.picking{cursor:crosshair} .mapwrap.picking .mpin,.mapwrap.picking .mchip{pointer-events:none}
 .mapwrap{touch-action:none;user-select:none;-webkit-user-select:none}
-.mlayer{position:absolute;left:0;top:0;transform-origin:0 0} .mlayer img{display:block;max-width:none;pointer-events:none}
+.mlayer{position:absolute;left:0;top:0;transform-origin:0 0} .mlayer img{display:block;max-width:none;pointer-events:none} .mlayer img.mgray{filter:grayscale(1) brightness(1.04) contrast(.88)}   /* 特展地圖：展區以外灰階 */
 .pmorebg{position:fixed;inset:0;z-index:40} .pmore{position:absolute;right:0;top:48px;z-index:41;min-width:184px;background:#fff;border-radius:16px;box-shadow:0 12px 32px -8px rgba(15,25,30,.35),0 2px 8px rgba(15,25,30,.12);padding:6px;display:flex;flex-direction:column;animation:hintin .18s ease-out both}
 .pmfs{display:flex;flex-direction:column;gap:8px;padding:10px 14px 12px;border-top:1px solid var(--line);margin-top:4px} .pmfsl{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--ink)} .pmfsg{display:flex;gap:6px} .pmore .pmfsg button{flex:1;min-height:40px;padding:0;justify-content:center;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--text)} .pmore .pmfsg button.on{border-color:var(--teal7);background:var(--tealL);color:var(--teal7);font-weight:700}
 .pmore button{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:12px;font-size:15px;color:var(--ink);text-align:left} .pmore button:active{background:var(--cream)} .pmore .aa{width:20px;display:inline-flex;align-items:baseline;justify-content:center;font-weight:700;color:#3C3C3C}   /* 2026-11-18：播放器右上「更多」選單（收藏、筆記、文字大小） */
@@ -2524,6 +2524,11 @@ function facFit(){ const w=document.querySelector('#app > .scr .mapwrap'), t=S.f
 function facHint(){ const [tn,td]=FAC_TYPES[S.facFind];
   return `<div class="fachint" role="status"><span>${MI(td,16,'#fff')}只顯示${tn}</span><button onclick="facClose()">返回</button></div>`; }
 function facClose(){ S.facFind=null; if(S.mapOnly) S.mapSel=S.mapOnly; render(); const pv=S._facPrev; S._facPrev=null; if(pv&&pv.k===S.floor+'|'+S.mapOnly+'|'+S.exOnly) setTimeout(()=>animView(pv.v),0); }   /* 2026-11-12 留言：從單件展品地圖找設施，關掉後回到這件展品的「帶我去」畫面 */
+/* 2026-11-25 留言：特展內的地圖——展區以外轉成灰階，只有特展室保留原色，焦點留在這檔展覽，跟全館地圖做出區隔。
+   做法：底圖整張灰階，上面再疊一張只剪出展區的彩色底圖；萬相天后的展櫃線稿不在焦點展區時也一起轉灰 */
+let EXG_N=0;
+function exGray(f){ const k=S.exOnly; if(f!=='4F'||!k||!ROOMS4[k]||S.way||S.screen!=='map') return null;
+  return {id:'exg'+(++EXG_N), clip:`<polygon points="${ROOMS4[k].area}"/>`}; }   /* 走廊延伸展區的點位不另外留色塊：走廊本來就是白色，剪出來反而像一塊補丁；點位本身照樣是彩色 */
 /* 2026-11-25 留言：地圖上方「找…」列的種類與順序都在 FINDERS 設定，之後擴充只要加一筆：
    ・清單型（FIND_SHEETS）：點了開清單面板再選，例如找展覽
    ・篩選型（FAC_TYPES）：地圖只留這幾種 PLACES 點位，[名稱, 圖示, 包含的 PLACES 類型]（沒寫＝跟 key 同名），例如找出入口＝door＋exit
@@ -3175,11 +3180,13 @@ function scrMap(){ if(fvOn()&&S.fx) S.fx=null;   /* 2026-11-19 留言：全館�
   const pinAll=M&&!(S.way&&(!S.wayPins||S.way.step==='route'))?(S.mapOnly&&!S.way?[S.mapOnly]:((S.walk||(S.mapRoute&&ROUTES[S.mapRoute]))?rtList(S.walk?S.walk.k:S.mapRoute).filter(id=>PINS[f][id]):Object.keys(PINS[f]).filter(id=>!it(id).rstop&&(f!=='2F'||exPins('perm').includes(id)))).filter(id=>(f!=='4F'||fv4All()||exPins(exKey).includes(id))&&(!S.exOnly||exPins(S.exOnly).includes(id))&&!(fvOn()&&S.fxPick&&!exPins(S.fxPick).includes(id))&&(!S.signPick||it(id).sign)).filter(id=>!(S.way&&[S.way.a,S.way.b].some(p=>p&&p.id===id&&p.fl===f)))):[];   /* 4F 只標目前這間特展室的展品；2026-11-11 留言：選成 A／B 的展品藏掉原本的點位，跟設施一樣 */
   const vOK=!!M&&!S.walk&&!(S.mapRoute&&ROUTES[S.mapRoute])&&!S.mapOnly&&!S.way&&pinAll.some(pinVoice)&&!pinAll.every(pinVoice), pinIds=vOK&&S.pinVoice?pinAll.filter(pinVoice):pinAll;   /* 2026-11-20 留言：地圖可以只看有語音導覽的點位 */
   const anchor=(x,y,cls,inner,extra='')=>{ const [sx,sy]=toScr(x,y); return `<div class="${cls}" data-mx="${x}" data-my="${y}" style="left:${sx}px;top:${sy}px" ${extra}>${inner}</div>`; };
+  const exG=exGray(f);
   const mapLayer = M ? `<div id="mlayer" class="mlayer" style="width:${M.w}px;height:${M.h}px;transform:translate(${v.x}px,${v.y}px) scale(${v.s})">
-      <img src="${A(M.src)}" alt="${f} ${M.name}平面圖" width="${M.w}" height="${M.h}" draggable="false">
+      <img src="${A(M.src)}" alt="${f} ${M.name}平面圖" width="${M.w}" height="${M.h}" draggable="false"${exG?' class="mgray"':''}>
       ${S.way&&S.walkShow&&WALK[f]?`<img src="${A('walk-'+f.toLowerCase()+'.png')}" alt="" width="${M.w}" height="${M.h}" style="position:absolute;left:0;top:0" draggable="false">`:''}
       <svg viewBox="0 0 ${M.w} ${M.h}" width="${M.w}" height="${M.h}" style="position:absolute;left:0;top:0" aria-hidden="true">
-        ${f==='4F'?ZJ_PLAN:''}
+        ${exG?`<defs><clipPath id="${exG.id}">${exG.clip}</clipPath><filter id="${exG.id}g"><feColorMatrix type="saturate" values="0"/></filter></defs><image href="${A(M.src)}" width="${M.w}" height="${M.h}" clip-path="url(#${exG.id})"/>`:''}
+        ${f==='4F'?(exG&&S.exOnly!=='zj'?`<g filter="url(#${exG.id}g)" opacity=".85">${ZJ_PLAN}</g>`:ZJ_PLAN):''}
         ${M.area?`<polygon points="${M.area}" fill="rgba(46,92,110,.08)" stroke="#2E5C6E" stroke-width="3" stroke-dasharray="10 8" vector-effect="non-scaling-stroke"/>`:''}
         ${fvOn()&&S.fxPick&&fxArea(S.fxPick,f)?`<polygon class="fxflash${S._fxPickIn&&!REDUCED?' blink':''}" points="${fxArea(S.fxPick,f)}" fill="rgba(201,169,97,.28)" stroke="#C9A961" stroke-width="4" vector-effect="non-scaling-stroke"/>`:''}</svg></div>
     <div class="mpins">
