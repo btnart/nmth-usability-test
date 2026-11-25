@@ -2525,7 +2525,7 @@ function placeCard(k){ const [,f,i]=k.split(':'), [t,n,,,tx]=PLACES[f][+i];
 /* 2026-11-19 留言：找設施只在地圖上標點位、不出清單面板；地圖平順縮放到這層同類設施全部看得到 */
 /* 2026-11-25 第二輪模擬測試：2F／4F 按「找出入口」只看到展廳的門，民眾會以為那就是出口——底部固定告訴他場館出口在 1F，一鍵帶過去 */
 function gateCard(f){ if(S.facFind!=='gate'||!['2F','4F'].includes(f)) return ''; const i=PLACES['1F'].findIndex(p=>p[0]==='exit');   /* 2026-11-25 留言：不用底部面板（像找出入口的結果，反而讓地圖上這層的出入口被忽略），改成下方一條提示 banner */
-  return `<div class="gatebar" role="note" aria-label="要找場館出口嗎？場館出口・6 號門在 1F"><span class="gi">${MI(PL_IC.exit,20,'#2E5C6E')}</span><span class="gt"><b>要找場館出口嗎？</b><small>場館出口・6 號門在 1F</small></span><button class="tealbtn" onclick="gateGo()">帶我去</button></div>`; }
+  return `<div class="gatebar" role="note" aria-label="要找場館出口嗎？場館出口・6 號門在 1F"><span class="gi">${MI(PL_IC.exit,20,'#2E5C6E')}</span><span class="gt"><b>要找場館出口嗎？</b><small>場館出口・6 號門在 1F</small></span><button class="tealbtn" onclick="${S.exOnly||S.mapOnly?`startNav('p:1F:${i}')`:'gateGo()'}">帶我去</button></div>`; }   /* 2026-11-25 留言：展覽內的地圖直接進帶我去（起點帶展室入口）；全館地圖先切到 1F 指出出口位置 */
 /* 2026-11-25 留言：banner 的「帶我去」不直接進帶我去，先切到 1F、選中場館出口並對焦到那個點位（下方出現它的資訊卡，再按「帶我去這裡」） */
 function gateGo(){ const i=PLACES['1F'].findIndex(p=>p[0]==='exit'), p=PLACES['1F'][i];
   S._gateEx=S.exOnly||S.fxPick||S._gateEx||null; S.exOnly=null; S.mapOnly=null; S.ftPrev=['1F','2F','4F'].indexOf(S.floor); S.floor='1F'; S.mapSel='p:1F:'+i;   /* 離開展覽專屬地圖（不然標題會變成 1F 的別檔展覽），但記住從哪一檔來，帶我去時起點照樣帶那間展室入口 */ S.nav=null; S.navFl=null; S.fx=null; S.fxPick=null; S.mv=S.mv||{}; S.mv['1F']=fitV(mapOf('1F').fit); S._flIn=true; render();
