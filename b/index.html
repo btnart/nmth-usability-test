@@ -189,7 +189,8 @@ button.mapbar{padding:0 16px}
 .fachint span{display:inline-flex;align-items:center;gap:6px} .fachint button{min-height:36px;padding:0 14px;border-radius:18px;background:#fff;color:var(--teal7);font-size:13px;font-weight:700}
 .withmini .fachint{bottom:108px}
 .pcbtn{flex:0 0 auto;min-width:44px;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0 2px} .pcbtn span{font-size:11px;line-height:1.2;font-weight:500;color:var(--teal7);white-space:nowrap}   /* 播放卡右側：圖示＋下方文字（地標、列表） */
-.facchip.facsel{padding-right:4px;gap:6px;cursor:default} .facsel button{min-height:26px;margin-left:4px;padding:0 12px;border-radius:13px;background:#fff;color:var(--teal7);font-size:12px;font-weight:700}   /* 找設施中：膠囊裡的關閉鈕（觸控範圍往外延伸到 44px） */
+.facbar.facon{justify-content:center} .facbar.facon .facfl{position:absolute;left:20px;top:0;bottom:0;display:flex;align-items:center} .facbar.facon .facsep{display:none}
+.facchip.facsel{padding-right:3px;gap:6px;cursor:default} .facsel button{width:26px;height:26px;margin-left:2px;border-radius:13px;background:#fff;display:grid;place-items:center}   /* 找設施中：膠囊裡的關閉鈕（觸控範圍往外延伸到 44px） */
 .facsel button{position:relative} .facsel button::after{content:'';position:absolute;inset:-9px -6px}   /* 2026-11-19 留言：找設施的點位不加金框、不閃爍，跟一般設施圖示一樣 */
 .mbld{position:absolute;transform:translate(-50%,-50%);z-index:2;background:var(--teal7);color:#fff;border-radius:14px;padding:8px 14px;display:flex;flex-direction:column;align-items:center;gap:1px;box-shadow:0 4px 12px rgba(0,0,0,.22);font-size:13px;font-weight:700;white-space:nowrap}
 .mbld span{font-size:10px;font-weight:400;opacity:.85}
@@ -2541,7 +2542,7 @@ const FIND_SHEETS={ex:['展覽',()=>EXF_IC,'exfind']};
 const facHas=(k,t)=>!!k&&!!FAC_TYPES[k]&&(FAC_TYPES[k][2]||[k]).includes(t);
 function facBar(vOK,fl){ const flT=fl?`<span class="facfl" role="note" aria-label="目前樓層 ${fl}">${fl}</span><span class="facsep" aria-hidden="true"></span>`:'';
   if(S.facFind&&FAC_TYPES[S.facFind]){ const [n,d]=FAC_TYPES[S.facFind];   /* 2026-11-25 留言：找設施時只留已選的膠囊，其他收起；原本底部的「只顯示…／返回」併進膠囊，返回改成「關閉」 */
-    return `<div class="facbar" role="group" aria-label="找展覽、出入口與設施">${flT}<span class="facchip on facsel" role="status">${MI(d,14,'#fff')}只顯示${n}<button onclick="facClose()" aria-label="關閉，顯示全部點位">關閉</button></span></div>`; }
+    return `<div class="facbar facon" role="group" aria-label="找展覽、出入口與設施">${flT}<span class="facchip on facsel" role="status">${MI(d,14,'#fff')}找${n}<button onclick="facClose()" aria-label="關閉找${n}，顯示全部點位">${MI(MD.close,16,'#2E5C6E')}</button></span></div>`; }   /* 2026-11-25 留言：文字改「找 XX」、關閉改成圖示，膠囊放在上方正中間 */
   return `<div class="facbar" role="group" aria-label="找展覽、出入口與設施">${flT}${vOK?`<button class="facchip${S.pinVoice?' on':''}" aria-pressed="${!!S.pinVoice}" onclick="S.pinVoice=!S.pinVoice;S.mapSel=null;render()">${MI(MD.head,14,S.pinVoice?'#fff':'#2E5C6E')}只看語音導覽</button><span class="facsep" aria-hidden="true"></span>`:''}${FINDERS.map(t=>{
     const sh=FIND_SHEETS[t]; if(sh) return `<button class="facchip" aria-haspopup="dialog" onclick="S.facFind=null;S.mapSel=null;S.sheet='${sh[2]}';render()">${MI(sh[1](),14,'#2E5C6E')}找${sh[0]}</button>`;
     if(!FAC_TYPES[t]) return ''; const [n,d]=FAC_TYPES[t], on=S.facFind===t;
