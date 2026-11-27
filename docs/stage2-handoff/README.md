@@ -134,6 +134,6 @@ flowchart TD
 - **未上傳**：訪談錄音、館方文件（徵求文件、工作計畫書、導覽文稿）、需求訪談簡報、報價單與標案資料、設計系統文件（尚未定案）、原型截圖、Google 表單 Apps Script、11/13 協調會報簡報（含受訪者姓名）
 - **已去識別化**：`ai-notes/nmth-deck-spec.md`、`ai-notes/nmth-interview-slides-4-and-5.md`、`usability-tests/nmth-web-guide-online-usability-test-v2.md` 的受訪者姓名已改為職稱
 - **只留最終版**：使用流程（旅程地圖 v3）、功能規格（v2），已去掉版本號；舊版不上傳
-- **第 1 輪原始回覆資料**：含受測者稱呼、年齡、職務與逐題文字回饋，不上傳。位置：Google 雲端硬碟「臺史博 web 導覽易用性測試」（ARTOGO 組織內部分享）。彙整結果見 `usability-tests/臺史博第 1 輪易用性測試結果.pptx`
+- **第 1 輪原始回覆資料**：含受測者稱呼、年齡、職務與逐題文字回饋，不上傳。位置：Google 試算表「臺史博 web 導覽易用性測試」（ARTOGO 組織內部分享，需用公司帳號開啟）：https://docs.google.com/spreadsheets/d/1q07r7FqO2E8PU8kwfHp8TClsZNyuKrO2j2l9DaTYc9s/edit?gid=1911655842彙整結果見 `usability-tests/臺史博第 1 輪易用性測試結果.pptx`
 - **第 1 輪後修改清單**：已納入 `usability-tests/第1輪後修改清單.md`（內部工單 SB-2516 匯出，已去識別化，原型進度為 11/16 狀態）
 - **還缺**：第 2 輪易用性測試尚未執行（排定 2026-12-01），沒有結果資料
