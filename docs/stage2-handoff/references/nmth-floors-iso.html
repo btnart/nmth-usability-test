@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>臺史博三層展區</title>
+<style>
+  :root{
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace, "PingFang TC", "Noto Sans TC", sans-serif;
+    --page:#0c0d0e; --panel:#141516; --body:#1b1c1e; --deck:#212326;
+    --line:#8a8f95; --detail:#696e73; --dim:#52565c; --ink:#b2b8bd;
+    --live:#f3f4f4; --glass:#0d0e0f;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --page:#e6e7e7; --panel:#f7f7f6; --body:#ffffff; --deck:#efefed;
+      --line:#55595c; --detail:#95989a; --dim:#b2b5b7; --ink:#26292b;
+      --live:#101112; --glass:#d8dad9;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:var(--mono);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px 16px;
+  }
+  .plate{
+    width:min(1020px,100%);
+    background:var(--panel);
+    border-radius:22px;
+    padding:20px 22px 18px;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .caps{
+    display:flex; flex-wrap:wrap; gap:6px 18px;
+    justify-content:space-between;
+    font-size:13px; letter-spacing:.14em;
+  }
+  .caps .r{text-align:right}
+  .caps .fig{letter-spacing:.08em}
+  .caps .up{text-transform:uppercase}
+  .readout{letter-spacing:.08em; color:var(--live)}
+  .stagewrap{overflow-x:auto; overscroll-behavior-x:contain}
+  svg{display:block; width:100%; height:auto; touch-action:none; outline:none}
+  svg:focus-visible{outline:1px solid var(--line); outline-offset:6px; border-radius:8px}
+
+  .face{fill:var(--body); stroke:var(--line); stroke-width:1;
+        vector-effect:non-scaling-stroke; stroke-linejoin:round;}
+  .face.top{fill:var(--deck)}
+  .face.glass{fill:var(--glass)}
+  .detail{fill:none; stroke:var(--detail); stroke-width:1; vector-effect:non-scaling-stroke}
+  .pin{fill:none; stroke:var(--detail); stroke-width:1; vector-effect:non-scaling-stroke}
+  text{font-family:var(--mono); fill:var(--ink)}
+  .t-min{fill:var(--detail)}
+  .t-live{fill:var(--live)}
+  .t-lab{fill:var(--detail); letter-spacing:.2em}
+
+  .press{cursor:pointer; transition:transform 60ms ease-out}
+  .press.down{transform:translateY(4px)}
+  .press.down .face{stroke:var(--live)}
+
+  .floor.dim .face{stroke:var(--dim)}
+  .floor.dim text{fill:var(--dim)}
+  .floor.dim .t-min{fill:var(--dim)}
+  .floor.dim .pin{stroke:var(--dim)}
+
+  .zone.on .face{fill:var(--live); stroke:var(--live)}
+  .zone.on .face.top{fill:var(--live)}
+  .zone.on text{fill:var(--panel)}
+  .zone.on .t-min{fill:var(--panel)}
+  .zone.on .pin{stroke:var(--panel)}
+  .tab.on .face{fill:var(--live); stroke:var(--live)}
+  .tab.on .face.top{fill:var(--live)}
+  .tab.on text{fill:var(--panel)}
+
+  @media (prefers-reduced-motion: reduce){ .press{transition:none} }
+</style>
+</head>
+<body>
+<div class="plate">
+  <div class="caps">
+    <div class="fig">Fig 1</div>
+    <div class="r up">臺史博・三層展區</div>
+  </div>
+
+  <div class="stagewrap"><svg id="stage" viewBox="0 0 900 650" role="img" tabindex="0"
+       aria-label="國立臺灣歷史博物館三個樓層的等角剖面模型，旁邊有一台導覽機。點選任一展區可把它加入導覽路線，導覽機畫面會顯示站序與總時間。按 1 到 9 選取目前樓層的展區，上下方向鍵切換樓層，Backspace 移除最後一站，C 清空。"></svg></div>
+
+  <div class="caps">
+    <div class="up">點展區加入路線 · 1–9 選站 · ↑↓ 換樓層 · C 清空</div>
+    <div class="r readout" id="readout">2f · 尚未選站</div>
+  </div>
+</div>
+
+<script>
+(function(){
+/* ---------- isometric kernel ---------- */
+const C = Math.cos(Math.PI/6), S = Math.sin(Math.PI/6), OX = 444, OY = 304;
+const P = (x,y,z) => [(x-y)*C + OX, (x+y)*S - z + OY];
+const D = (x,y,z) => [(x-y)*C, (x+y)*S - z];
+const plane = (O,U,V) => { const o=P(...O), u=D(...U), v=D(...V);
+  return `matrix(${u[0]} ${u[1]} ${v[0]} ${v[1]} ${o[0]} ${o[1]})`; };
+const TOP   = (x,y,z) => plane([x,y,z],[1,0,0],[0,1,0]);
+const FRONT = (x,y,z) => plane([x,y,z],[1,0,0],[0,0,-1]);
+const SIDE  = (x,y,z) => plane([x,y,z],[0,-1,0],[0,0,-1]);
+const rect = (t,w,h,r=0,cls='face') =>
+  `<g transform="${t}"><rect class="${cls}" width="${w}" height="${h}" rx="${r}"/></g>`;
+const box = (x,y,z,w,d,h,r=0) =>
+  rect(SIDE(x+w,y+d,z+h), d,h,Math.min(r,h/4)) +
+  rect(FRONT(x,y+d,z+h), w,h,Math.min(r,h/4)) +
+  rect(TOP(x,y,z+h), w,d,r,'face top');
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+/* ---------- the building ---------- */
+const PLATE_H = 14, SLAB_H = 7;
+
+const FLOORS = [
+  { id:'1F', z:0, plate:[0,0,400,96], tab:[-40,20],
+    zones:[
+      {pin:1, x:10,  y:52, w:118, d:40, name:'大廳・服務臺', full:'大廳與服務臺', min:5},
+      {pin:2, x:138, y:6,  w:104, d:40, name:'時光車站',     full:'時光車站',     min:15},
+      {pin:3, x:10,  y:6,  w:118, d:40, name:'兒童廳',       full:'兒童廳',       min:40},
+      {pin:4, x:138, y:52, w:104, d:40, name:'商店',         full:'博物館商店',   min:10},
+      {pin:5, x:252, y:52, w:100, d:40, name:'輕食區',       full:'輕食區',       min:20}
+    ]},
+  { id:'2F', z:104, plate:[0,0,400,96], tab:[-40,20],
+    zones:[
+      {pin:1, x:304, y:6,  w:92, d:40, name:'交會之島',     full:'一、臺灣，交會之島',       min:8},
+      {pin:2, x:304, y:52, w:92, d:40, name:'最初的抵岸',   full:'二、最初的抵岸',           min:12},
+      {pin:3, x:206, y:52, w:92, d:40, name:'倚海而生',     full:'三、倚海而生的島與人',     min:15},
+      {pin:4, x:206, y:6,  w:92, d:40, name:'山海之間',     full:'四、山海之間的共存與競逐', min:20},
+      {pin:5, x:108, y:6,  w:92, d:40, name:'新秩序',       full:'五、新秩序下的苦悶與夢想', min:20},
+      {pin:6, x:108, y:52, w:92, d:40, name:'走向民主',     full:'六、走向民主這條路',       min:15},
+      {pin:7, x:10,  y:52, w:92, d:40, name:'大家的博物館', full:'七、大家的博物館',         min:10}
+    ]},
+  { id:'3F', z:208, plate:[0,0,400,96], tab:[-40,20],
+    zones:[
+      {pin:1, x:252, y:6,  w:144, d:86, name:'第一特展室', full:'第一特展室',    min:30},
+      {pin:2, x:138, y:6,  w:104, d:86, name:'第二特展室', full:'第二特展室',    min:25},
+      {pin:3, x:10,  y:6,  w:118, d:40, name:'第三特展室', full:'第三特展室',    min:15},
+      {pin:4, x:10,  y:52, w:118, d:40, name:'VR 製造所',  full:'VR 再現製造所', min:20}
+    ]}
+];
+
+const POSTS = [
+  { z:PLATE_H,     h:104-PLATE_H,     at:[[0,0],[388,0],[0,84],[388,84]] },
+  { z:104+PLATE_H, h:208-104-PLATE_H, at:[[0,0],[388,0],[0,84],[388,84]] }
+];
+
+/* ---------- emit: building ---------- */
+function zoneSVG(f, z){
+  const zt = f.z + PLATE_H;
+  const stacked = z.d >= 56;
+  const fs = z.name.length > 5 ? 8.5 : 10;
+  const nx = stacked ? 9 : 30, ny = stacked ? 40 : 20, my = stacked ? 54 : 34;
+  return `<g class="zone press" data-id="${f.id}-${z.pin}" data-floor="${f.id}" data-pin="${z.pin}">`
+    + box(z.x, z.y, zt, z.w, z.d, SLAB_H, 3)
+    + `<g transform="${TOP(z.x, z.y, zt+SLAB_H)}">`
+      + `<rect class="pin" x="9" y="8" width="15" height="15" rx="4"/>`
+      + `<text x="16.5" y="19" text-anchor="middle" font-size="9">${z.pin}</text>`
+      + `<text x="${nx}" y="${ny}" font-size="${fs}">${esc(z.name)}</text>`
+      + `<text class="t-min" x="${nx}" y="${my}" font-size="7.5">${z.min} 分</text>`
+    + `</g></g>`;
+}
+
+function floorSVG(f){
+  const [px,py,pw,pd] = f.plate;
+  let s = `<g class="floor" data-floor="${f.id}">`;
+  s += box(px, py, f.z, pw, pd, PLATE_H, 3);
+  s += `<g transform="${FRONT(px, py+pd, f.z+PLATE_H)}">`;
+  for(let i = 12; i < pw-10; i += 16) s += `<path class="detail" d="M ${i} 4.5 L ${i} 10"/>`;
+  s += `</g>`;
+  const [tx,ty] = f.tab;
+  s += `<g class="tab press" data-floor="${f.id}">`
+     + box(tx, ty, f.z, 46, 24, 10, 3)
+     + `<g transform="${TOP(tx, ty, f.z+10)}"><text x="13" y="17" font-size="11">${f.id}</text></g>`
+     + `</g>`;
+  [...f.zones].sort((a,b)=>(a.x+a.y)-(b.x+b.y)).forEach(z => s += zoneSVG(f, z));
+  s += `</g>`;
+  return s;
+}
+
+const postsSVG = g => [...g.at].sort((a,b)=>(a[0]+a[1])-(b[0]+b[1]))
+  .map(([x,y]) => box(x, y, g.z, 12, 12, g.h, 2)).join('');
+
+/* ---------- emit: plinth + kiosk ---------- */
+const BX=-16, BY=-16, BZ=-22, BW=432, BD=142, BH=22;
+function plinthSVG(){
+  let s = box(BX, BY, BZ, BW, BD, BH, 3);
+  s += `<g transform="${SIDE(BX+BW, BY+BD, BZ+BH)}">`;
+  for(let i = 14; i < BD-12; i += 15) s += `<path class="detail" d="M ${i} 7 L ${i} 15"/>`;
+  s += `</g>`;
+  s += `<g transform="${FRONT(BX, BY+BD, BZ+BH)}">`
+     + `<text class="t-lab" x="18" y="15" font-size="8">NATIONAL MUSEUM OF TAIWAN HISTORY</text>`
+     + `</g>`;
+  return s;
+}
+
+const KX=-218, KY=170, KW=152, KD=30, KZ=56, KH=172;
+function kioskSVG(){
+  let s = box(-200, 150, 0, 110, 80, 13, 3);              // foot
+  s += box(-158, 176, 13, 22, 20, KZ-13, 2);              // post
+  s += box(KX, KY, KZ, KW, KD, KH, 7);                    // screen body
+  s += `<g transform="${FRONT(KX, KY+KD, KZ+KH)}">`
+     + `<rect class="face glass" x="13" y="15" width="126" height="142" rx="7"/>`
+     + `<path class="detail" d="M 59 166 L 93 166"/>`
+     + `<g clip-path="url(#glassclip)" id="screen"></g>`
+     + `</g>`;
+  return s;
+}
+
+let svg = `<defs><clipPath id="glassclip" clipPathUnits="userSpaceOnUse">`
+        + `<rect x="13" y="15" width="126" height="142" rx="7"/></clipPath></defs>`;
+svg += plinthSVG();
+svg += floorSVG(FLOORS[0]);
+svg += postsSVG(POSTS[0]);
+svg += floorSVG(FLOORS[1]);
+svg += postsSVG(POSTS[1]);
+svg += floorSVG(FLOORS[2]);
+svg += kioskSVG();
+
+const stage = document.getElementById('stage');
+stage.innerHTML = svg;
+
+/* ---------- state ---------- */
+const readout = document.getElementById('readout');
+const screen  = document.getElementById('screen');
+const ZONES = new Map();
+FLOORS.forEach(f => f.zones.forEach(z => ZONES.set(f.id+'-'+z.pin, {f, z})));
+
+const state = { floor:'2F', route:[] };
+
+function totals(){
+  let m = 0;
+  state.route.forEach(id => m += ZONES.get(id).z.min);
+  return { n: state.route.length, m };
+}
+
+function drawScreen(){
+  const t = totals();
+  let lines = [];
+  if(!state.route.length){
+    lines = [{txt:'尚未選站', live:false}, {txt:'點樓板上的展區', live:false}, {txt:'開始排路線', live:false}];
+  } else {
+    const start = Math.max(0, state.route.length - 4);
+    if(start > 0) lines.push({txt:'… 前 ' + start + ' 站', live:false});
+    for(let i = start; i < state.route.length; i++){
+      const {f, z} = ZONES.get(state.route[i]);
+      lines.push({txt:(i+1) + ' ' + f.id + ' ' + z.name + ' ' + z.min + '分',
+                  live:i === state.route.length-1});
+    }
+  }
+  let out = `<text class="t-lab" x="25" y="34" font-size="8.5">ROUTE</text>`;
+  lines.slice(0,4).forEach((l,i) => {
+    out += `<text class="${l.live?'t-live':''}" x="25" y="${55 + i*16}" font-size="8.5">${esc(l.txt)}</text>`;
+  });
+  out += `<path class="detail" d="M 23 117 L 129 117"/>`;
+  out += `<text class="t-lab" x="25" y="131" font-size="8">TOTAL</text>`;
+  out += `<text class="t-live" x="25" y="149" font-size="13">${t.m} 分 · ${t.n} 站</text>`;
+  screen.innerHTML = out;
+}
+
+function render(){
+  stage.querySelectorAll('.zone').forEach(el =>
+    el.classList.toggle('on', state.route.includes(el.dataset.id)));
+  stage.querySelectorAll('.floor').forEach(el =>
+    el.classList.toggle('dim', el.dataset.floor !== state.floor));
+  stage.querySelectorAll('.tab').forEach(el =>
+    el.classList.toggle('on', el.dataset.floor === state.floor));
+  drawScreen();
+  const t = totals();
+  readout.textContent = state.floor.toLowerCase() + ' · ' +
+    (t.n ? t.n + ' 站 · ' + t.m + ' 分' : '尚未選站');
+}
+
+function flash(el){
+  if(!el) return;
+  el.classList.add('down');
+  setTimeout(() => el.classList.remove('down'), 110);
+}
+
+function pressZone(id){
+  const el = stage.querySelector('.zone[data-id="'+id+'"]');
+  if(!el) return false;
+  flash(el);
+  state.floor = ZONES.get(id).f.id;
+  const i = state.route.indexOf(id);
+  if(i >= 0) state.route.splice(i,1); else state.route.push(id);
+  render();
+  return true;
+}
+
+function pressFloor(fid){
+  const el = stage.querySelector('.tab[data-floor="'+fid+'"]');
+  if(!el) return false;
+  flash(el);
+  state.floor = fid;
+  render();
+  return true;
+}
+
+function shiftFloor(d){
+  const i = FLOORS.findIndex(f => f.id === state.floor);
+  const n = Math.min(FLOORS.length-1, Math.max(0, i + d));
+  return pressFloor(FLOORS[n].id);
+}
+
+/* ---------- input ---------- */
+stage.addEventListener('click', e => {
+  const z = e.target.closest('.zone');
+  if(z){ pressZone(z.dataset.id); return; }
+  const t = e.target.closest('.tab');
+  if(t){ pressFloor(t.dataset.floor); }
+});
+
+window.addEventListener('keydown', e => {
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  let done = false;
+  if(/^[1-9]$/.test(k))      done = pressZone(state.floor + '-' + k);
+  else if(k === 'ArrowUp')   done = shiftFloor(1);
+  else if(k === 'ArrowDown') done = shiftFloor(-1);
+  else if(k === 'Backspace'){ state.route.pop(); render(); done = true; }
+  else if(k === 'c' || k === 'C' || k === 'Escape'){ state.route = []; render(); done = true; }
+  if(done) e.preventDefault();
+});
+
+render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>同一件展品，跨展覽怎麼管？──全球場館導覽系統做法調查</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --acc:#6C63E0; --acc-d:#4B41B8; --acc-l:#EFECFB;
+  --ink:#111; --ink-2:#6B6B6B; --ink-3:#9A9A9A;
+  --line:#E6E6E6; --grey:#F0F0F0; --grey-2:#F6F6F6;
+  --ok:#3F7A55; --ok-l:#E7F2EB; --warn:#9A6A00; --warn-l:#FBF3DE; --err:#B03A2E; --err-l:#F9E9E7;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#1A1A1A;overflow:hidden}
+body{font:16px/1.7 "Noto Sans TC","PingFang TC",system-ui,sans-serif;color:var(--ink);
+  -webkit-font-smoothing:antialiased}
+#stage{position:absolute;inset:0;display:grid;place-items:center}
+.slide{width:1280px;height:720px;background:#fff;border-radius:6px;overflow:hidden;
+  position:absolute;display:none;flex-direction:column;padding:56px 72px;box-shadow:0 20px 80px rgba(0,0,0,.5)}
+.slide.on{display:flex}
+.kicker{font-size:13px;letter-spacing:.14em;color:var(--acc-d);font-weight:700;margin-bottom:10px}
+h1{font-size:44px;font-weight:900;line-height:1.25;letter-spacing:.01em}
+h2{font-size:30px;font-weight:900;margin-bottom:6px}
+.sub{font-size:15px;color:var(--ink-2);margin-top:12px}
+.body{flex:1;margin-top:26px;min-height:0}
+.foot{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--ink-3);
+  border-top:1px solid var(--line);padding-top:12px;margin-top:18px}
+.chip{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:var(--grey);
+  font-size:12px;color:var(--ink-2);white-space:nowrap}
+.chip.acc{background:var(--acc-l);color:var(--acc-d);font-weight:700}
+.chip.ok{background:var(--ok-l);color:var(--ok);font-weight:700}
+.chip.warn{background:var(--warn-l);color:var(--warn);font-weight:700}
+.chip.err{background:var(--err-l);color:var(--err);font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+.card{background:var(--grey-2);border-radius:16px;padding:20px 22px}
+.card b.t{display:block;font-size:16.5px;margin-bottom:6px}
+.card p{font-size:13.5px;color:var(--ink-2);line-height:1.75}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;color:var(--ink-3);font-weight:700;padding:9px 12px;border-bottom:2px solid var(--ink)}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.6}
+td b{font-weight:700}
+.small{font-size:12.5px;color:var(--ink-2)}
+.tiny{font-size:11.5px;color:var(--ink-3)}
+.num{width:30px;height:30px;flex:0 0 30px;border-radius:999px;background:var(--acc);color:#fff;
+  display:grid;place-items:center;font-weight:900;font-size:14px}
+.row{display:flex;gap:14px;align-items:flex-start}
+.hl{background:var(--acc-l);border-radius:14px;padding:16px 20px}
+.hl b{color:var(--acc-d)}
+.nav-hint{position:fixed;left:0;right:0;bottom:14px;text-align:center;color:#777;font-size:12px;z-index:5}
+.pageno{position:fixed;right:22px;bottom:14px;color:#777;font-size:12px;z-index:5}
+.arrow{color:var(--acc);font-weight:900}
+.label-demo{border:1.5px solid var(--line);border-radius:14px;padding:18px 20px;background:#fff}
+.tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:#fff;background:var(--acc);
+  border-radius:5px;padding:2px 8px;display:inline-block;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- 1 封面 -->
+<section class="slide on" style="justify-content:center;background:linear-gradient(150deg,#FFFFFF 55%,#EFECFB)">
+  <div class="kicker">ARTOGO × GOTOUR 2.0　INDUSTRY RESEARCH</div>
+  <h1>同一件展品，跨展覽怎麼管？</h1>
+  <div style="font-size:20px;color:var(--ink-2);margin-top:16px">全球場館導覽系統的做法調查──給內容團隊與工程團隊的參考</div>
+  <div style="display:flex;gap:8px;margin-top:30px">
+    <span class="chip acc">6 個導覽平台</span><span class="chip acc">4 套藏品管理系統</span>
+    <span class="chip acc">6 個大館實務</span><span class="chip">2026.09</span>
+  </div>
+  <div class="foot" style="margin-top:auto"><span>調查範圍：公開官方文件與幫助中心（來源見末頁）</span><span>ARTOGO 藝途科技</span></div>
+</section>
+
+<!-- 2 為什麼要查 -->
+<section class="slide">
+  <div class="kicker">01　WHY</div>
+  <h2>我們遇到的設計題：一件展品、不只一檔展覽</h2>
+  <div class="sub">做臺博館後台時發現，「展品已有導覽點」不是極端情境，是常態。四種真實情況：</div>
+  <div class="body grid2">
+    <div class="card"><b class="t">🚚 常設展品借進特展</b><p>特展企劃書本來就會列鎮館之寶（雲豹標本、國寶輿圖）。實體真的搬進特展室——導航、地圖、原展序列全部要跟著對。</p></div>
+    <div class="card"><b class="t">🗣 同一件、不同講法</b><p>雲豹在常設展講「生態與滅絕」、在特展講「標本採集史」。<b>導覽詞會隨展覽脈絡改變</b>，但展品是同一件。</p></div>
+    <div class="card"><b class="t">↩ 特展撤展、展品歸位</b><p>檔期結束展品搬回原位——誰記得搬？原展的導覽序列誰記得加回去？故宮後台的經驗：這步最容易忘。</p></div>
+    <div class="card"><b class="t">⚠️ 重複建檔</b><p>特展回歸重匯資料包、多人協作各建一次——同一件展品出現兩顆導覽點：音檔白錄、數據拆半、地圖出現兩個標記。</p></div>
+  </div>
+  <div class="foot"><span>問題核心：展品（實體）、講法（內容）、路線（序列）三件事被綁在一起管</span><span class="fpg"></span></div>
+</section>
+
+<!-- 3 名詞對照 -->
+<section class="slide">
+  <div class="kicker">02　GLOSSARY</div>
+  <h2>先看懂兩個關鍵詞（與本簡報的英文對照）</h2>
+  <div class="body">
+    <div class="grid2" style="margin-bottom:20px">
+      <div class="label-demo">
+        <span class="tag" style="background:var(--ink)">TOMBSTONE LABEL｜基本資料標籤</span>
+        <div style="font-size:15px;line-height:1.9"><b>臺灣雲豹標本</b><br>Neofelis nebulosa brachyura・日治時期採集<br>剝製標本・國立臺灣博物館 典藏</div>
+        <p class="small" style="margin-top:8px">「不會變」的那半：品名、年代、材質、來源。像墓碑上的生卒年——所以叫 tombstone。<b>永遠只有一份。</b></p>
+      </div>
+      <div class="label-demo" style="border-color:var(--acc)">
+        <span class="tag">INTERPRETIVE LABEL｜詮釋標籤</span>
+        <div style="font-size:14px;line-height:1.8;color:var(--ink-2)">常設展版：「最後一筆野外紀錄是 1983 年，這件標本是牠留下的少數證據……」<br>特展版：「這件標本的採集史，正是化石繪圖時代的縮影……」</div>
+        <p class="small" style="margin-top:8px">策展人「講故事」的那半，<b>隨展覽脈絡改變、可以有很多份</b>——導覽音檔講的就是這層。</p>
+      </div>
+    </div>
+    <table>
+      <tr><th style="width:220px">本簡報會出現的英文</th><th>意思</th></tr>
+      <tr><td><b>Object / Tour / Stop</b></td><td>展品本體／導覽路線／路線上的一站（＝我們的導覽點）</td></tr>
+      <tr><td><b>CMS</b></td><td>內容管理系統（館方後台）；藏品界的 CMS 指 Collection Management System（藏品管理系統）</td></tr>
+      <tr><td><b>Location tracking / Movement log</b></td><td>展品位置追蹤／移動紀錄（誰、何時、從哪搬到哪、為什麼）</td></tr>
+      <tr><td><b>Normal vs Current location</b></td><td>常設位置（平常在哪）vs 目前位置（現在在哪）——借展只改後者</td></tr>
+    </table>
+  </div>
+  <div class="foot"><span>詞彙來源：博物館展示實務的標準用語（Art Institute of Chicago「How to Read a Label」等）</span><span class="fpg"></span></div>
+</section>
+
+<!-- 4 三層架構 -->
+<section class="slide">
+  <div class="kicker">03　THE PATTERN</div>
+  <h2>業界的共同答案：把一件事拆成三層</h2>
+  <div class="sub">導覽平台、藏品系統、博物館學的說法各異，但底層都是同一個分層：</div>
+  <div class="body" style="display:flex;flex-direction:column;justify-content:center;gap:16px">
+    <div class="row" style="align-items:center">
+      <div class="num" style="background:var(--ink)">1</div>
+      <div class="card" style="flex:1;background:#fff;border:2px solid var(--ink)">
+        <b class="t">展品本體（Object）——唯一真相</b>
+        <p>基本資料標籤＋<b>實體位置</b>。一件展品永遠只有一筆，位置變了就改這裡，導航、地圖全部跟著對。→ 藏品管理系統的地盤</p></div>
+    </div>
+    <div class="row" style="align-items:center">
+      <div class="num">2</div>
+      <div class="card" style="flex:1;background:var(--acc-l)">
+        <b class="t" style="color:var(--acc-d)">詮釋內容（Interpretation）——每個展覽脈絡一份</b>
+        <p>導覽詞、音檔、多語多對象版本。<b>掛在展品底下、依展覽分版</b>——常設展一份、特展一份，互不污染。→ 這層決定「同一件講不同故事」</p></div>
+    </div>
+    <div class="row" style="align-items:center">
+      <div class="num" style="background:var(--ink-3)">3</div>
+      <div class="card" style="flex:1">
+        <b class="t">導覽序列（Tour / Exhibition）——只做引用與排序</b>
+        <p>路線不「擁有」內容，只引用「展品 × 指定詮釋版本」並排順序。刪路線不會刪內容。</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>建議：後台補上中間那層「詮釋」——這是本次調查最重要的一條</span><span class="fpg"></span></div>
+</section>
+
+<!-- 5 導覽平台盤點 -->
+<section class="slide">
+  <div class="kicker">04　AUDIO GUIDE PLATFORMS</div>
+  <h2>導覽平台盤點：多數沒解「每展一版」，只有一家原生支援</h2>
+  <div class="body">
+    <table>
+      <tr><th style="width:170px">平台</th><th>內容模型</th><th style="width:200px">一站多版本（每展一版）？</th></tr>
+      <tr><td><b>Bloomberg Connects</b><br><span class="tiny">Met、V&A 等千館使用</span></td>
+        <td>Items（展品）獨立建檔；Exhibition／Tour 都只是「Item 的群組容器」——引用共用的 Item</td>
+        <td><span class="chip">文件未載明</span></td></tr>
+      <tr><td><b>izi.TRAVEL</b><br><span class="tiny">API 文件最完整</span></td>
+        <td>一切皆物件（museum／exhibit／tour）；戶外景點明文可跨多條 tour 共用</td>
+        <td><span class="chip err">無——共用同一份內容</span></td></tr>
+      <tr><td><b>Cuseum</b></td>
+        <td>Tours → Stops → Objects 三層；<b>Stop 可自帶內容、也可引用共用 Object</b>；站點編號全館唯一</td>
+        <td><span class="chip ok">✓ 唯一原生支援</span></td></tr>
+      <tr><td><b>STQRY／Smartify</b></td>
+        <td>Object 與 Tour 分離；Smartify 直接與藏品系統串接（object 以藏品系統為真相源、即時反映換展）</td>
+        <td><span class="chip">文件未載明</span></td></tr>
+    </table>
+    <div class="hl" style="margin-top:18px">💡 <b>結論：「同一件展品在不同展覽講不同版」在導覽平台是真實痛點</b>——多數平台的實務解就是複製 item（然後承受資料分岔）。Cuseum 的「Stop 層內容 ＋ Object 層內容」分離是目前最好的答案。</div>
+  </div>
+  <div class="foot"><span>Acoustiguide／Vox 無公開資料模型文件；查不到的不腦補</span><span class="fpg"></span></div>
+</section>
+
+<!-- 5b 為什麼不要複製 -->
+<section class="slide">
+  <div class="kicker">04b　WHY NOT COPY</div>
+  <h2>為什麼「複製 item」是次好解？</h2>
+  <div class="sub">複製＝把整份展品資料（名稱、編號、位置、照片、音檔…）全部再抄一份——但你要改的只有「講法」那一小塊。就像檔案命名的老問題：<b>final、final2、final_真正最終版</b>。</div>
+  <div class="body grid2">
+    <div class="card"><b class="t">😱 改一邊、漏一邊</b><p>研究員更正了採集年代，改了常設展那筆、忘了特展那筆——觀眾在兩個展聽到不同年代，而且<b>沒有任何機制會發現</b>。</p></div>
+    <div class="card"><b class="t">🗺 一件實體、兩筆資料</b><p>地圖出現兩個雲豹標記、「帶我去」有兩個目的地、聆聽數據拆成兩半——這件展品到底多受歡迎，永遠算不準。</p></div>
+    <div class="card"><b class="t">📈 會一直長</b><p>同一件展品五年進三檔特展＝複製三次。之後沒人說得出哪筆才是「真的」。</p></div>
+    <div class="card"><b class="t">🗑 撤展後兩難</b><p>刪掉複製那筆＝該檔特展的導覽歷史消失；不刪＝垃圾永遠累積。</p></div>
+  </div>
+  <div class="hl">✅ <b>多版本的原則：資料只在「真的會不同」的地方分開。</b>基本資料與位置永遠一筆（改一次、全部生效、數據歸同一件）；講法一個展覽一份（互不污染、撤展留檔、再展直接沿用）。</div>
+  <div class="foot"><span>這就是 tombstone（一份）與 interpretive（多份）拆開的原因</span><span class="fpg"></span></div>
+</section>
+
+<!-- 6 藏品系統 -->
+<section class="slide">
+  <div class="kicker">05　COLLECTION MANAGEMENT</div>
+  <h2>展品搬移：藏品管理界早就有標準答案</h2>
+  <div class="body grid2">
+    <div class="card"><b class="t">SPECTRUM 標準（英國博物館認證）</b>
+      <p>「位置與移動控制」是<b>主要程序</b>：每次移動記錄舊位置、新位置、日期、經手人、<b>原因</b>。位置是「事件流」，不是一個會被覆蓋的欄位。</p></div>
+    <div class="card"><b class="t">Axiell：Normal vs Current 雙欄位</b>
+      <p><b>常設位置</b>（平常在哪）＋<b>目前位置</b>（現在在哪）。借展只改 Current；撤展歸位＝回到 Normal——<b>歸位目標從頭到尾都在資料裡</b>，不靠人記。</p></div>
+    <div class="card"><b class="t">Gallery Systems TMS（大館主流）</b>
+      <p>每件展品有<b>完整位置歷史稽核軌跡</b>；支援<b>預排移動</b>（scheduled moves）＋到期自動提醒——「特展檔期結束提醒歸位」是現成功能。</p></div>
+    <div class="card" style="background:var(--acc-l)"><b class="t" style="color:var(--acc-d)">CatalogIt：詮釋標籤是「可重複欄位」</b>
+      <p>官方文件明寫：「同一件展品可以進無數檔展覽，<b>基本資料標籤不變，詮釋標籤依展覽脈絡各有一份</b>」——三層架構的直接產品實作。</p></div>
+  </div>
+  <div class="foot"><span>Collections Trust（SPECTRUM 5.0）、Axiell、加拿大遺產資訊網 TMS 檔案、CatalogIt 官方文件</span><span class="fpg"></span></div>
+</section>
+
+<!-- 5c SPECTRUM 是什麼 -->
+<section class="slide">
+  <div class="kicker">05b　WHAT IS SPECTRUM</div>
+  <h2>插播：SPECTRUM 標準是什麼？</h2>
+  <div class="body grid2">
+    <div class="card"><b class="t">📘 博物館界的「ISO」</b><p>英國 Collections Trust 制定的<b>藏品作業標準</b>——規定管理藏品該做哪些事、每件事的步驟、每步該記錄什麼欄位。全球博物館廣泛採用，TMS、Axiell 這些藏品系統都是照它設計的。<b>不是某套軟體的功能，是整個行業的規範。</b></p></div>
+    <div class="card"><b class="t">🎯 「主要程序」＝認證門檻</b><p>SPECTRUM 把程序分級：「主要程序（primary procedures）」共九項（登錄、編目、盤點、出借…），是拿到英國博物館官方認證<b>必須做到的最低要求</b>——「位置與移動控制」名列其中。</p></div>
+    <div class="card" style="grid-column:1/-1;background:var(--acc-l)"><b class="t" style="color:var(--acc-d)">翻成白話</b>
+      <p style="font-size:15px">「<b>隨時說得出每件藏品在哪裡、每次移動都有紀錄</b>（誰搬的、何時、從哪到哪、為什麼）」——這不是加分項，是博物館合格的門檻，做不到就拿不到認證。數位化之前就在做了：傳統用三聯單，一聯貼原位、一聯貼新位、一聯歸檔。</p></div>
+  </div>
+  <div class="hl">💬 對館方提案時可以講：我們導覽系統的「常設位置＋移動記錄」不是新發明，<b>是把藏品組做了幾十年的成熟實務接進導覽系統——兩邊是同一套工作邏輯</b>。</div>
+  <div class="foot"><span>來源：Collections Trust, SPECTRUM 5.0</span><span class="fpg"></span></div>
+</section>
+
+
+<!-- 7 大館實務 -->
+<section class="slide">
+  <div class="kicker">06　IN PRACTICE</div>
+  <h2>大館怎麼做</h2>
+  <div class="body">
+    <table>
+      <tr><th style="width:190px">場館</th><th>做法</th><th style="width:230px">對我們的啟示</th></tr>
+      <tr><td><b>大英博物館</b></td><td>App 導覽 <b>260 站、超過 350 支解說</b>、10 種語言——同一站有家庭版、視障版、聽障版多支音軌</td><td>「一站多音軌」＝我們的對象腳本矩陣，方向一致</td></tr>
+      <tr><td><b>大都會博物館</b></td><td>1999 年起「Key to the Met」：一台隨選機<b>同時涵蓋特展＋常設展</b>的全館編號制；2023 起導覽免費上 Bloomberg Connects</td><td>編號制全館統一，不分展</td></tr>
+      <tr><td><b>故宮</b></td><td>北院：15 語＋分眾版（成人／兒童／手語／口述影像）；南院：展品編號制（找到編號、按下聆聽）</td><td>分眾版本是標配，不是加分項</td></tr>
+      <tr><td><b>奇美博物館</b></td><td><b>特展導覽與常設展導覽機是兩條分開的產品</b>，特展用 QR code 啟動</td><td>特展內容獨立成一套＝「每展一版詮釋」的粗粒度做法</td></tr>
+      <tr><td><b>Rijksmuseum</b></td><td>App 內輸入展品編號查詢＋精華／特展獨立 tour</td><td>編號查詢與路線並存</td></tr>
+    </table>
+  </div>
+  <div class="foot"><span>羅浮宮、V&A 的內容組織細節無公開可信來源，未列入</span><span class="fpg"></span></div>
+</section>
+
+<!-- 8 建議 -->
+<section class="slide">
+  <div class="kicker">07　RECOMMENDATIONS</div>
+  <h2>建議：我們的後台可以這樣做</h2>
+  <div class="body" style="display:flex;flex-direction:column;gap:14px;justify-content:center">
+    <div class="row" style="align-items:center">
+      <div class="num">1</div>
+      <div class="card" style="flex:1"><b class="t">重複防呆＋搬移取代重建</b>
+      <p>建點時即時比對既有展品；同一檔展覽內阻擋重複、跨展覽提示三種出路（搬移／建詮釋版／確實是不同件就放行）。搬移＝單一動作自動連動兩邊序列並明講影響。<span class="tiny">（對應 SPECTRUM 移動控制、Cuseum 全館唯一編號）</span></p></div>
+    </div>
+    <div class="row" style="align-items:center">
+      <div class="num">2</div>
+      <div class="card" style="flex:1"><b class="t">常設位置＋目前位置＋移動記錄</b>
+      <p>每件展品記「平常在哪」與「現在在哪」，每次搬移留痕（何時、從哪到哪、為什麼）。撤展歸位變成一鍵還原；可加「檔期結束自動提醒歸位」。<span class="tiny">（對應 Axiell Normal/Current、TMS 預排移動）</span></p></div>
+    </div>
+    <div class="row" style="align-items:center">
+      <div class="num" style="background:var(--acc-d)">3</div>
+      <div class="card" style="flex:1;background:var(--acc-l)"><b class="t" style="color:var(--acc-d)">詮釋分版，不複製展品</b>
+      <p>展品一筆、講法多份（每份掛一個展覽脈絡，各含多語多對象音檔）；導覽站＝展品 × 指定詮釋版本。<span class="tiny">（對應 CatalogIt 可重複詮釋標籤、大英一站多音軌）</span></p></div>
+    </div>
+  </div>
+  <div class="hl">⚠️ <b>優先序：第 3 項影響資料庫設計，開工前就要定案（事後改最貴）</b>；第 1、2 項是營運防呆，可以迭代補上。</div>
+  <div class="foot"><span>三項建議都已在後台原型中示範（見下頁）</span><span class="fpg"></span></div>
+</section>
+
+<!-- 9 已做進原型 -->
+<section class="slide">
+  <div class="kicker">08　IN OUR PROTOTYPE</div>
+  <h2>三個模式已做進後台原型，可以直接體驗</h2>
+  <div class="body grid3">
+    <div class="card"><b class="t">① 常設位置＋一鍵歸位</b>
+      <p>每個導覽點記「常設位置」與「目前位置」。被借進特展時顯示 <span class="chip warn">外借中・不在常設位</span>，撤展按「↩ 一鍵歸位」自動搬回，並提醒檢查原展序列。</p></div>
+    <div class="card"><b class="t">② 移動記錄</b>
+      <p>展品內容頁多了「移動記錄」：<br><span class="small">09-04　東展廳 → 特展室<br>（借展至「骨早味」）<br>09-04　特展室 → 東展廳<br>（撤展歸位）</span><br>每一步留痕，稽核、防呆全免費。</p></div>
+    <div class="card" style="background:var(--acc-l)"><b class="t" style="color:var(--acc-d)">③ 詮釋版本（每展一版）</b>
+      <p>展示文字變成分頁：<b>預設版｜骨早味版｜…</b>——同一顆展品、多份講法。特展版承接預設版當底稿、改詞後 AI 重新合成該展語音；<b>基本資料永遠只有一份</b>。</p></div>
+  </div>
+  <div class="hl">體驗路徑：後台原型 → 展覽管理 → 任一展覽 → 新增展品時輸入既有展品名稱 → 警示卡出現三個選項：<b>搬移（講法沿用）／搬移＋建立本展詮釋版／不同件就繼續建</b></div>
+  <div class="foot"><span>原型位置：artogo/prototype/gotour2-venue-companion/admin.html</span><span class="fpg"></span></div>
+</section>
+
+<!-- 10 給工程的資料模型 -->
+<section class="slide">
+  <div class="kicker">09　FOR ENGINEERING</div>
+  <h2>給工程的資料模型建議</h2>
+  <div class="body">
+    <div style="display:flex;gap:14px;align-items:stretch;margin-bottom:20px">
+      <div class="card" style="flex:1.1;border:2px solid var(--ink);background:#fff">
+        <b class="t">Object 導覽點</b>
+        <p class="small">id・名稱・展場編號<br><b>home_location</b>（常設位置）<br><b>current_location</b>（目前位置）<br><b>moves[]</b>（append-only 移動事件：時間／從／到／原因／經手人）<br>tombstone 資料（年代、材質…）</p></div>
+      <div style="display:grid;place-items:center;font-size:22px" class="arrow">1 ─ n</div>
+      <div class="card" style="flex:1.1;background:var(--acc-l)">
+        <b class="t" style="color:var(--acc-d)">Interpretation 詮釋版本</b>
+        <p class="small">object_id・<b>exhibition_id</b>（脈絡）<br>展示文字（詮釋）<br>tracks：語言 × 對象 × 音檔＋逐字稿<br>狀態（正式／AI 待確認）<br><span class="tiny">「預設版」＝ exhibition_id 為空的那份</span></p></div>
+      <div style="display:grid;place-items:center;font-size:22px" class="arrow">n ─ n</div>
+      <div class="card" style="flex:1">
+        <b class="t">TourStop 導覽站</b>
+        <p class="small">tour_id・順序<br>object_id<br><b>interpretation_id</b>（這條路線用哪一版講法）<br>必看／選看・任務文字</p></div>
+    </div>
+    <div class="grid3">
+      <div class="hl" style="padding:12px 16px"><b>規格 1</b><span class="small">　位置查詢一律走 current_location；歸位＝寫回 home_location＋記一筆 move。</span></div>
+      <div class="hl" style="padding:12px 16px"><b>規格 2</b><span class="small">　詮釋不複製 Object——同展品第二種講法＝多一筆 Interpretation。</span></div>
+      <div class="hl" style="padding:12px 16px"><b>規格 3</b><span class="small">　支援預排移動（檔期結束日）＋到期提醒歸位（參考 TMS scheduled moves）。</span></div>
+    </div>
+  </div>
+  <div class="foot"><span>這頁影響資料庫設計——開工前定案，事後改最貴</span><span class="fpg"></span></div>
+</section>
+
+<!-- 11 來源 -->
+<section class="slide">
+  <div class="kicker">10　SOURCES</div>
+  <h2>來源清單</h2>
+  <div class="body" style="columns:2;column-gap:40px;font-size:12.5px;line-height:2.1;color:var(--ink-2)">
+    <b>導覽平台</b><br>
+    Bloomberg Connects 幫助中心（CMS Overview / Release Notes）<br>support.bloombergconnects.org<br>
+    izi.TRAVEL API 文件與 CMS 說明　api-docs.izi.travel<br>
+    Cuseum 幫助中心（Tours, Stops & Objects）　support.cuseum.com<br>
+    STQRY Builder 支援文件　support.stqry.com<br>
+    Smartify CMS 產品頁　smartify.org/partners/products/cms<br><br>
+    <b>藏品管理系統</b><br>
+    Collections Trust：SPECTRUM 5.0「Location and movement control」<br>collectionstrust.org.uk<br>
+    Gallery Systems TMS（加拿大遺產資訊網 vendor profile）　canada.ca<br>
+    Axiell Collections 說明（Normal / Current location）　help.collections.axiell.com<br>
+    CatalogIt：Creating Exhibition Labels（Interpretive Label 為可重複欄位）　catalogit.app<br><br>
+    <b>場館實務</b><br>
+    The Met：「Key to the Met」新聞稿（1999）／Bloomberg Connects 頁面　metmuseum.org<br>
+    大英博物館 App（MW2016 GLAMi 條目：260 stops / 350+ commentaries）　mw2016.museumsandtheweb.com<br>
+    故宮北院・南院語音導覽頁　npm.gov.tw／south.npm.gov.tw<br>
+    奇美博物館參觀資訊　chimeimuseum.org<br>
+    Rijksmuseum App　rijksmuseum.nl<br><br>
+    <span class="tiny">查不到公開文件的（Acoustiguide OCM、Vox POPGuide 資料模型、Bloomberg Connects 跨 tour 共用規則、羅浮宮／V&A 內容組織）已在內文標明，未做推測。</span>
+  </div>
+  <div class="foot"><span>調查日期：2026-09-04</span><span class="fpg"></span></div>
+</section>
+
+<!-- 12 封底 -->
+<section class="slide" style="justify-content:center;background:linear-gradient(150deg,#FFFFFF 50%,#EFECFB)">
+  <div class="kicker">TAKEAWAY</div>
+  <h1 style="font-size:38px">展品一筆・詮釋多份・位置是事件流</h1>
+  <div style="font-size:17px;color:var(--ink-2);margin-top:18px;line-height:2">
+    展品本體永遠只有一筆（位置＝唯一真相）；<br>
+    講法依展覽脈絡各一份、掛在展品底下（不複製、不分岔）；<br>
+    每次搬移都留痕，歸位是一鍵、不是靠人記。
+  </div>
+  <div style="margin-top:28px"><span class="chip acc">三個模式已在後台原型可體驗</span>　<span class="chip">資料模型建議見第 10 頁</span></div>
+  <div class="foot" style="margin-top:auto"><span>ARTOGO 藝途科技・Gotour 2.0</span><span class="fpg"></span></div>
+</section>
+
+</div>
+<div class="nav-hint">← → 方向鍵或點擊翻頁・F 全螢幕</div>
+<div class="pageno" id="pg"></div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let cur=0;
+function fit(){
+  const s=Math.min(innerWidth/1320, innerHeight/780);
+  slides.forEach(el=>el.style.transform='scale('+s+')');
+}
+function show(i){
+  cur=Math.max(0,Math.min(slides.length-1,i));
+  slides.forEach((el,j)=>el.classList.toggle('on',j===cur));
+  document.getElementById('pg').textContent=(cur+1)+' / '+slides.length;
+}
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown') show(cur+1);
+  if(e.key==='ArrowLeft'||e.key==='PageUp') show(cur-1);
+  if(e.key==='f'||e.key==='F') document.documentElement.requestFullscreen?.();
+});
+addEventListener('click',e=>{ if(e.clientX>innerWidth/2) show(cur+1); else show(cur-1); });
+addEventListener('resize',fit);
+document.querySelectorAll('.slide').forEach((el,i)=>{const f=el.querySelector('.fpg'); if(f) f.textContent=i+1;});
+fit(); show(0);
+</script>
+</body>
+</html>
